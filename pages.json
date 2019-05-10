@@ -1,0 +1,76 @@
+{
+	"pages": [
+		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "交友小程序"
+			}
+		},
+		{
+			"path": "pages/ta/ta",
+			"style": {
+				"navigationBarTitleText": "TA"
+			}
+		},
+		{
+			"path": "pages/message/message",
+			"style": {
+				"navigationBarTitleText": "消息"
+			}
+		},
+		{
+			"path": "pages/my/my",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#444444",
+		"selectedColor": "#FF80AB",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"iconPath": "static/icon/tab/icon_home.png",
+				"selectedIconPath": "static/icon/tab/icon_home_c.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/ta/ta",
+				"iconPath": "static/icon/tab/icon_TA.png",
+				"selectedIconPath": "static/icon/tab/icon_TA_c.png",
+				"text": "TA"
+			},
+			{
+				"pagePath": "pages/message/message",
+				"iconPath": "static/icon/tab/icon_xiaoxi.png",
+				"selectedIconPath": "static/icon/tab/icon_xiaoxi_c.png",
+				"text": "消息"
+			},
+			{
+				"pagePath": "pages/my/my",
+				"iconPath": "static/icon/tab/icon_wode.png",
+				"selectedIconPath": "static/icon/tab/icon_wode_c.png",
+				"text": "我的"
+			}
+		]
+	},
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

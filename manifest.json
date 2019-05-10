@@ -1,0 +1,42 @@
+{
+    "name" : "微法院",
+    "appid" : "__UNI__5F52119",
+    "description" : "网上诉讼服务平台",
+    "transformPx" : false,
+    "icons" : [
+        {
+            "sizes" : "分辨率，192x192",
+            "src" : "图片路径"
+        }
+    ],
+    "versionName" : "1.0.0",
+    "versionCode" : 100,
+    "app-plus" : {},
+    // 5+App特有相关
+    "quickapp" : {},
+    // 快应用特有相关
+    "mp-weixin" : {
+        "setting" : {
+            "urlCheck" : true,
+            "es6" : true,
+            "postcss" : true,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "appid" : "wx24f5b4156f6de485",
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "你的位置信息将用于小程序位置接口的效果展示"
+            }
+        }
+    },
+    "h5" : {
+        "template" : "template.h5.html",
+        "router" : {
+            "mode" : "hash",
+            "base" : "/demo/picture/website/"
+        }
+    }
+}
+// 小程序特有相关
+

@@ -1,0 +1,29 @@
+@charset "UTF-8";
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+view.data-v-7bab68d4,
+page.data-v-7bab68d4,
+text.data-v-7bab68d4,
+button.data-v-7bab68d4,
+image.data-v-7bab68d4,
+scroll-view.data-v-7bab68d4,
+input.data-v-7bab68d4 {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+button.data-v-7bab68d4 {
+  margin: 0;
+  padding: 0;
+}
+

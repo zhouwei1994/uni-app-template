@@ -1,0 +1,52 @@
+@charset "utf-8";
+//主色
+$mainColor: #e91c3a;
+//辅色
+$viceColor:#999;
+
+view,
+page,
+text,
+button,
+image,
+scroll-view,input {
+	box-sizing: border-box;
+}
+button {
+	margin: 0;
+	padding: 0;
+}
+// 背景图片地址和大小
+@mixin bis($url, $size: "auto 100%") {
+  background-image: url($url);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: $size;
+}
+
+// 头像
+@mixin ic($width, $height) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  width: $width;
+  height: $height;
+}
+
+// 单行省略号
+@mixin toe() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+// 多行省略号
+@mixin bov($num:2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $num;
+  -webkit-box-orient: vertical;
+}

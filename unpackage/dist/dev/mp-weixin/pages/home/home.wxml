@@ -1,1 +1,0 @@
-<view class="data-v-5dd2a86c"><z-login bind:success="__e" vue-id="1" data-ref="login" data-event-opts="{{[['^success',[['pageData']]]]}}" class="data-v-5dd2a86c vue-ref" bind:__l="__l"></z-login></view>

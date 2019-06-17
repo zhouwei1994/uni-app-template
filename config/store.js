@@ -8,6 +8,8 @@ import {
 const state = {
 	//用户数据
 	userInfo: {},
+	//webView地址
+	webViewUrl:"",
 };
 //缓存浏览器的数据名称
 const cacheNameList = [];
@@ -25,6 +27,12 @@ const mutations = {
 	setUserInfo(state, data) {
 		if (data) {
 			state.userInfo = modifyJson(data, state.userInfo);
+		}
+	},
+	//WebView地址
+	setWebViewUrl(state, data) {
+		if (data) {
+			state.webViewUrl = data;
 		}
 	},
 };

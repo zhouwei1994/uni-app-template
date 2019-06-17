@@ -12,18 +12,4 @@
 /* 垂直间距 */
 /* 透明度 */
 /* 文章场景相关 */
-view.data-v-1562a094,
-page.data-v-1562a094,
-text.data-v-1562a094,
-button.data-v-1562a094,
-image.data-v-1562a094,
-scroll-view.data-v-1562a094,
-input.data-v-1562a094 {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-}
-button.data-v-1562a094 {
-  margin: 0;
-  padding: 0;
-}
 

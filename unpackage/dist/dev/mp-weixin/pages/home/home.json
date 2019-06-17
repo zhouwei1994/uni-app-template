@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "交友小程序",
-  "usingComponents": {}
+  "usingComponents": {
+    "z-login": "/components/module/login"
+  }
 }

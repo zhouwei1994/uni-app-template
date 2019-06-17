@@ -1,7 +1,7 @@
 {
-    "name" : "微法院",
+    "name" : "小程序",
     "appid" : "__UNI__5F52119",
-    "description" : "网上诉讼服务平台",
+    "description" : "小程序应用",
     "transformPx" : false,
     "icons" : [
         {
@@ -23,7 +23,7 @@
             "minified" : true
         },
         "usingComponents" : true,
-        "appid" : "wx24f5b4156f6de485",
+        "appid" : "wx04df1c9c5679b134",
         "permission" : {
             "scope.userLocation" : {
                 "desc" : "你的位置信息将用于小程序位置接口的效果展示"

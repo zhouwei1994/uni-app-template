@@ -3,19 +3,6 @@
 $mainColor: #e91c3a;
 //辅色
 $viceColor:#999;
-
-view,
-page,
-text,
-button,
-image,
-scroll-view,input {
-	box-sizing: border-box;
-}
-button {
-	margin: 0;
-	padding: 0;
-}
 // 背景图片地址和大小
 @mixin bis($url, $size: "auto 100%") {
   background-image: url($url);

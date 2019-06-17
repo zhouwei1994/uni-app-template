@@ -1,3 +1,4 @@
+const qiniuUploader = require("./qiniuUploader");
 export default class request {
 	constructor(options) {
 		//请求公共地址
@@ -7,20 +8,34 @@ export default class request {
 		//默认请求头
 		this.headers = options.headers || {};
 		//默认配置
-		this.config = {
-			//是否提示--默认提示
-			isPrompt:true,
-			//是否显示请求动画
-			load:true,
-			//是否使用处理数据模板
-			isFactory:true
-		};
+		//是否提示--默认提示
+		this.isPrompt = options.isPrompt || true;
+		//是否显示请求动画
+		this.load = options.load || true;
+		//是否使用处理数据模板
+		this.isFactory = options.isFactory || true;
+	}
+	//上传图片命名
+	randomChar(l, url = "") {
+		const x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
+		var tmp = "";
+		var time = new Date();
+		for (var i = 0; i < l; i++) {
+			tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
+		}
+		return (
+			"file/" +
+			url +
+			time.getTime() +
+			tmp
+		);
 	}
 	//post请求
 	post(url = '', data = {}, options = {}) {
 		let requestInfo = this.getDefault(url, options, "data");
+		requestInfo.data = data;
 		return new Promise((resolve, reject) => {
-			this.getRequest("POST", requestInfo, data, (state, response) => {
+			this.getRequest("POST", requestInfo, (state, response) => {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
@@ -35,8 +50,9 @@ export default class request {
 	//get请求
 	get(url = '', data = {}, options = {}) {
 		let requestInfo = this.getDefault(url, options, "data");
+		requestInfo.data = data;
 		return new Promise((resolve, reject) => {
-			this.getRequest("GET", requestInfo, data, (state, response) => {
+			this.getRequest("GET", requestInfo, (state, response) => {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
@@ -48,17 +64,62 @@ export default class request {
 			});
 		});
 	}
+	//七牛云文件上传
+	qn(options = {},callback) {
+		const _this = this;
+		return new Promise((resolve, reject) => {
+			uni.chooseImage({
+				count: options.count || 9, //默认9
+				sizeType: options.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+				sourceType: options.sourceType || ['album', 'camera'], //从相册选择
+				success: function(res) {
+					var filePathList = res.tempFilePaths;
+					var len = filePathList.length;
+					var imageList = new Array;
+					_this.get("api/open/v1/qn_upload").then(data => {
+						uploadFile(0);
+						function uploadFile(i) {
+							// 交给七牛上传
+							qiniuUploader.upload(filePathList[i], (res) => {
+								imageList.push(res.imageURL);
+								callback && callback(res.imageURL);
+								if (len - 1 > i) {
+									uploadFile(i + 1);
+								} else {
+									resolve(imageList);
+								}
+							}, (error) => {
+								console.log('error: ' + error);
+								reject(error)
+							}, {
+								region: 'SCN', //地区
+								domain: data.visitPrefix, // // bucket 域名，下载资源时用到。
+								key: _this.randomChar(8,data.folderPath),
+								uptoken: data.token, // 由其他程序生成七牛 uptoken
+								uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
+							}, (res) => {
+								console.log('上传进度', res.progress)
+								// console.log('已经上传的数据长度', res.totalBytesSent)
+								// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+							});
+						}
+					});
+				}
+			});
+		});
+	}
 	//文件上传
-	file(url = '', data = {}, options = {}) {
+	urlFile(url = '', data = {}, options = {}) {
 		let requestInfo = this.getDefault(url, options, "file");
+		requestInfo.data = data;
 		const _this = this;
 		return new Promise((resolve, reject) => {
 			uni.chooseImage({
 				count: data.count || 9, //默认9
 				sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-				sourceType: data.sourceType || ['album','camera'], //从相册选择
-				success: function (res) {
-					_this.getFileUpload(requestInfo,res.tempFiles,data,(state, response) => {
+				sourceType: data.sourceType || ['album', 'camera'], //从相册选择
+				success: function(res) {
+					_this.getFileUpload(requestInfo, res.tempFiles, (state, response) => {
 						state ? resolve(response) : reject(response);
 					});
 				}
@@ -75,7 +136,11 @@ export default class request {
 		} else {
 			httpUrl = urlType ? url : this.baseUrl + url;
 		}
-		let config = Object.assign({},this.config,options);
+		let config = Object.assign({
+			isPrompt: this.isPrompt,
+			load: this.load,
+			isFactory: this.isFactory,
+		}, options);
 		//请求地址
 		config.httpUrl = httpUrl;
 		//请求头
@@ -83,23 +148,22 @@ export default class request {
 		return config;
 	}
 	//接口请求方法
-	getRequest(ajaxType, options, data, callback) {
+	getRequest(ajaxType, options, callback) {
 		//请求前回调
 		if (this.requestStart) {
 			options.method = ajaxType;
-			var requestStart = this.requestStart(options,data);
+			var requestStart = this.requestStart(options);
 			if (typeof requestStart == "object") {
-				if(requestStart.options){
-					options = Object.assign(options, requestStart.options);
-				}
-				if(requestStart.data){
-					data = requestStart.data;
-				}
+				options.data = requestStart.data;
+				options.headers = requestStart.headers;
+				options.isPrompt = requestStart.isPrompt;
+				options.load = requestStart.load;
+				options.isFactory = requestStart.isFactory;
 			}
 		}
 		uni.request({
 			url: options.httpUrl,
-			data: data,
+			data: options.data,
 			method: ajaxType, //请求类型
 			header: options.headers, //加入请求头
 			success: (res) => {
@@ -119,31 +183,32 @@ export default class request {
 	// 		name:"后台接受文件key名称",
 	//		data:"而外参数"
 	// 	}
-	getFileUpload(options, files,data,callback) {
+	getFileUpload(options, files, callback) {
 		const _this = this;
 		//请求前回调
 		if (this.requestStart) {
 			options.method = "FILE";
-			var requestStart = this.requestStart(options,data);
+			var requestStart = this.requestStart(options);
 			if (typeof requestStart == "object") {
-				if(requestStart.options){
-					options = Object.assign(options, requestStart.options);
+				if (typeof requestStart == "object") {
+					options.data = requestStart.data;
+					options.headers = requestStart.headers;
+					options.isPrompt = requestStart.isPrompt;
+					options.load = requestStart.load;
+					options.isFactory = requestStart.isFactory;
 				}
-// 				if(requestStart.data){
-// 					data = requestStart.data;
-// 				}
 			}
 		}
 		const len = files.length - 1;
 		let fileList = new Array;
 		fileUpload(0);
-		function fileUpload(i){
-			console.log(files[i]);
+
+		function fileUpload(i) {
 			var config = {
 				url: options.httpUrl,
 				filePath: files[i].path,
 				header: options.headers, //加入请求头
-				name: data.name || "file",
+				name: options.name || "file",
 				success: (response) => {
 					response.data = JSON.parse(response.data);
 					//请求完成回调
@@ -153,22 +218,22 @@ export default class request {
 						//数据处理
 						var factoryInfo = _this.dataFactory(options, response);
 						console.log(factoryInfo);
-						if(factoryInfo.success){
+						if (factoryInfo.success) {
 							fileList.push(factoryInfo.result);
-							if(len <= i){
+							if (len <= i) {
 								callback(true, fileList);
-							}else{
+							} else {
 								fileUpload(i + 1);
 							}
-						}else{
+						} else {
 							console.log("进入了这里");
 							callback(false, factoryInfo.result);
 						}
 					} else {
 						fileList.push(response.data);
-						if(len <= i){
+						if (len <= i) {
 							callback(true, fileList);
-						}else{
+						} else {
 							fileUpload(i + 1);
 						}
 					}
@@ -179,8 +244,8 @@ export default class request {
 					callback(false, err);
 				}
 			};
-			if (data.data) {
-				config.formData = data.data;
+			if (options.data) {
+				config.formData = options.data;
 			}
 			uni.uploadFile(config);
 		}

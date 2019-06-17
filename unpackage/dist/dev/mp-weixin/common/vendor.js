@@ -8,7 +8,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.createApp = createApp;exports.createPage = createPage;exports.createComponent = createComponent;exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
+Object.defineProperty(exports, "__esModule", { value: true });exports.createApp = createApp;exports.createPage = createPage;exports.createComponent = createComponent;exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
 
 var _toString = Object.prototype.toString;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -50,7 +50,7 @@ var camelize = cached(function (str) {
   return str.replace(camelizeRE, function (_, c) {return c ? c.toUpperCase() : '';});
 });
 
-var SYNC_API_RE = /requireNativePlugin|upx2px|hideKeyboard|canIUse|^create|Sync$|Manager$/;
+var SYNC_API_RE = /^\$|getSubNVueById|requireNativePlugin|upx2px|hideKeyboard|canIUse|^create|Sync$|Manager$|base64ToArrayBuffer|arrayBufferToBase64/;
 
 var CONTEXT_API_RE = /^create|Manager$/;
 
@@ -99,15 +99,17 @@ function promisify(name, api) {
         fail: reject })].concat(
       params));
       /* eslint-disable no-extend-native */
-      Promise.prototype.finally = function (callback) {
-        var promise = this.constructor;
-        return this.then(
-        function (value) {return promise.resolve(callback()).then(function () {return value;});},
-        function (reason) {return promise.resolve(callback()).then(function () {
-            throw reason;
-          });});
+      if (!Promise.prototype.finally) {
+        Promise.prototype.finally = function (callback) {
+          var promise = this.constructor;
+          return this.then(
+          function (value) {return promise.resolve(callback()).then(function () {return value;});},
+          function (reason) {return promise.resolve(callback()).then(function () {
+              throw reason;
+            });});
 
-      };
+        };
+      }
     }));
   };
 }
@@ -154,7 +156,45 @@ function upx2px(number, newDeviceWidth) {
   return number < 0 ? -result : result;
 }
 
-var protocols = {};
+var previewImage = {
+  args: function args(fromArgs) {
+    var currentIndex = parseInt(fromArgs.current);
+    if (isNaN(currentIndex)) {
+      return;
+    }
+    var urls = fromArgs.urls;
+    if (!Array.isArray(urls)) {
+      return;
+    }
+    var len = urls.length;
+    if (!len) {
+      return;
+    }
+    if (currentIndex < 0) {
+      currentIndex = 0;
+    } else if (currentIndex >= len) {
+      currentIndex = len - 1;
+    }
+    if (currentIndex > 0) {
+      fromArgs.current = urls[currentIndex];
+      fromArgs.urls = urls.filter(
+      function (item, index) {return index < currentIndex ? item !== urls[currentIndex] : true;});
+
+    } else {
+      fromArgs.current = urls[0];
+    }
+    return {
+      indicator: false,
+      loop: false };
+
+  } };
+
+
+var protocols = {
+  previewImage: previewImage };
+
+var todos = [];
+var canIUses = [];
 
 var CALLBACKS = ['success', 'fail', 'cancel', 'complete'];
 
@@ -221,7 +261,11 @@ function wrapper(methodName, method) {
 
       arg1 = processArgs(methodName, arg1, options.args, options.returnValue);
 
-      var returnValue = wx[options.name || methodName](arg1, arg2);
+      var args = [arg1];
+      if (typeof arg2 !== 'undefined') {
+        args.push(arg2);
+      }
+      var returnValue = wx[options.name || methodName].apply(wx, args);
       if (isSyncApi(methodName)) {// 同步 api
         return processReturnValue(methodName, returnValue, options.returnValue, isContextApi(methodName));
       }
@@ -292,6 +336,46 @@ var extraApi = /*#__PURE__*/Object.freeze({
   getProvider: getProvider });
 
 
+var getEmitter = function () {
+  if (typeof getUniEmitter === 'function') {
+    /* eslint-disable no-undef */
+    return getUniEmitter;
+  }
+  var Emitter;
+  return function getUniEmitter() {
+    if (!Emitter) {
+      Emitter = new _vue.default();
+    }
+    return Emitter;
+  };
+}();
+
+function apply(ctx, method, args) {
+  return ctx[method].apply(ctx, args);
+}
+
+function $on() {
+  return apply(getEmitter(), '$on', Array.prototype.slice.call(arguments));
+}
+function $off() {
+  return apply(getEmitter(), '$off', Array.prototype.slice.call(arguments));
+}
+function $once() {
+  return apply(getEmitter(), '$once', Array.prototype.slice.call(arguments));
+}
+function $emit() {
+  return apply(getEmitter(), '$emit', Array.prototype.slice.call(arguments));
+}
+
+
+
+var eventApi = /*#__PURE__*/Object.freeze({
+  $on: $on,
+  $off: $off,
+  $once: $once,
+  $emit: $emit });
+
+
 
 
 var api = /*#__PURE__*/Object.freeze({});
@@ -319,8 +403,7 @@ function initTriggerEvent(mpInstance) {
   };
 }
 
-Page = function Page() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var name = 'onLoad';
+function initHook(name, options) {
   var oldHook = options[name];
   if (!oldHook) {
     options[name] = function () {
@@ -332,43 +415,26 @@ Page = function Page() {var options = arguments.length > 0 && arguments[0] !== u
       return oldHook.apply(this, args);
     };
   }
+}
+
+Page = function Page() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  initHook('onLoad', options);
   return MPPage(options);
 };
 
-var behavior = Behavior({
-  created: function created() {
-    initTriggerEvent(this);
-  } });
-
-
 Component = function Component() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  (options.behaviors || (options.behaviors = [])).unshift(behavior);
+  initHook('created', options);
   return MPComponent(options);
 };
 
-var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
+var PAGE_EVENT_HOOKS = [
+'onPullDownRefresh',
+'onReachBottom',
+'onShareAppMessage',
+'onPageScroll',
+'onResize',
+'onTabItemTap'];
 
-function triggerLink(mpInstance, vueOptions) {
-  mpInstance.triggerEvent('__l', mpInstance.$vm || vueOptions, {
-    bubbles: true,
-    composed: true });
-
-}
-
-function handleLink(event) {
-  if (event.detail.$mp) {// vm
-    if (!event.detail.$parent) {
-      event.detail.$parent = this.$vm;
-      event.detail.$parent.$children.push(event.detail);
-
-      event.detail.$root = this.$vm.$root;
-    }
-  } else {// vueOptions
-    if (!event.detail.parent) {
-      event.detail.parent = this.$vm;
-    }
-  }
-}
 
 function initMocks(vm, mocks) {
   var mpInstance = vm.$mp[vm.mpType];
@@ -382,12 +448,46 @@ function initMocks(vm, mocks) {
 function initHooks(mpOptions, hooks) {
   hooks.forEach(function (hook) {
     mpOptions[hook] = function (args) {
-      return this.$vm.__call_hook(hook, args);
+      return this.$vm && this.$vm.__call_hook(hook, args);
     };
   });
 }
 
-function getData(vueOptions, context) {
+function initVueComponent(Vue$$1, vueOptions) {
+  vueOptions = vueOptions.default || vueOptions;
+  var VueComponent;
+  if (isFn(vueOptions)) {
+    VueComponent = vueOptions;
+    vueOptions = VueComponent.extendOptions;
+  } else {
+    VueComponent = Vue$$1.extend(vueOptions);
+  }
+  return [VueComponent, vueOptions];
+}
+
+function initSlots(vm, vueSlots) {
+  if (Array.isArray(vueSlots) && vueSlots.length) {
+    var $slots = Object.create(null);
+    vueSlots.forEach(function (slotName) {
+      $slots[slotName] = true;
+    });
+    vm.$scopedSlots = vm.$slots = $slots;
+  }
+}
+
+function initVueIds(vueIds, mpInstance) {
+  vueIds = (vueIds || '').split(',');
+  var len = vueIds.length;
+
+  if (len === 1) {
+    mpInstance._$vueId = vueIds[0];
+  } else if (len === 2) {
+    mpInstance._$vueId = vueIds[0];
+    mpInstance._$vuePid = vueIds[1];
+  }
+}
+
+function initData(vueOptions, context) {
   var data = vueOptions.data || {};
   var methods = vueOptions.methods || {};
 
@@ -429,7 +529,7 @@ function createObserver(name) {
   };
 }
 
-function getBehaviors(vueOptions) {
+function initBehaviors(vueOptions, initBehavior) {
   var vueBehaviors = vueOptions['behaviors'];
   var vueExtends = vueOptions['extends'];
   var vueMixins = vueOptions['mixins'];
@@ -457,8 +557,8 @@ function getBehaviors(vueOptions) {
   }
   if (isPlainObject(vueExtends) && vueExtends.props) {
     behaviors.push(
-    Behavior({
-      properties: getProperties(vueExtends.props, true) }));
+    initBehavior({
+      properties: initProperties(vueExtends.props, true) }));
 
 
   }
@@ -466,8 +566,8 @@ function getBehaviors(vueOptions) {
     vueMixins.forEach(function (vueMixin) {
       if (isPlainObject(vueMixin) && vueMixin.props) {
         behaviors.push(
-        Behavior({
-          properties: getProperties(vueMixin.props, true) }));
+        initBehavior({
+          properties: initProperties(vueMixin.props, true) }));
 
 
       }
@@ -484,9 +584,13 @@ function parsePropType(key, type, defaultValue, file) {
   return type;
 }
 
-function getProperties(props) {var isBehavior = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;var file = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+function initProperties(props) {var isBehavior = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;var file = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
   var properties = {};
   if (!isBehavior) {
+    properties.vueId = {
+      type: String,
+      value: '' };
+
     properties.vueSlots = { // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
       type: null,
       value: [],
@@ -686,6 +790,17 @@ function processEventArgs(vm, event) {var args = arguments.length > 2 && argumen
 var ONCE = '~';
 var CUSTOM = '^';
 
+function isMatchEventType(eventType, optType) {
+  return eventType === optType ||
+
+  optType === 'regionchange' && (
+
+  eventType === 'begin' ||
+  eventType === 'end');
+
+
+}
+
 function handleEvent(event) {var _this = this;
   event = wrapper$1(event);
 
@@ -706,11 +821,19 @@ function handleEvent(event) {var _this = this;
     var isOnce = type.charAt(0) === ONCE;
     type = isOnce ? type.slice(1) : type;
 
-    if (eventsArray && eventType === type) {
+    if (eventsArray && isMatchEventType(eventType, type)) {
       eventsArray.forEach(function (eventArray) {
         var methodName = eventArray[0];
         if (methodName) {
-          var handler = _this.$vm[methodName];
+          var handlerCtx = _this.$vm;
+          if (
+          handlerCtx.$options.generic &&
+          handlerCtx.$parent &&
+          handlerCtx.$parent.$parent)
+          {// mp-weixin,mp-toutiao 抽象节点模拟 scoped slots
+            handlerCtx = handlerCtx.$parent.$parent;
+          }
+          var handler = handlerCtx[methodName];
           if (!isFn(handler)) {
             throw new Error(" _vm.".concat(methodName, " is not a function"));
           }
@@ -720,7 +843,7 @@ function handleEvent(event) {var _this = this;
             }
             handler.once = true;
           }
-          handler.apply(_this.$vm, processEventArgs(
+          handler.apply(handlerCtx, processEventArgs(
           _this.$vm,
           event,
           eventArray[1],
@@ -734,8 +857,107 @@ function handleEvent(event) {var _this = this;
   });
 }
 
+var hooks = [
+'onShow',
+'onHide',
+'onError',
+'onPageNotFound'];
+
+
+function parseBaseApp(vm, _ref3)
+
+
+{var mocks = _ref3.mocks,initRefs = _ref3.initRefs;
+  _vue.default.prototype.mpHost = "mp-weixin";
+
+  _vue.default.mixin({
+    beforeCreate: function beforeCreate() {
+      if (!this.$options.mpType) {
+        return;
+      }
+
+      this.mpType = this.$options.mpType;
+
+      this.$mp = _defineProperty({
+        data: {} },
+      this.mpType, this.$options.mpInstance);
+
+
+      this.$scope = this.$options.mpInstance;
+
+      delete this.$options.mpType;
+      delete this.$options.mpInstance;
+
+      if (this.mpType !== 'app') {
+        initRefs(this);
+        initMocks(this, mocks);
+      }
+    } });
+
+
+  var appOptions = {
+    onLaunch: function onLaunch(args) {
+      {
+        if (!wx.canIUse('nextTick')) {// 事实 上2.2.3 即可，简单使用 2.3.0 的 nextTick 判断
+          console.error('当前微信基础库版本过低，请将 微信开发者工具-详情-项目设置-调试基础库版本 更换为`2.3.0`以上');
+        }
+      }
+
+      this.$vm = vm;
+
+      this.$vm.$mp = {
+        app: this };
+
+
+      this.$vm.$scope = this;
+
+      this.$vm._isMounted = true;
+      this.$vm.__call_hook('mounted', args);
+
+      this.$vm.__call_hook('onLaunch', args);
+    } };
+
+
+  // 兼容旧版本 globalData
+  appOptions.globalData = vm.$options.globalData || {};
+
+  initHooks(appOptions, hooks);
+
+  return appOptions;
+}
+
+var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
+
+function findVmByVueId(vm, vuePid) {
+  var $children = vm.$children;
+  // 优先查找直属
+  var parentVm = $children.find(function (childVm) {return childVm.$scope._$vueId === vuePid;});
+  if (parentVm) {
+    return parentVm;
+  }
+  // 反向递归查找
+  for (var i = $children.length - 1; i >= 0; i--) {
+    parentVm = findVmByVueId($children[i], vuePid);
+    if (parentVm) {
+      return parentVm;
+    }
+  }
+}
+
+function initBehavior(options) {
+  return Behavior(options);
+}
+
+function isPage() {
+  return !!this.route;
+}
+
+function initRelation(detail) {
+  this.triggerEvent('__l', detail);
+}
+
 function initRefs(vm) {
-  var mpInstance = vm.$mp[vm.mpType];
+  var mpInstance = vm.$scope;
   Object.defineProperty(vm, '$refs', {
     get: function get() {
       var $refs = {};
@@ -757,220 +979,86 @@ function initRefs(vm) {
 
 }
 
-var hooks = [
-'onHide',
-'onError',
-'onPageNotFound',
-'onUniNViewMessage'];
+function handleLink(event) {var _ref4 =
 
 
-function initVm(vm) {
-  if (this.$vm) {// 百度竟然 onShow 在 onLaunch 之前？
-    return;
-  }
-  {
-    if (!wx.canIUse('nextTick')) {// 事实 上2.2.3 即可，简单使用 2.3.0 的 nextTick 判断
-      console.error('当前微信基础库版本过低，请将 微信开发者工具-详情-项目设置-调试基础库版本 更换为`2.3.0`以上');
-    }
+
+  event.detail || event.value,vuePid = _ref4.vuePid,vueOptions = _ref4.vueOptions; // detail 是微信,value 是百度(dipatch)
+
+  var parentVm;
+
+  if (vuePid) {
+    parentVm = findVmByVueId(this.$vm, vuePid);
   }
 
-  this.$vm = vm;
+  if (!parentVm) {
+    parentVm = this.$vm;
+  }
 
-  this.$vm.$mp = {
-    app: this };
+  vueOptions.parent = parentVm;
+}
+
+function parseApp(vm) {
+  return parseBaseApp(vm, {
+    mocks: mocks,
+    initRefs: initRefs });
 
 }
 
 function createApp(vm) {
-  // 外部初始化时 Vue 还未初始化，放到 createApp 内部初始化 mixin
-  _vue.default.mixin({
-    beforeCreate: function beforeCreate() {
-      if (!this.$options.mpType) {
-        return;
-      }
-      this.mpType = this.$options.mpType;
-      this.$mp = _defineProperty({
-        data: {} },
-      this.mpType, this.$options.mpInstance);
-
-      delete this.$options.mpType;
-      delete this.$options.mpInstance;
-
-      if (this.mpType !== 'app') {
-        {// 头条的 selectComponent 竟然是异步的
-          initRefs(this);
-        }
-        initMocks(this, mocks);
-      }
-    },
-    created: function created() {// 处理 injections
-      this.__init_injections(this);
-      this.__init_provide(this);
-    } });
-
-
-  var appOptions = {
-    onLaunch: function onLaunch(args) {
-      initVm.call(this, vm);
-
-      this.$vm._isMounted = true;
-      this.$vm.__call_hook('mounted');
-
-      this.$vm.__call_hook('onLaunch', args);
-    },
-    onShow: function onShow(args) {
-      initVm.call(this, vm);
-
-      this.$vm.__call_hook('onShow', args);
-    } };
-
-
-  // 兼容旧版本 globalData
-  appOptions.globalData = vm.$options.globalData || {};
-
-  initHooks(appOptions, hooks); // 延迟执行，因为 App 的注册在 main.js 之前，可能导致生命周期内 Vue 原型上开发者注册的属性无法访问
-
-  App(appOptions);
-
+  App(parseApp(vm));
   return vm;
 }
 
-var hooks$1 = [
-'onShow',
-'onHide',
-'onPullDownRefresh',
-'onReachBottom',
-'onShareAppMessage',
-'onPageScroll',
-'onResize',
-'onTabItemTap',
-'onBackPress',
-'onNavigationBarButtonTap',
-'onNavigationBarSearchInputChanged',
-'onNavigationBarSearchInputConfirmed',
-'onNavigationBarSearchInputClicked'];
+function parseBaseComponent(vueComponentOptions)
 
 
-function initVm$1(VueComponent) {// 百度的 onLoad 触发在 attached 之前
-  if (this.$vm) {
-    return;
-  }
-
-  this.$vm = new VueComponent({
-    mpType: 'page',
-    mpInstance: this });
-
-
-  this.$vm.__call_hook('created');
-  this.$vm.$mount();
-}
-
-function createPage(vueOptions) {
-  vueOptions = vueOptions.default || vueOptions;
-  var VueComponent;
-  if (isFn(vueOptions)) {
-    VueComponent = vueOptions;
-    vueOptions = VueComponent.extendOptions;
-  } else {
-    VueComponent = _vue.default.extend(vueOptions);
-  }
-  var pageOptions = {
-    options: {
-      multipleSlots: true,
-      addGlobalClass: true },
-
-    data: getData(vueOptions, _vue.default.prototype),
-    lifetimes: { // 当页面作为组件时
-      attached: function attached() {
-        initVm$1.call(this, VueComponent);
-      },
-      ready: function ready() {
-        this.$vm.__call_hook('beforeMount');
-        this.$vm._isMounted = true;
-        this.$vm.__call_hook('mounted');
-        this.$vm.__call_hook('onReady');
-      },
-      detached: function detached() {
-        this.$vm.$destroy();
-      } },
-
-    methods: { // 作为页面时
-      onLoad: function onLoad(args) {
-        initVm$1.call(this, VueComponent);
-        this.$vm.$mp.query = args; // 又要兼容 mpvue
-        this.$vm.__call_hook('onLoad', args); // 开发者可能会在 onLoad 时赋值，提前到 mount 之前
-      },
-      onUnload: function onUnload() {
-        this.$vm.__call_hook('onUnload');
-      },
-      __e: handleEvent,
-      __l: handleLink } };
-
-
-
-  initHooks(pageOptions.methods, hooks$1);
-
-  return Component(pageOptions);
-}
-
-function initVm$2(VueComponent) {
-  if (this.$vm) {
-    return;
-  }
-
-  var options = {
-    mpType: 'component',
-    mpInstance: this,
-    propsData: this.properties };
-
-  // 初始化 vue 实例
-  this.$vm = new VueComponent(options);
-
-  // 处理$slots,$scopedSlots（暂不支持动态变化$slots）
-  var vueSlots = this.properties.vueSlots;
-  if (Array.isArray(vueSlots) && vueSlots.length) {
-    var $slots = Object.create(null);
-    vueSlots.forEach(function (slotName) {
-      $slots[slotName] = true;
-    });
-    this.$vm.$scopedSlots = this.$vm.$slots = $slots;
-  }
-  // 性能优先，mount 提前到 attached 中，保证组件首次渲染数据被合并
-  // 导致与标准 Vue 的差异，data 和 computed 中不能使用$parent，provide等组件属性
-  this.$vm.$mount();
-}
-
-function createComponent(vueOptions) {
-  vueOptions = vueOptions.default || vueOptions;
-
-  var behaviors = getBehaviors(vueOptions);
-
-  var properties = getProperties(vueOptions.props, false, vueOptions.__file);
-
-  var VueComponent = _vue.default.extend(vueOptions);
+{var _ref5 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},isPage$$1 = _ref5.isPage,initRelation$$1 = _ref5.initRelation;var _initVueComponent =
+  initVueComponent(_vue.default, vueComponentOptions),_initVueComponent2 = _slicedToArray(_initVueComponent, 2),VueComponent = _initVueComponent2[0],vueOptions = _initVueComponent2[1];
 
   var componentOptions = {
     options: {
       multipleSlots: true,
       addGlobalClass: true },
 
-    data: getData(vueOptions, _vue.default.prototype),
-    behaviors: behaviors,
-    properties: properties,
+    data: initData(vueOptions, _vue.default.prototype),
+    behaviors: initBehaviors(vueOptions, initBehavior),
+    properties: initProperties(vueOptions.props, false, vueOptions.__file),
     lifetimes: {
       attached: function attached() {
-        initVm$2.call(this, VueComponent);
+        var properties = this.properties;
+
+        var options = {
+          mpType: isPage$$1.call(this) ? 'page' : 'component',
+          mpInstance: this,
+          propsData: properties };
+
+
+        initVueIds(properties.vueId, this);
+
+        // 处理父子关系
+        initRelation$$1.call(this, {
+          vuePid: this._$vuePid,
+          vueOptions: options });
+
+
+        // 初始化 vue 实例
+        this.$vm = new VueComponent(options);
+
+        // 处理$slots,$scopedSlots（暂不支持动态变化$slots）
+        initSlots(this.$vm, properties.vueSlots);
+
+        // 触发首次 setData
+        this.$vm.$mount();
       },
       ready: function ready() {
-        initVm$2.call(this, VueComponent); // 目前发现部分情况小程序 attached 不触发
-        triggerLink(this); // 处理 parent,children
-
-        // 补充生命周期
-        this.$vm.__call_hook('created');
-        this.$vm.__call_hook('beforeMount');
-        this.$vm._isMounted = true;
-        this.$vm.__call_hook('mounted');
-        this.$vm.__call_hook('onReady');
+        // 当组件 props 默认值为 true，初始化时传入 false 会导致 created,ready 触发, 但 attached 不触发
+        // https://developers.weixin.qq.com/community/develop/doc/00066ae2844cc0f8eb883e2a557800
+        if (this.$vm) {
+          this.$vm._isMounted = true;
+          this.$vm.__call_hook('mounted');
+          this.$vm.__call_hook('onReady');
+        }
       },
       detached: function detached() {
         this.$vm.$destroy();
@@ -978,7 +1066,7 @@ function createComponent(vueOptions) {
 
     pageLifetimes: {
       show: function show(args) {
-        this.$vm.__call_hook('onPageShow', args);
+        this.$vm && this.$vm.__call_hook('onPageShow', args);
       },
       hide: function hide() {
         this.$vm && this.$vm.__call_hook('onPageHide');
@@ -988,13 +1076,81 @@ function createComponent(vueOptions) {
       } },
 
     methods: {
-      __e: handleEvent,
-      __l: handleLink } };
+      __l: handleLink,
+      __e: handleEvent } };
 
 
 
-  return Component(componentOptions);
+  if (isPage$$1) {
+    return componentOptions;
+  }
+  return [componentOptions, VueComponent];
 }
+
+function parseComponent(vueComponentOptions) {
+  return parseBaseComponent(vueComponentOptions, {
+    isPage: isPage,
+    initRelation: initRelation });
+
+}
+
+var hooks$1 = [
+'onShow',
+'onHide',
+'onUnload'];
+
+
+hooks$1.push.apply(hooks$1, PAGE_EVENT_HOOKS);
+
+function parseBasePage(vuePageOptions, _ref6)
+
+
+{var isPage = _ref6.isPage,initRelation = _ref6.initRelation;
+  var pageOptions = parseComponent(vuePageOptions, {
+    isPage: isPage,
+    initRelation: initRelation });
+
+
+  initHooks(pageOptions.methods, hooks$1);
+
+  pageOptions.methods.onLoad = function (args) {
+    this.$vm.$mp.query = args; // 兼容 mpvue
+    this.$vm.__call_hook('onLoad', args);
+  };
+
+  return pageOptions;
+}
+
+function parsePage(vuePageOptions) {
+  return parseBasePage(vuePageOptions, {
+    isPage: isPage,
+    initRelation: initRelation });
+
+}
+
+function createPage(vuePageOptions) {
+  {
+    return Component(parsePage(vuePageOptions));
+  }
+}
+
+function createComponent(vueOptions) {
+  {
+    return Component(parseComponent(vueOptions));
+  }
+}
+
+todos.forEach(function (todoApi) {
+  protocols[todoApi] = false;
+});
+
+canIUses.forEach(function (canIUseApi) {
+  var apiName = protocols[canIUseApi] && protocols[canIUseApi].name ? protocols[canIUseApi].name :
+  canIUseApi;
+  if (!wx.canIUse(apiName)) {
+    protocols[canIUseApi] = false;
+  }
+});
 
 var uni = {};
 
@@ -1015,6 +1171,9 @@ if (typeof Proxy !== 'undefined') {
           return promisify(name, todoApis[name]);
         }
       }
+      if (eventApi[name]) {
+        return eventApi[name];
+      }
       if (!hasOwn(wx, name) && !hasOwn(protocols, name)) {
         return;
       }
@@ -1033,6 +1192,10 @@ if (typeof Proxy !== 'undefined') {
     });
   }
 
+  Object.keys(eventApi).forEach(function (name) {
+    uni[name] = eventApi[name];
+  });
+
   Object.keys(api).forEach(function (name) {
     uni[name] = promisify(name, api[name]);
   });
@@ -1043,6 +1206,10 @@ if (typeof Proxy !== 'undefined') {
     }
   });
 }
+
+wx.createApp = createApp;
+wx.createPage = createPage;
+wx.createComponent = createComponent;
 
 var uni$1 = uni;var _default =
 
@@ -1685,8 +1852,8 @@ if (true) {
 
   formatComponentName = function (vm, includeFile) {
     {
-      if(vm.$mp && vm.$mp[vm.mpType]){
-        return vm.$mp[vm.mpType].is
+      if(vm.$scope && vm.$scope.is){
+        return vm.$scope.is
       }
     }
     if (vm.$root === vm) {
@@ -5611,7 +5778,16 @@ function initProps (vm, propsOptions) {
       }
       defineReactive$$1(props, key, value, function () {
         if (!isRoot && !isUpdatingChildComponent) {
-          !vm._getFormData && warn(//fixed by xxxxxx uni://form-field 时不告警
+          {
+            if(vm.mpHost === 'mp-baidu'){//百度 observer 在 setData callback 之后触发，直接忽略该 warn
+                return
+            }
+            //fixed by xxxxxx __next_tick_pending,uni://form-field 时不告警
+            if(vm._getFormData || (vm.$parent && vm.$parent.__next_tick_pending)){
+              return
+            }
+          }
+          warn(
             "Avoid mutating a prop directly since the value will be " +
             "overwritten whenever the parent component re-renders. " +
             "Instead, use a data or computed property based on the prop's " +
@@ -5934,7 +6110,10 @@ function initMixin (Vue) {
     initEvents(vm);
     initRender(vm);
     callHook(vm, 'beforeCreate');
+    vm.mpHost !== 'mp-toutiao' && initInjections(vm); // resolve injections before data/props  
     initState(vm);
+    vm.mpHost !== 'mp-toutiao' && initProvide(vm); // resolve provide after data/props
+    vm.mpHost !== 'mp-toutiao' && callHook(vm, 'created');      
 
     /* istanbul ignore if */
     if ( true && config.performance && mark) {
@@ -6493,7 +6672,7 @@ function type(obj) {
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
         if (Object({"VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
-            var mpInstance = vm.$mp[vm.mpType];
+            var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
         }
@@ -6514,14 +6693,14 @@ function nextTick$1(vm, cb) {
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
         if(Object({"VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
-            var mpInstance = vm.$mp[vm.mpType];
+            var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
         if(Object({"VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
-            var mpInstance$1 = vm.$mp[vm.mpType];
+            var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
         }
@@ -6580,7 +6759,7 @@ var patch = function(oldVnode, vnode) {
         return
     }
     if (this.mpType === 'page' || this.mpType === 'component') {
-        var mpInstance = this.$mp[this.mpType];
+        var mpInstance = this.$scope;
         var data = cloneWithData(this);
         data.__webviewId__ = mpInstance.data.__webviewId__;
         var mpData = Object.create(null);
@@ -6642,6 +6821,8 @@ function mountComponent$1(
       }
     }
   }
+  
+  vm.mpHost !== 'mp-toutiao' && callHook(vm, 'beforeMount');
 
   var updateComponent = function () {
     vm._update(vm._render(), hydrating);
@@ -6762,8 +6943,8 @@ function internalMixin(Vue) {
     var oldEmit = Vue.prototype.$emit;
 
     Vue.prototype.$emit = function(event) {
-        if (this.$mp && event) {
-            this.$mp[this.mpType]['triggerEvent'](event, {
+        if (this.$scope && event) {
+            this.$scope['triggerEvent'](event, {
                 __args__: toArray(arguments, 1)
             });
         }
@@ -6776,8 +6957,8 @@ function internalMixin(Vue) {
 
     MP_METHODS.forEach(function (method) {
         Vue.prototype[method] = function(args) {
-            if (this.$mp) {
-                return this.$mp[this.mpType][method](args)
+            if (this.$scope) {
+                return this.$scope[method](args)
             }
         };
     });
@@ -6814,10 +6995,16 @@ function internalMixin(Vue) {
                 value = this._n(value);
             }
         }
+        if(!target){
+            target = this;
+        }
         target[key] = value;
     };
 
     Vue.prototype.__set_sync = function(target, key, value) {
+        if(!target){
+            target = this;
+        }
         target[key] = value;
     };
 
@@ -6867,6 +7054,7 @@ var LIFECYCLE_HOOKS$1 = [
     'onReachBottom',
     'onTabItemTap',
     'onShareAppMessage',
+    'onResize',
     'onPageScroll',
     'onNavigationBarButtonTap',
     'onBackPress',
@@ -6874,7 +7062,7 @@ var LIFECYCLE_HOOKS$1 = [
     'onNavigationBarSearchInputConfirmed',
     'onNavigationBarSearchInputClicked',
     //Component
-    'onReady', // 兼容旧版本，应该移除该事件
+    // 'onReady', // 兼容旧版本，应该移除该事件
     'onPageShow',
     'onPageHide',
     'onPageResize'
@@ -8021,10 +8209,10 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\config\\baseUrl.js":
-/*!************************************************!*\
-  !*** E:/weChat/xinweifayuan/config/baseUrl.js ***!
-  \************************************************/
+/***/ "E:\\www\\uni-app-template\\config\\baseUrl.js":
+/*!*************************************************!*\
+  !*** E:/www/uni-app-template/config/baseUrl.js ***!
+  \*************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8034,30 +8222,38 @@ var court = "开发";
 var courtConfig = {
   /****************开发环境****************/
   "开发": {
-    //微信小程序appid=wx24f5b4156f6de485
+    //微信小程序appid=wx04df1c9c5679b134
     //请求接口
-    baseUrl: "http://t.3672api.86court.com",
+    baseUrl: "https://dev.kemean.net/make_friends/",
     //图片路径
-    imgBaseUrl: "http://t.3672api.86court.com",
+    imgBaseUrl: "https://dev.kemean.net/make_friends/",
+    //webSocket地址
+    socketUrl: "wss://dev.kemean.net/make_friends/",
+    //平台名称
+    platformName: "青缘福田",
     //页面分享配置
     share: function share() {
       return {
-        title: '交友小程序',
-        path: '/pages/index/index' };
+        title: '青缘福田',
+        path: '/pages/home/home' };
 
     } },
 
   "交友": {
-    //微信小程序appid=wx91a38ef0b01ee2a3
+    //微信小程序appid=
     //请求接口
-    baseUrl: "https://gzapi.86court.com",
+    baseUrl: "",
     //图片路径
-    imgBaseUrl: "https://gzapi.86court.com",
+    imgBaseUrl: "",
+    //webSocket地址
+    socketUrl: "ws://dev.kemean.net",
+    //平台名称
+    platformName: "青缘福田",
     //页面分享配置
     share: function share() {
       return {
-        title: '交友小程序',
-        path: '/pages/index/index' };
+        title: '青缘福田',
+        path: '/pages/home/home' };
 
     } } };
 
@@ -8076,53 +8272,49 @@ courtConfig[court]);exports.default = _default;
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\config\\request.js":
-/*!************************************************!*\
-  !*** E:/weChat/xinweifayuan/config/request.js ***!
-  \************************************************/
+/***/ "E:\\www\\uni-app-template\\config\\request.js":
+/*!*************************************************!*\
+  !*** E:/www/uni-app-template/config/request.js ***!
+  \*************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _request = _interopRequireDefault(__webpack_require__(/*! @/utils/request */ "E:\\weChat\\xinweifayuan\\utils\\request.js"));
-var _store = _interopRequireDefault(__webpack_require__(/*! @/config/store */ "E:\\weChat\\xinweifayuan\\config\\store.js"));
-var _md = _interopRequireDefault(__webpack_require__(/*! @/utils/md5 */ "E:\\weChat\\xinweifayuan\\utils\\md5.js"));
-var _utils = __webpack_require__(/*! @/utils/utils */ "E:\\weChat\\xinweifayuan\\utils\\utils.js");
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _request = _interopRequireDefault(__webpack_require__(/*! @/utils/request */ "E:\\www\\uni-app-template\\utils\\request.js"));
+var _store = _interopRequireDefault(__webpack_require__(/*! @/config/store */ "E:\\www\\uni-app-template\\config\\store.js"));
+var _md = _interopRequireDefault(__webpack_require__(/*! @/utils/md5 */ "E:\\www\\uni-app-template\\utils\\md5.js"));
+var _utils = __webpack_require__(/*! @/utils/utils */ "E:\\www\\uni-app-template\\utils\\utils.js");
 
 
-var _baseUrl = _interopRequireDefault(__webpack_require__(/*! @/config/baseUrl */ "E:\\weChat\\xinweifayuan\\config\\baseUrl.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
+var _baseUrl = _interopRequireDefault(__webpack_require__(/*! @/config/baseUrl */ "E:\\www\\uni-app-template\\config\\baseUrl.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 var $http = new _request.default({
   baseUrl: _baseUrl.default.baseUrl,
   fileUrl: _baseUrl.default.imgBaseUrl,
   headers: {
-    'content-type': 'application/x-www-form-urlencoded' } });
+    'content-type': 'application/json;charset=UTF-8' } });
 
 
 var requestNum = 0;
 //请求开始回调
-$http.requestStart = function (options, data) {
+$http.requestStart = function (options) {
   if (requestNum <= 0) {
     uni.showNavigationBarLoading();
     if (options.load) {
       //打开加载动画
       uni.showLoading({
-        title: '加载中' });
+        title: '加载中',
+        mask: true });
 
     }
   }
   requestNum += 1;
   var callbackData = {};
-  //请求前加入sessionId
-  if (_store.default.state.sessionId) {
-    callbackData.options = {
-      headers: _objectSpread({},
-      options.headers, {
-        'Cookie': _store.default.state.sessionId }) };
-
-
+  //请求前加入token
+  if (_store.default.state.userInfo.token) {
+    options.headers['user_token'] = _store.default.state.userInfo.token;
   };
-  console.log("请求开始前", options, callbackData);
-  return callbackData;
+  console.log("请求开始前", options);
+  return options;
 };
 //请求结束
 $http.requestEnd = function (options, resolve) {
@@ -8143,35 +8335,44 @@ $http.dataFactory = function (options, resolve) {
     result: "" };
 
   //判断数据是否请求成功
-  if (resolve.data.result == 0) {
+  if (resolve.data.success) {
     callback.success = true;
     callback.result = resolve.data.data;
-  } else if (resolve.data.result == 10403) {//code == 10403 是用户未登录
+  } else if (resolve.data.code == "1000" || resolve.data.code == "1001") {//code == 10403 是用户未登录
     var content = '您还未登录，请先登录';
-    if (_store.default.state.userInfo.is_real && _store.default.state.userInfo.is_real == 2) {
+    if (resolve.data.code == "1000") {
       content = '您的登录已失效，请重新登录';
     }
     if (loginPopupNum <= 0) {
       loginPopupNum++;
-      uni.showModal({
-        title: '提示',
-        content: content,
-        confirmText: "去登录",
-        cancelText: "再等等",
-        success: function success(res) {
-          loginPopupNum--;
-          if (res.confirm) {
-            //调取页面上的登录事件
-            $http.openLogin && $http.openLogin();
-          }
-        } });
+      if ($http.openLogin) {
+        uni.showModal({
+          title: '提示',
+          content: content,
+          confirmText: "去登录",
+          cancelText: "再等等",
+          success: function success(res) {
+            loginPopupNum--;
+            if (res.confirm) {
+              //调取页面上的登录事件
+              $http.openLogin();
+            }
+          } });
 
+      } else {
+        loginPopupNum--;
+        uni.showToast({
+          title: content,
+          icon: "none",
+          duration: 3000 });
+
+      }
     }
   } else {//其他错误提示
     if (options.isPrompt) {
       setTimeout(function () {
         uni.showToast({
-          title: resolve.data.res_info,
+          title: resolve.data.info,
           icon: "none",
           duration: 3000 });
 
@@ -8186,10 +8387,10 @@ $http;exports.default = _default;
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\config\\store.js":
-/*!**********************************************!*\
-  !*** E:/weChat/xinweifayuan/config/store.js ***!
-  \**********************************************/
+/***/ "E:\\www\\uni-app-template\\config\\store.js":
+/*!***********************************************!*\
+  !*** E:/www/uni-app-template/config/store.js ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8197,13 +8398,15 @@ $http;exports.default = _default;
 /* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
 var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js"));
 
-var _utils = __webpack_require__(/*! @/utils/utils */ "E:\\weChat\\xinweifayuan\\utils\\utils.js");function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}_vue.default.use(_vuex.default);
+var _utils = __webpack_require__(/*! @/utils/utils */ "E:\\www\\uni-app-template\\utils\\utils.js");function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}_vue.default.use(_vuex.default);
 
 
 //变量
 var state = {
   //用户数据
-  userInfo: {} };
+  userInfo: {},
+  //webView地址
+  webViewUrl: "" };
 
 //缓存浏览器的数据名称
 var cacheNameList = [];
@@ -8222,6 +8425,12 @@ var mutations = {
     if (data) {
       state.userInfo = (0, _utils.modifyJson)(data, state.userInfo);
     }
+  },
+  //WebView地址
+  setWebViewUrl: function setWebViewUrl(state, data) {
+    if (data) {
+      state.webViewUrl = data;
+    }
   } };
 
 //异步处理
@@ -8234,27 +8443,36 @@ new _vuex.default.Store({
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\main.js":
-/*!**************************************!*\
-  !*** E:/weChat/xinweifayuan/main.js ***!
-  \**************************************/
+/***/ "E:\\www\\uni-app-template\\main.js":
+/*!***************************************!*\
+  !*** E:/www/uni-app-template/main.js ***!
+  \***************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "E:\\weChat\\xinweifayuan\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "E:\\weChat\\xinweifayuan\\App.vue"));
+var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "E:\\www\\uni-app-template\\App.vue"));
 
-var _store = _interopRequireDefault(__webpack_require__(/*! @/config/store */ "E:\\weChat\\xinweifayuan\\config\\store.js"));
-
-
-var _baseUrl = _interopRequireDefault(__webpack_require__(/*! @/config/baseUrl */ "E:\\weChat\\xinweifayuan\\config\\baseUrl.js"));
+var _store = _interopRequireDefault(__webpack_require__(/*! @/config/store */ "E:\\www\\uni-app-template\\config\\store.js"));
 
 
-var _request = _interopRequireDefault(__webpack_require__(/*! @/config/request */ "E:\\weChat\\xinweifayuan\\config\\request.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}_vue.default.prototype.$store = _store.default; //法院权限配置中心
+var _baseUrl = _interopRequireDefault(__webpack_require__(/*! @/config/baseUrl */ "E:\\www\\uni-app-template\\config\\baseUrl.js"));
+
+
+var _request = _interopRequireDefault(__webpack_require__(/*! @/config/request */ "E:\\www\\uni-app-template\\config\\request.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}_vue.default.prototype.$store = _store.default; //法院权限配置中心
 _vue.default.prototype.$base = _baseUrl.default; //挂载全局http请求
-_vue.default.prototype.$http = _request.default;
+_vue.default.prototype.$http = _request.default; //判断是否登录
+_vue.default.prototype.judgeLogin = function () {var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "force";var callback = arguments.length > 1 ? arguments[1] : undefined;
+  var userInfo = _store.default.state.userInfo;
+  if (userInfo.token) {
+    callback();
+  } else if (_request.default.openLogin) {
+    //调取页面上的登录事件
+    _request.default.openLogin();
+  }
+};
 _vue.default.config.productionTip = false;
 
 _App.default.mpType = 'app';
@@ -8268,78 +8486,95 @@ createApp(app).$mount();
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\main.js?{\"page\":\"pages%2Fhome%2Fhome\"}":
-/*!*********************************************************************!*\
-  !*** E:/weChat/xinweifayuan/main.js?{"page":"pages%2Fhome%2Fhome"} ***!
-  \*********************************************************************/
+/***/ "E:\\www\\uni-app-template\\main.js?{\"page\":\"pages%2Fhome%2Fhome\"}":
+/*!**********************************************************************!*\
+  !*** E:/www/uni-app-template/main.js?{"page":"pages%2Fhome%2Fhome"} ***!
+  \**********************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\weChat\\xinweifayuan\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _home = _interopRequireDefault(__webpack_require__(/*! ./pages/home/home.vue */ "E:\\weChat\\xinweifayuan\\pages\\home\\home.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _home = _interopRequireDefault(__webpack_require__(/*! ./pages/home/home.vue */ "E:\\www\\uni-app-template\\pages\\home\\home.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_home.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\main.js?{\"page\":\"pages%2Fmessage%2Fmessage\"}":
-/*!***************************************************************************!*\
-  !*** E:/weChat/xinweifayuan/main.js?{"page":"pages%2Fmessage%2Fmessage"} ***!
-  \***************************************************************************/
+/***/ "E:\\www\\uni-app-template\\main.js?{\"page\":\"pages%2Fhome%2FwebView\"}":
+/*!*************************************************************************!*\
+  !*** E:/www/uni-app-template/main.js?{"page":"pages%2Fhome%2FwebView"} ***!
+  \*************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\weChat\\xinweifayuan\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _message = _interopRequireDefault(__webpack_require__(/*! ./pages/message/message.vue */ "E:\\weChat\\xinweifayuan\\pages\\message\\message.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _webView = _interopRequireDefault(__webpack_require__(/*! ./pages/home/webView.vue */ "E:\\www\\uni-app-template\\pages\\home\\webView.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+createPage(_webView.default);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
+
+/***/ }),
+
+/***/ "E:\\www\\uni-app-template\\main.js?{\"page\":\"pages%2Fmessage%2Fmessage\"}":
+/*!****************************************************************************!*\
+  !*** E:/www/uni-app-template/main.js?{"page":"pages%2Fmessage%2Fmessage"} ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
+
+var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
+var _message = _interopRequireDefault(__webpack_require__(/*! ./pages/message/message.vue */ "E:\\www\\uni-app-template\\pages\\message\\message.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_message.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\main.js?{\"page\":\"pages%2Fmy%2Fmy\"}":
-/*!*****************************************************************!*\
-  !*** E:/weChat/xinweifayuan/main.js?{"page":"pages%2Fmy%2Fmy"} ***!
-  \*****************************************************************/
+/***/ "E:\\www\\uni-app-template\\main.js?{\"page\":\"pages%2Fmy%2Fmy\"}":
+/*!******************************************************************!*\
+  !*** E:/www/uni-app-template/main.js?{"page":"pages%2Fmy%2Fmy"} ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\weChat\\xinweifayuan\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _my = _interopRequireDefault(__webpack_require__(/*! ./pages/my/my.vue */ "E:\\weChat\\xinweifayuan\\pages\\my\\my.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _my = _interopRequireDefault(__webpack_require__(/*! ./pages/my/my.vue */ "E:\\www\\uni-app-template\\pages\\my\\my.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_my.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\main.js?{\"page\":\"pages%2Fta%2Fta\"}":
-/*!*****************************************************************!*\
-  !*** E:/weChat/xinweifayuan/main.js?{"page":"pages%2Fta%2Fta"} ***!
-  \*****************************************************************/
+/***/ "E:\\www\\uni-app-template\\main.js?{\"page\":\"pages%2Fta%2Fta\"}":
+/*!******************************************************************!*\
+  !*** E:/www/uni-app-template/main.js?{"page":"pages%2Fta%2Fta"} ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\weChat\\xinweifayuan\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "E:\\www\\uni-app-template\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _ta = _interopRequireDefault(__webpack_require__(/*! ./pages/ta/ta.vue */ "E:\\weChat\\xinweifayuan\\pages\\ta\\ta.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _ta = _interopRequireDefault(__webpack_require__(/*! ./pages/ta/ta.vue */ "E:\\www\\uni-app-template\\pages\\ta\\ta.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_ta.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\pages.json":
-/*!*****************************************!*\
-  !*** E:/weChat/xinweifayuan/pages.json ***!
-  \*****************************************/
+/***/ "E:\\www\\uni-app-template\\pages.json":
+/*!******************************************!*\
+  !*** E:/www/uni-app-template/pages.json ***!
+  \******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8348,10 +8583,10 @@ createPage(_ta.default);
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\utils\\md5.js":
-/*!*******************************************!*\
-  !*** E:/weChat/xinweifayuan/utils/md5.js ***!
-  \*******************************************/
+/***/ "E:\\www\\uni-app-template\\utils\\md5.js":
+/*!********************************************!*\
+  !*** E:/www/uni-app-template/utils/md5.js ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8562,15 +8797,196 @@ module.exports = md5;
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\utils\\request.js":
-/*!***********************************************!*\
-  !*** E:/weChat/xinweifayuan/utils/request.js ***!
-  \***********************************************/
+/***/ "E:\\www\\uni-app-template\\utils\\qiniuUploader.js":
+/*!******************************************************!*\
+  !*** E:/www/uni-app-template/utils/qiniuUploader.js ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}var request = /*#__PURE__*/function () {
+ // created by gpake
+(function () {
+
+  var config = {
+    qiniuRegion: '',
+    qiniuImageURLPrefix: '',
+    qiniuUploadToken: '',
+    qiniuUploadTokenURL: '',
+    qiniuUploadTokenFunction: null,
+    qiniuShouldUseQiniuFileName: false };
+
+
+  module.exports = {
+    init: init,
+    upload: upload
+
+
+    // 在整个程序生命周期中，只需要 init 一次即可
+    // 如果需要变更参数，再调用 init 即可
+  };function init(options) {
+    config = {
+      qiniuRegion: '',
+      qiniuImageURLPrefix: '',
+      qiniuUploadToken: '',
+      qiniuUploadTokenURL: '',
+      qiniuUploadTokenFunction: null,
+      qiniuShouldUseQiniuFileName: false };
+
+    updateConfigWithOptions(options);
+  }
+
+  function updateConfigWithOptions(options) {
+    if (options.region) {
+      config.qiniuRegion = options.region;
+    } else {
+      console.error('qiniu uploader need your bucket region');
+    }
+    if (options.uptoken) {
+      config.qiniuUploadToken = options.uptoken;
+    } else if (options.uptokenURL) {
+      config.qiniuUploadTokenURL = options.uptokenURL;
+    } else if (options.uptokenFunc) {
+      config.qiniuUploadTokenFunction = options.uptokenFunc;
+    }
+    if (options.domain) {
+      config.qiniuImageURLPrefix = options.domain;
+    }
+    config.qiniuShouldUseQiniuFileName = options.shouldUseQiniuFileName;
+  }
+
+  function upload(filePath, success, fail, options, progress, cancelTask) {
+    if (null == filePath) {
+      console.error('qiniu uploader need filePath to upload');
+      return;
+    }
+    if (options) {
+      updateConfigWithOptions(options);
+    }
+    if (config.qiniuUploadToken) {
+      doUpload(filePath, success, fail, options, progress, cancelTask);
+    } else if (config.qiniuUploadTokenURL) {
+      getQiniuToken(function () {
+        doUpload(filePath, success, fail, options, progress, cancelTask);
+      });
+    } else if (config.qiniuUploadTokenFunction) {
+      config.qiniuUploadToken = config.qiniuUploadTokenFunction();
+      if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+        console.error('qiniu UploadTokenFunction result is null, please check the return value');
+        return;
+      }
+      doUpload(filePath, success, fail, options, progress, cancelTask);
+    } else {
+      console.error('qiniu uploader need one of [uptoken, uptokenURL, uptokenFunc]');
+      return;
+    }
+  }
+
+  function doUpload(filePath, _success, _fail, options, progress, cancelTask) {
+    if (null == config.qiniuUploadToken && config.qiniuUploadToken.length > 0) {
+      console.error('qiniu UploadToken is null, please check the init config or networking');
+      return;
+    }
+    var url = uploadURLFromRegionCode(config.qiniuRegion);
+    var fileName = filePath.split('//')[1];
+    if (options && options.key) {
+      fileName = options.key;
+    }
+    var formData = {
+      'token': config.qiniuUploadToken };
+
+    if (!config.qiniuShouldUseQiniuFileName) {
+      formData['key'] = fileName;
+    }
+    var uploadTask = wx.uploadFile({
+      url: url,
+      filePath: filePath,
+      name: 'file',
+      formData: formData,
+      success: function success(res) {
+        var dataString = res.data;
+        if (res.data.hasOwnProperty('type') && res.data.type === 'Buffer') {
+          dataString = String.fromCharCode.apply(null, res.data.data);
+        }
+        try {
+          var dataObject = JSON.parse(dataString);
+          //do something
+          var imageUrl = config.qiniuImageURLPrefix + '/' + dataObject.key;
+          dataObject.imageURL = imageUrl;
+          if (_success) {
+            _success(dataObject);
+          }
+        } catch (e) {
+          console.log('parse JSON failed, origin String is: ' + dataString);
+          if (_fail) {
+            _fail(e);
+          }
+        }
+      },
+      fail: function fail(error) {
+        console.error(error);
+        if (_fail) {
+          _fail(error);
+        }
+      } });
+
+
+    uploadTask.onProgressUpdate(function (res) {
+      progress && progress(res);
+    });
+
+    cancelTask && cancelTask(function () {
+      uploadTask.abort();
+    });
+  }
+
+  function getQiniuToken(callback) {
+    wx.request({
+      url: config.qiniuUploadTokenURL,
+      success: function success(res) {
+        var token = res.data.uptoken;
+        if (token && token.length > 0) {
+          config.qiniuUploadToken = token;
+          if (callback) {
+            callback();
+          }
+        } else {
+          console.error('qiniuUploader cannot get your token, please check the uptokenURL or server');
+        }
+      },
+      fail: function fail(error) {
+        console.error('qiniu UploadToken is null, please check the init config or networking: ' + error);
+      } });
+
+  }
+
+  function uploadURLFromRegionCode(code) {
+    var uploadURL = null;
+    switch (code) {
+      case 'ECN':uploadURL = 'https://up.qbox.me';break;
+      case 'NCN':uploadURL = 'https://up-z1.qbox.me';break;
+      case 'SCN':uploadURL = 'https://up-z2.qbox.me';break;
+      case 'NA':uploadURL = 'https://up-na0.qbox.me';break;
+      case 'ASG':uploadURL = 'https://up-as0.qbox.me';break;
+      default:console.error('please make the region is with one of [ECN, SCN, NCN, NA, ASG]');}
+
+    return uploadURL;
+  }
+
+})();
+
+/***/ }),
+
+/***/ "E:\\www\\uni-app-template\\utils\\request.js":
+/*!************************************************!*\
+  !*** E:/www/uni-app-template/utils/request.js ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}var qiniuUploader = __webpack_require__(/*! ./qiniuUploader */ "E:\\www\\uni-app-template\\utils\\qiniuUploader.js");var
+request = /*#__PURE__*/function () {
   function request(options) {_classCallCheck(this, request);
     //请求公共地址
     this.baseUrl = options.baseUrl || "";
@@ -8579,20 +8995,34 @@ module.exports = md5;
     //默认请求头
     this.headers = options.headers || {};
     //默认配置
-    this.config = {
-      //是否提示--默认提示
-      isPrompt: true,
-      //是否显示请求动画
-      load: true,
-      //是否使用处理数据模板
-      isFactory: true };
-
+    //是否提示--默认提示
+    this.isPrompt = options.isPrompt || true;
+    //是否显示请求动画
+    this.load = options.load || true;
+    //是否使用处理数据模板
+    this.isFactory = options.isFactory || true;
   }
-  //post请求
-  _createClass(request, [{ key: "post", value: function post() {var _this2 = this;var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  //上传图片命名
+  _createClass(request, [{ key: "randomChar", value: function randomChar(l) {var url = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
+      var tmp = "";
+      var time = new Date();
+      for (var i = 0; i < l; i++) {
+        tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
+      }
+      return (
+        "file/" +
+        url +
+        time.getTime() +
+        tmp);
+
+    }
+    //post请求
+  }, { key: "post", value: function post() {var _this2 = this;var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var requestInfo = this.getDefault(url, options, "data");
+      requestInfo.data = data;
       return new Promise(function (resolve, reject) {
-        _this2.getRequest("POST", requestInfo, data, function (state, response) {
+        _this2.getRequest("POST", requestInfo, function (state, response) {
           //是否用外部的数据处理方法
           if (state && requestInfo.isFactory && _this2.dataFactory) {
             //数据处理
@@ -8607,8 +9037,9 @@ module.exports = md5;
     //get请求
   }, { key: "get", value: function get() {var _this3 = this;var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var requestInfo = this.getDefault(url, options, "data");
+      requestInfo.data = data;
       return new Promise(function (resolve, reject) {
-        _this3.getRequest("GET", requestInfo, data, function (state, response) {
+        _this3.getRequest("GET", requestInfo, function (state, response) {
           //是否用外部的数据处理方法
           if (state && requestInfo.isFactory && _this3.dataFactory) {
             //数据处理
@@ -8620,9 +9051,54 @@ module.exports = md5;
         });
       });
     }
+    //七牛云文件上传
+  }, { key: "qn", value: function qn() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};var callback = arguments.length > 1 ? arguments[1] : undefined;
+      var _this = this;
+      return new Promise(function (resolve, reject) {
+        uni.chooseImage({
+          count: options.count || 9, //默认9
+          sizeType: options.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+          sourceType: options.sourceType || ['album', 'camera'], //从相册选择
+          success: function success(res) {
+            var filePathList = res.tempFilePaths;
+            var len = filePathList.length;
+            var imageList = new Array();
+            _this.get("api/open/v1/qn_upload").then(function (data) {
+              uploadFile(0);
+              function uploadFile(i) {
+                // 交给七牛上传
+                qiniuUploader.upload(filePathList[i], function (res) {
+                  imageList.push(res.imageURL);
+                  callback && callback(res.imageURL);
+                  if (len - 1 > i) {
+                    uploadFile(i + 1);
+                  } else {
+                    resolve(imageList);
+                  }
+                }, function (error) {
+                  console.log('error: ' + error);
+                  reject(error);
+                }, {
+                  region: 'SCN', //地区
+                  domain: data.visitPrefix, // // bucket 域名，下载资源时用到。
+                  key: _this.randomChar(8, data.folderPath),
+                  uptoken: data.token, // 由其他程序生成七牛 uptoken
+                  uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
+                }, function (res) {
+                  console.log('上传进度', res.progress);
+                  // console.log('已经上传的数据长度', res.totalBytesSent)
+                  // console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+                });
+              }
+            });
+          } });
+
+      });
+    }
     //文件上传
-  }, { key: "file", value: function file() {var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  }, { key: "urlFile", value: function urlFile() {var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var requestInfo = this.getDefault(url, options, "file");
+      requestInfo.data = data;
       var _this = this;
       return new Promise(function (resolve, reject) {
         uni.chooseImage({
@@ -8630,7 +9106,7 @@ module.exports = md5;
           sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
           sourceType: data.sourceType || ['album', 'camera'], //从相册选择
           success: function success(res) {
-            _this.getFileUpload(requestInfo, res.tempFiles, data, function (state, response) {
+            _this.getFileUpload(requestInfo, res.tempFiles, function (state, response) {
               state ? resolve(response) : reject(response);
             });
           } });
@@ -8647,7 +9123,11 @@ module.exports = md5;
       } else {
         httpUrl = urlType ? url : this.baseUrl + url;
       }
-      var config = Object.assign({}, this.config, options);
+      var config = Object.assign({
+        isPrompt: this.isPrompt,
+        load: this.load,
+        isFactory: this.isFactory },
+      options);
       //请求地址
       config.httpUrl = httpUrl;
       //请求头
@@ -8655,23 +9135,22 @@ module.exports = md5;
       return config;
     }
     //接口请求方法
-  }, { key: "getRequest", value: function getRequest(ajaxType, options, data, callback) {var _this4 = this;
+  }, { key: "getRequest", value: function getRequest(ajaxType, options, callback) {var _this4 = this;
       //请求前回调
       if (this.requestStart) {
         options.method = ajaxType;
-        var requestStart = this.requestStart(options, data);
+        var requestStart = this.requestStart(options);
         if (typeof requestStart == "object") {
-          if (requestStart.options) {
-            options = Object.assign(options, requestStart.options);
-          }
-          if (requestStart.data) {
-            data = requestStart.data;
-          }
+          options.data = requestStart.data;
+          options.headers = requestStart.headers;
+          options.isPrompt = requestStart.isPrompt;
+          options.load = requestStart.load;
+          options.isFactory = requestStart.isFactory;
         }
       }
       uni.request({
         url: options.httpUrl,
-        data: data,
+        data: options.data,
         method: ajaxType, //请求类型
         header: options.headers, //加入请求头
         success: function success(res) {
@@ -8691,31 +9170,32 @@ module.exports = md5;
     // 		name:"后台接受文件key名称",
     //		data:"而外参数"
     // 	}
-  }, { key: "getFileUpload", value: function getFileUpload(options, files, data, callback) {
+  }, { key: "getFileUpload", value: function getFileUpload(options, files, callback) {
       var _this = this;
       //请求前回调
       if (this.requestStart) {
         options.method = "FILE";
-        var requestStart = this.requestStart(options, data);
+        var requestStart = this.requestStart(options);
         if (typeof requestStart == "object") {
-          if (requestStart.options) {
-            options = Object.assign(options, requestStart.options);
+          if (typeof requestStart == "object") {
+            options.data = requestStart.data;
+            options.headers = requestStart.headers;
+            options.isPrompt = requestStart.isPrompt;
+            options.load = requestStart.load;
+            options.isFactory = requestStart.isFactory;
           }
-          // 				if(requestStart.data){
-          // 					data = requestStart.data;
-          // 				}
         }
       }
       var len = files.length - 1;
       var fileList = new Array();
       fileUpload(0);
+
       function fileUpload(i) {
-        console.log(files[i]);
         var config = {
           url: options.httpUrl,
           filePath: files[i].path,
           header: options.headers, //加入请求头
-          name: data.name || "file",
+          name: options.name || "file",
           success: function success(response) {
             response.data = JSON.parse(response.data);
             //请求完成回调
@@ -8751,8 +9231,8 @@ module.exports = md5;
             callback(false, err);
           } };
 
-        if (data.data) {
-          config.formData = data.data;
+        if (options.data) {
+          config.formData = options.data;
         }
         uni.uploadFile(config);
       }
@@ -8761,17 +9241,17 @@ module.exports = md5;
 
 /***/ }),
 
-/***/ "E:\\weChat\\xinweifayuan\\utils\\utils.js":
-/*!*********************************************!*\
-  !*** E:/weChat/xinweifayuan/utils/utils.js ***!
-  \*********************************************/
+/***/ "E:\\www\\uni-app-template\\utils\\utils.js":
+/*!**********************************************!*\
+  !*** E:/www/uni-app-template/utils/utils.js ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.utf8 = exports.clickDateDiff = exports.modifyJson = void 0; /**
-                                                                                                                                                * json数据去重合并
-                                                                                                                                                */
+Object.defineProperty(exports, "__esModule", { value: true });exports.clickDateDiff = exports.modifyJson = void 0; /**
+                                                                                                                                 * json数据去重合并
+                                                                                                                                 */
 var modifyJson = function modifyJson(json, oldJson) {
   if (!json && !oldJson) {return;}
   if (typeof json !== "object") {
@@ -8845,37 +9325,6 @@ exports.clickDateDiff = clickDateDiff;Date.prototype.format = function () {var f
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));}
   return fmt;
 };
-
-//MD5加密中文编号
-var utf8 = function utf8(inputStr) {//将中文转为UTF8
-  var outputStr = "";
-  for (var i = 0; i < inputStr.length; i++) {
-    var temp = inputStr.charCodeAt(i);
-    //0xxxxxxx
-    if (temp < 128) {
-      outputStr += String.fromCharCode(temp);
-    }
-    //110xxxxx 10xxxxxx
-    else if (temp < 2048) {
-        outputStr += String.fromCharCode(temp >> 6 | 192);
-        outputStr += String.fromCharCode(temp & 63 | 128);
-      }
-      //1110xxxx 10xxxxxx 10xxxxxx
-      else if (temp < 65536) {
-          outputStr += String.fromCharCode(temp >> 12 | 224);
-          outputStr += String.fromCharCode(temp >> 6 & 63 | 128);
-          outputStr += String.fromCharCode(temp & 63 | 128);
-        }
-        //11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        else {
-            outputStr += String.fromCharCode(temp >> 18 | 240);
-            outputStr += String.fromCharCode(temp >> 12 & 63 | 128);
-            outputStr += String.fromCharCode(temp >> 6 & 63 | 128);
-            outputStr += String.fromCharCode(temp & 63 | 128);
-          }
-  }
-  return outputStr;
-};exports.utf8 = utf8;
 
 /***/ })
 

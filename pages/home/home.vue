@@ -1,18 +1,43 @@
 <template>
-  <view></view>
+  <view>
+		<z-login ref="login" @success="pageData"></z-login>
+	</view>
 </template>
 
 <script>
+	import zLogin from '@/components/module/login';
+	import { mapState, mapMutations } from 'vuex';
 export default {
+	components:{
+		zLogin
+	},
   data() {
     return {};
   },
+	computed: {
+		...mapState(['userInfo'])
+	},
   //第一次加载
-  onLoad(e) {},
+  onLoad(e) {
+		const _this = this;
+		// 页面植入打开登录方法
+		this.$http.openLogin = function() {
+			//跳转到首页
+			uni.switchTab({
+				url: '/pages/home/home'
+			});
+			//打开人脸识别
+			_this.$refs.login.openLogin();
+		};
+	},
+	//页面显示
+	onShow() {},
   //方法
-  methods: {},
-  //页面显示
-  onShow() {},
+  methods: {
+	  pageData(){
+		  
+	  }
+  },
   //页面隐藏
   onHide() {},
   //页面卸载

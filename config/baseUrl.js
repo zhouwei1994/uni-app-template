@@ -3,30 +3,38 @@ const court = "开发";
 const courtConfig = {
 	/****************开发环境****************/
 	"开发": {
-		//微信小程序appid=wx24f5b4156f6de485
+		//微信小程序appid=wx04df1c9c5679b134
 		//请求接口
-		baseUrl: "http://t.3672api.86court.com",
+		baseUrl: "https://dev.kemean.net/make_friends/",
 		//图片路径
-		imgBaseUrl: "http://t.3672api.86court.com",
+		imgBaseUrl: "https://dev.kemean.net/make_friends/",
+		//webSocket地址
+		socketUrl:"wss://dev.kemean.net/make_friends/",
+		//平台名称
+		platformName:"青缘福田",
 		//页面分享配置
 		share: function () {
 			return {
-				title: '交友小程序',
-				path: '/pages/index/index'
+				title: '青缘福田',
+				path: '/pages/home/home'
 			}
 		}
 	},
 	"交友": {
-		//微信小程序appid=wx91a38ef0b01ee2a3
+		//微信小程序appid=
 		//请求接口
-		baseUrl: "https://gzapi.86court.com",
+		baseUrl: "",
 		//图片路径
-		imgBaseUrl: "https://gzapi.86court.com",
+		imgBaseUrl: "",
+		//webSocket地址
+		socketUrl:"ws://dev.kemean.net",
+		//平台名称
+		platformName:"青缘福田",
 		//页面分享配置
 		share: function () {
 			return {
-				title: '交友小程序',
-				path: '/pages/index/index'
+				title: '青缘福田',
+				path: '/pages/home/home'
 			}
 		}
 	},

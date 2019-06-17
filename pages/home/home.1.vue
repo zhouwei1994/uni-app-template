@@ -9,10 +9,10 @@ export default {
   },
   //第一次加载
   onLoad(e) {},
+	//页面显示
+	onShow() {},
   //方法
   methods: {},
-  //页面显示
-  onShow() {},
   //页面隐藏
   onHide() {},
   //页面卸载

@@ -74,34 +74,3 @@ Date.prototype.format = function (fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-
-//MD5加密中文编号
-export const utf8 = function(inputStr) { //将中文转为UTF8
-    var outputStr = "";
-    for (var i = 0; i < inputStr.length; i++) {
-        var temp = inputStr.charCodeAt(i);
-        //0xxxxxxx
-        if (temp < 128) {
-            outputStr += String.fromCharCode(temp);
-        }
-        //110xxxxx 10xxxxxx
-        else if (temp < 2048) {
-            outputStr += String.fromCharCode((temp >> 6) | 192);
-            outputStr += String.fromCharCode((temp & 63) | 128);
-        }
-        //1110xxxx 10xxxxxx 10xxxxxx
-        else if (temp < 65536) {
-            outputStr += String.fromCharCode((temp >> 12) | 224);
-            outputStr += String.fromCharCode(((temp >> 6) & 63) | 128);
-            outputStr += String.fromCharCode((temp & 63) | 128);
-        }
-        //11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        else {
-            outputStr += String.fromCharCode((temp >> 18) | 240);
-            outputStr += String.fromCharCode(((temp >> 12) & 63) | 128);
-            outputStr += String.fromCharCode(((temp >> 6) & 63) | 128);
-            outputStr += String.fromCharCode((temp & 63) | 128);
-        }
-    }
-    return outputStr;
-}

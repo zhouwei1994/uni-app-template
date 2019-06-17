@@ -3,7 +3,8 @@
     "pages/home/home",
     "pages/ta/ta",
     "pages/message/message",
-    "pages/my/my"
+    "pages/my/my",
+    "pages/home/webView"
   ],
   "subPackages": [],
   "window": {

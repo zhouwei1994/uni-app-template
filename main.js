@@ -9,7 +9,16 @@ Vue.prototype.$base = base;
 //挂载全局http请求
 import $http from '@/config/request'
 Vue.prototype.$http = $http;
-
+//判断是否登录
+Vue.prototype.judgeLogin = function(type = "force",callback) {
+	var userInfo = store.state.userInfo;
+	if (userInfo.token) {
+		callback();
+	} else if ($http.openLogin) {
+		//调取页面上的登录事件
+		$http.openLogin();
+	}
+}
 Vue.config.productionTip = false
 
 App.mpType = 'app'

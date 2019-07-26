@@ -1,0 +1,226 @@
+.input_form_box {
+	background-color: #fff;
+	padding: 0 30upx;
+	.input_title {
+		font-size: 32upx;
+		color: #333333;
+		padding: 30upx 0;
+	}
+	.input_box {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		&.line {
+			border-top: 1upx solid #f1f1f1;
+		}
+		.name {
+			font-size: 30upx;
+			color: #666666;
+			min-width: 120upx;
+			flex-shrink: 0;
+			padding: 30upx 0;
+			&.required::before {
+				content: '*';
+				font-size: 30upx;
+				color: #f73333;
+			}
+		}
+		.input_info {
+			padding: 30upx 0;
+			display: flex;
+			flex: 1;
+			input {
+				width: 100%;
+				text-align: right;
+				font-size: 30upx;
+			}
+		}
+		.prompt {
+			width: 100%;
+			padding-bottom: 20upx;
+			font-size: 28upx;
+			color: #999999;
+			transform: translateY(-10upx);
+		}
+		picker {
+			flex: 1;
+		}
+		.switch {
+			flex: 1;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			&::after {
+				content: "";
+				@include bis('./static/icon/bnt_receipt2.png', 100% 100%);
+				width: 108upx;
+				height: 58upx;
+			}
+			&.active::after {
+				background-image: url('./static/icon/bnt_receipt1.png');
+			}
+		}
+		.radio_box {
+			padding: 30upx 0;
+			flex: 1;
+			display: flex;
+			justify-content: flex-end;
+			view {
+				display: flex;
+				align-items: center;
+				font-size: 28upx;
+				color: #333333;
+				margin-left: 90upx;
+				&:first-child {
+					margin-left: 0;
+				}
+				&::before {
+					content: '';
+					@include bis('./static/icon/ic_gender_unselected.png', 100% 100%);
+					width: 38upx;
+					height: 38upx;
+					margin-right: 15upx;
+				}
+				&.active::before {
+					background-image: url('./static/icon/ic_gender_selected.png');
+				}
+			}
+		}
+		.select_info {
+			padding: 30upx 0;
+			flex: 1;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			.value {
+				font-size: 30upx;
+				color: #333;
+				text-align: right;
+			}
+			.select {
+				font-size: 30upx;
+				color: #999999;
+			}
+			.head_img {
+				width: 100upx;
+				height: 100upx;
+				border-radius: 10upx;
+			}
+			&::after {
+				content: '';
+				@include bis('http://qn.kemean.cn/upload/201907/23/me_lise_more.png', 100% 100%);
+				width: 15upx;
+				height: 26upx;
+				margin-left: 20upx;
+				flex-shrink: 0;
+			}
+		}
+		.upload_info {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			padding-bottom: 10upx;
+			.upload_img {
+				width: 200upx;
+				height: 200upx;
+				background-color: #ffffff;
+				border-radius: 4upx;
+				margin-right: 16upx;
+				margin-bottom: 16upx;
+				overflow: hidden;
+				position: relative;
+				&:nth-child(3n) {
+					margin-right: 0;
+				}
+				image {
+					width: 100%;
+					height: 100%;
+				}
+				> view {
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					width: 100%;
+					height: 40upx;
+					background-color: rgba(0, 0, 0, 0.5);
+					color: #fff;
+					font-size: 24upx;
+					text-align: center;
+					line-height: 40upx;
+				}
+				.delete {
+					position: absolute;
+					top: 0upx;
+					right: 0upx;
+					width: 44upx;
+					height: 44upx;
+					background-image: url('./static/icon/icon_guanbi.png');
+					background-position: center center;
+					background-repeat: no-repeat;
+					background-size: 100% 100%;
+				}
+				&.upload {
+					border: 1upx dashed #b2b2b2;
+					background-image: url('./static/icon/icon_shangchuantupian.png');
+					background-position: center center;
+					background-repeat: no-repeat;
+					background-size: 60% 60%;
+				}
+			}
+		}
+		.textarea_info {
+			width: 100%;
+			padding-bottom: 30upx;
+			font-size: 28upx;
+			color: #999999;
+			textarea {
+				width: 100%;
+				height: 154upx;
+				font-size: 30upx;
+				line-height: 150%;
+			}
+		}
+	}
+}
+.protocol {
+	margin-top: 20upx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 28upx;
+	color: #666;
+	text {
+		color: $mainColor;
+	}
+	view {
+		@include bis('./static/icon/ic_gender_unselected.png', 100% 100%);
+		width: 34upx;
+		height: 34upx;
+		margin-right: 10upx;
+		&.active {
+			background-image: url("./static/icon/ic_agreed.png");
+		}
+	}
+}
+.from_but {
+	margin-top: 80upx;
+	padding: 30upx;
+	display: flex;
+	justify-content: center;
+	button {
+		width: 534upx;
+		height: 88upx;
+		background-color: #f0f0f0;
+		border-radius: 43upx;
+		line-height: 88upx;
+		font-size: 34upx;
+		color: #cccccc;
+		&.active {
+			background-image: linear-gradient(90deg, #ea552d 0%, #f19837 100%), linear-gradient(#d4d4d4, #d4d4d4);
+			color: #ffffff;
+		}
+		&::after {
+			border: none;
+		}
+	}
+}

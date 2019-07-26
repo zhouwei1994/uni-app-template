@@ -1,20 +1,19 @@
 import request from "@/utils/request";
 import store from '@/config/store';
 import md5 from '@/utils/md5';
-import {
-	utf8
-} from '@/utils/utils';
+import { h5Login } from '@/config/html5Utils';
 import base from '@/config/baseUrl';
 let $http = new request({
 	baseUrl: base.baseUrl,
-	fileUrl: base.imgBaseUrl,
+	fileUrl: base.baseUrl,
 	headers: {
-		'content-type': 'application/json;charset=UTF-8'
+		'content-type': 'application/json;charset=UTF-8',
+		'project_token': base.projectToken,
 	}
 });
 let requestNum = 0;
 //请求开始回调
-$http.requestStart = function(options) {
+$http.requestStart = function (options) {
 	if (requestNum <= 0) {
 		uni.showNavigationBarLoading();
 		if (options.load) {
@@ -24,6 +23,9 @@ $http.requestStart = function(options) {
 				mask: true
 			});
 		}
+	}
+	if (options.data.pageNo && options.loadMore) {
+		store.commit("setRequestState", 1100);
 	}
 	requestNum += 1;
 	var callbackData = {};
@@ -35,7 +37,10 @@ $http.requestStart = function(options) {
 	return options;
 }
 //请求结束
-$http.requestEnd = function(options, resolve) {
+$http.requestEnd = function (options, resolve) {
+	if (resolve.statusCode !== 200 && options.data.pageNo && options.loadMore) {
+		store.commit("setRequestState", 1200);
+	}
 	//判断当前接口是否需要加载动画
 	requestNum = requestNum - 1;
 	if (requestNum <= 0) {
@@ -45,7 +50,7 @@ $http.requestEnd = function(options, resolve) {
 }
 let loginPopupNum = 0;
 //所有接口数据处理
-$http.dataFactory = function(options, resolve) {
+$http.dataFactory = function (options, resolve) {
 	console.log("接口返回结果", resolve);
 	//设置回调默认值
 	var callback = {
@@ -56,39 +61,67 @@ $http.dataFactory = function(options, resolve) {
 	if (resolve.data.success) {
 		callback.success = true;
 		callback.result = resolve.data.data;
-	} else if (resolve.data.code == "1000" || resolve.data.code == "1001") { //code == 10403 是用户未登录
-		var content = '您还未登录，请先登录';
-		if (resolve.data.code == "1000") {
-			content = '您的登录已失效，请重新登录';
-		}
-		if (loginPopupNum <= 0) {
-			loginPopupNum++;
-			if($http.openLogin){
-				uni.showModal({
-					title: '提示',
-					content: content,
-					confirmText: "去登录",
-					cancelText: "再等等",
-					success: function(res) {
-						loginPopupNum--;
-						if (res.confirm) {
-							//调取页面上的登录事件
-							$http.openLogin();
+		if (options.data.pageNo && options.loadMore) {
+			if (resolve.data.data.data) {
+				const len = resolve.data.data.data.length;
+				if (len < options.data.pageSize) {
+					if (options.data.pageNo == 1) {
+						if (len == 0) {
+							store.commit("setRequestState", 1400);
+						} else {
+							store.commit("setRequestState", 999);
 						}
+					} else {
+						store.commit("setRequestState", 1300);
 					}
-				});
-			}else{
-				loginPopupNum--;
-				uni.showToast({
-					title: content,
-					icon: "none",
-					duration: 3000
-				});
+				} else if (options.data.pageNo < resolve.data.data.pages) {
+					store.commit("setRequestState", 1000);
+				} else {
+					store.commit("setRequestState", 999);
+				}
 			}
 		}
+	} else if (resolve.data.code == "1000" || resolve.data.code == "1001") {
+		if (options.data.pageNo && options.loadMore) {
+			store.commit("setRequestState", 1200);
+		}
+		var content = '此时此刻需要您登录喔~';
+		if (resolve.data.code == "1000") {
+			content = '此时此刻需要您登录喔';
+		}
+		if (loginPopupNum <= 0) {
+			// #ifdef MP-WEIXIN
+			loginPopupNum++;
+			uni.showModal({
+				title: '温馨提示',
+				content: content,
+				confirmText: "去登录",
+				cancelText: "再逛会",
+				success: function (res) {
+					loginPopupNum--;
+					if (res.confirm) {
+						if ($http.openLogin) {
+							//调取页面上的登录事件
+							$http.openLogin();
+						} else {
+							uni.switchTab({
+								url: '/pages/home/home'
+							});
+						}
+					}
+				}
+			});
+			// #endif
+			// #ifdef H5
+			h5Login("force");
+			// #endif
+		}
 	} else { //其他错误提示
+		if (options.data.pageNo && options.loadMore) {
+			store.commit("setRequestState", 1200);
+		}
 		if (options.isPrompt) {
-			setTimeout(function() {
+			setTimeout(function () {
 				uni.showToast({
 					title: resolve.data.info,
 					icon: "none",

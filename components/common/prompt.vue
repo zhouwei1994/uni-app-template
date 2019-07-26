@@ -5,9 +5,10 @@
 		<view class="popupContentBox" v-if="popupShow">
 			<view class="close" @click="onPopupHide">×</view>
 			<view class="title">{{ popupConfig.title }}</view>
-			<view class="popupContent" v-if="!content">
+			<view class="popupContent">
 				<view class="introduce">{{ text }}</view>
 				<input
+					class="input"
 					:type="popupConfig.inputType"
 					adjust-position="true"
 					:password="popupConfig.password"
@@ -49,9 +50,9 @@ export default {
 	data() {
 		return {
 			popupConfig: {
-				title: '提示',
+				title: '操作',
 				confirmText: '确认',
-				placeholder: '请输入',
+				placeholder: '',
 				password: false,
 				inputType: 'text',
 			},
@@ -145,12 +146,14 @@ export default {
 .popupContentBox .popupContent {
 	padding: 30upx 40upx;
 }
-.popupContentBox .popupContent input {
+.popupContentBox .popupContent .input {
+	width: 100%;
 	border-radius: 10upx;
 	border: 1px solid #eee;
 	height: 80upx;
 	font-size: 30upx;
 	padding: 0 20upx;
+	box-sizing: border-box;
 }
 .popupContentBox .popupContent .introduce {
 	font-size: 28upx;

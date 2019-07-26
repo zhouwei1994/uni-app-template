@@ -14,6 +14,8 @@ export default class request {
 		this.load = options.load || true;
 		//是否使用处理数据模板
 		this.isFactory = options.isFactory || true;
+		//列表接口是否有加载判断
+		this.loadMore = options.loadMore || true;
 	}
 	//上传图片命名
 	randomChar(l, url = "") {
@@ -64,15 +66,50 @@ export default class request {
 			});
 		});
 	}
+	jsonpGet(url = '', data = {}, options = {}) {
+		let requestInfo = this.getDefault(url, options, "data");
+		let dataStr = '';
+		Object.keys(data).forEach(key => {
+			dataStr += key + '=' + data[key] + '&';
+		});
+		//匹配最后一个&并去除
+		if (dataStr !== '') {
+			dataStr = dataStr.substr(0, dataStr.lastIndexOf('&'));
+		}
+		requestInfo.httpUrl = requestInfo.httpUrl + '?' + dataStr;
+		const _this = this;
+		return new Promise((resolve, reject) => {
+			if (_this.requestStart) {
+				requestInfo.data = data;
+				var requestStart = _this.requestStart(requestInfo);
+				if (typeof requestStart == "object") {
+					requestInfo.data = requestStart.data;
+					requestInfo.headers = requestStart.headers;
+					requestInfo.isPrompt = requestStart.isPrompt;
+					requestInfo.load = requestStart.load;
+					requestInfo.isFactory = requestStart.isFactory;
+				}
+			}
+			window.jsonpCallback = function (data) {
+				_this.requestEnd && _this.requestEnd(requestInfo, data);
+				resolve(data);
+			}
+			var script = document.createElement("script");
+			script.src = requestInfo.httpUrl + "&callback=jsonpCallback";
+			document.head.appendChild(script);
+			// 及时删除，防止加载过多的JS
+			document.head.removeChild(script);
+		});
+	}
 	//七牛云文件上传
-	qn(options = {},callback) {
+	qn(options = {}, callback) {
 		const _this = this;
 		return new Promise((resolve, reject) => {
 			uni.chooseImage({
 				count: options.count || 9, //默认9
 				sizeType: options.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: options.sourceType || ['album', 'camera'], //从相册选择
-				success: function(res) {
+				success: function (res) {
 					var filePathList = res.tempFilePaths;
 					var len = filePathList.length;
 					var imageList = new Array;
@@ -92,16 +129,16 @@ export default class request {
 								console.log('error: ' + error);
 								reject(error)
 							}, {
-								region: 'SCN', //地区
-								domain: data.visitPrefix, // // bucket 域名，下载资源时用到。
-								key: _this.randomChar(8,data.folderPath),
-								uptoken: data.token, // 由其他程序生成七牛 uptoken
-								uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
-							}, (res) => {
-								console.log('上传进度', res.progress)
-								// console.log('已经上传的数据长度', res.totalBytesSent)
-								// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
-							});
+									region: 'SCN', //地区
+									domain: data.visitPrefix, // // bucket 域名，下载资源时用到。
+									key: _this.randomChar(8, data.folderPath),
+									uptoken: data.token, // 由其他程序生成七牛 uptoken
+									uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
+								}, (res) => {
+									console.log('上传进度', res.progress)
+									// console.log('已经上传的数据长度', res.totalBytesSent)
+									// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+								});
 						}
 					});
 				}
@@ -118,7 +155,7 @@ export default class request {
 				count: data.count || 9, //默认9
 				sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: data.sourceType || ['album', 'camera'], //从相册选择
-				success: function(res) {
+				success: function (res) {
 					_this.getFileUpload(requestInfo, res.tempFiles, (state, response) => {
 						state ? resolve(response) : reject(response);
 					});
@@ -140,6 +177,7 @@ export default class request {
 			isPrompt: this.isPrompt,
 			load: this.load,
 			isFactory: this.isFactory,
+			loadMore: this.loadMore
 		}, options);
 		//请求地址
 		config.httpUrl = httpUrl;

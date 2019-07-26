@@ -1,8 +1,11 @@
+import $http from '@/config/request'
 /**
  * json数据去重合并
  */
 export const modifyJson = (json, oldJson) => {
-  if (!json && !oldJson) { return; }
+  if (!json && !oldJson) {
+    return;
+  }
   if (typeof json !== "object") {
     json = JSON.parse(json);
   }
@@ -60,17 +63,56 @@ export const clickDateDiff = function (value) {
 //时间戳转换为时间 format('yyyy-MM-dd hh:mm:ss')
 //时间格式转换
 Date.prototype.format = function (fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz 
-    var o = {
-        "M+": this.getMonth() + 1, //月份 
-        "d+": this.getDate(), //日 
-        "h+": this.getHours(), //小时 
-        "m+": this.getMinutes(), //分 
-        "s+": this.getSeconds(), //秒 
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-        "S": this.getMilliseconds() //毫秒 
+  var o = {
+    "M+": this.getMonth() + 1, //月份 
+    "d+": this.getDate(), //日 
+    "h+": this.getHours(), //小时 
+    "m+": this.getMinutes(), //分 
+    "s+": this.getSeconds(), //秒 
+    "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+    "S": this.getMilliseconds() //毫秒 
+  };
+  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[
+      k]).substr(("" + o[k]).length)));
+  return fmt;
+}
+//微信小程序支付
+export const setWxPay = function (orderNo, callback) {
+  $http.get('api/pay/v1/small_pay_sign_wx', {
+    orderNo: orderNo
+  }).then(data => {
+    let payData = {
+      provider: platform,
+      success: function (res) {
+        callback && callback({ success: true, data: res });
+        console.log('success:' + JSON.stringify(res));
+      },
+      fail: function (err) {
+        callback && callback({ success: false, data: err });
+        console.log('fail:' + JSON.stringify(err));
+      }
     };
-    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-    for (var k in o)
-        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-    return fmt;
+    let platform;
+    // #ifdef MP-WEIXIN
+    platform = 'weixin';
+    payData.timeStamp = data.timeStamp;
+    payData.nonceStr = data.nonceStr;
+    payData.package = data.package;
+    payData.signType = "MD5";
+    payData.paySign = data.sign;
+    // #endif
+    // #ifdef MP-ALIPAY
+    platform = 'alipay';
+    payData.orderInfo = data;
+    // #endif
+    // #ifdef MP-BAIDU
+    platform = 'baidu';
+    payData.orderInfo = data;
+    // #endif
+    uni.requestPayment(payData);
+  }, err => {
+    callback && callback({ success: false, data: err });
+  });
 }

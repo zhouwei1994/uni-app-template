@@ -4,9 +4,9 @@
 		<view class="loginMask" v-if="loginPopup" @click="closePopup"></view>
 		<view class="loginPopup" v-if="loginPopup">
 			<view class="loginBox">
-				<image class="logo" src="https://qn.kemean.cn/upload/201905/29/c4f7409c1d9a499cb8eff66ae3202ea6"></image>
+				<image class="logo" :src="base.logoUrl"></image>
 				<view class="platformName">{{ base.platformName }}</view>
-				<view class="description">企业单身员工交友平台</view>
+				<view class="description">同城外卖团购服务</view>
 			</view>
 			<button type="primary" hover-class="active" open-type="getUserInfo" @getuserinfo="onAuthorization">授权登录</button>
 		</view>
@@ -15,7 +15,9 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import base from '@/config/baseUrl';
-
+// #ifdef H5
+import {h5Login} from '@/config/html5Utils';
+// #endif
 let clear;
 export default {
 	props: {
@@ -36,16 +38,25 @@ export default {
 	computed: {
 		...mapState(['userInfo', 'chatScenesInfo'])
 	},
-	onReady: function() {
+	created: function() {
 		if (!this.userInfo.token) {
+			// #ifdef MP-WEIXIN
 			this.onLogin();
+			// #endif
+			// #ifdef H5
+			h5Login('force',() => {
+				this.$emit('success');
+			});
+			// #endif
 		}
 	},
 	methods: {
 		...mapMutations(['setUserInfo']),
 		openLogin() {
 			this.fastLogin = true;
+			// #ifdef MP-WEIXIN
 			this.onLogin();
+			// #endif
 		},
 		onLogin: function() {
 			const _this = this;
@@ -98,40 +109,12 @@ export default {
 				})
 				.then(res => {
 					this.setUserInfo(res);
-					if (res.settleStatus == 1401) {
-						uni.showToast({
-							title: '登录成功！'
-						});
-						
+					if(res.thirdLoginSuccess){
 						this.$emit('success', res);
-					} else if (res.settleStatus == 1201) {
-						var title = '账号信息还在审核中！';
-						if (res.userType == 1101) {
-							title = '企业信息还在审核中！';
-						}
-						uni.showToast({
-							title: title,
-							icon:"none"
+					}else{
+						uni.navigateTo({
+							url: '/pages/user/bindPhone'
 						});
-						this.$emit('success', res);
-					} else {
-						var userType = this.chatScenesInfo.query.userType;
-						if (userType && userType == 1101) {
-							//企业管理员
-							uni.reLaunch({
-								url: '/pages/registered/adminRegistered'
-							});
-						} else if (userType && userType == 1102) {
-							//企业用户
-							uni.reLaunch({
-								url: '/pages/registered/companySelect'
-							});
-						} else {
-							//个体用户
-							uni.reLaunch({
-								url: '/pages/registered/registered'
-							});
-						}
 					}
 				});
 		},
@@ -223,6 +206,7 @@ export default {
 		.logo {
 			width: 160upx;
 			height: 160upx;
+			border-radius: 20%;
 		}
 
 		.platformName {

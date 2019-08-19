@@ -41,7 +41,6 @@ export default {
 		}
 		// #endif
 	},
-	onShow: function() {},
 	onHide: function() {},
 };
 </script>

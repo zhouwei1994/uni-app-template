@@ -12,7 +12,13 @@ export default {
 	//页面显示
 	onShow() {},
   //方法
-  methods: {},
+  methods: {
+    onPageJump(url) {
+			uni.navigateTo({
+				url: url
+			});
+		}
+  },
   //页面隐藏
   onHide() {},
   //页面卸载

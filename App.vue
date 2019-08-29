@@ -58,7 +58,12 @@ uni-page-head {
 uni-app {
 	height: auto;
 }
+//修复H5输入框上下不居中bug
+.uni-input-form {
+	height: 100%;
+}
 // #endif
+
 page {
 	height: 100%;
 	background-color: #f5f5f5;

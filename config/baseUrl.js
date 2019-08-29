@@ -9,7 +9,9 @@ const courtConfig = {
 		//webSocket地址
 		socketUrl:"wss://dev.kemean.net/make_friends/",
 		//平台名称
-		platformName:"都市云",
+		platformName: "都市云",
+		//项目logo
+		logoUrl: "https://qn.kemean.cn/upload/201906/19/3f3b4751f3ed4a97be804450c3ec4c79",
 		//页面分享配置
 		share: function () {
 			return {
@@ -33,7 +35,9 @@ const courtConfig = {
 		//webSocket地址
 		socketUrl:"ws://dev.kemean.net",
 		//平台名称
-		platformName:"青缘福田",
+		platformName: "青缘福田",
+		//项目logo
+		logoUrl: "https://qn.kemean.cn/upload/201906/19/3f3b4751f3ed4a97be804450c3ec4c79",
 		//页面分享配置
 		share: function () {
 			return {

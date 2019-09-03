@@ -75,6 +75,8 @@ Vue.prototype.judgeLogin = function (type = "judge", callback) {
 //全局组件
 import loadMore from "@/components/common/load_more.vue";
 Vue.component("load-more", loadMore);
+import header from "@/components/module/header";
+Vue.component("z-header", header);
 App.mpType = 'app'
 
 const app = new Vue({

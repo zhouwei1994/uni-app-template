@@ -1,5 +1,7 @@
 <template>
-  <view></view>
+  <view>
+    <z-header :back="false"></z-header>
+  </view>
 </template>
 
 <script>

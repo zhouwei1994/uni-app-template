@@ -1,5 +1,6 @@
 <template>
   <view>
+	  	<z-header :back="false"></z-header>
 		<z-login ref="login" @success="pageData"></z-login>
 	</view>
 </template>

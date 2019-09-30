@@ -4,7 +4,7 @@ $mainColor: #e91c3a;
 //辅色
 $viceColor:#999;
 // 背景图片地址和大小
-@mixin bis($url, $size: "auto 100%") {
+@mixin bis($url, $size: cover) {
   background-image: url($url);
   background-repeat: no-repeat;
   background-position: center center;

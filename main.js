@@ -7,7 +7,7 @@ Vue.prototype.$store = store;
 import base from '@/config/baseUrl'
 Vue.prototype.$base = base;
 //挂载全局http请求
-import $http from '@/config/request'
+import $http from '@/config/requestConfig'
 Vue.prototype.$http = $http;
 Vue.config.productionTip = false;
 // #ifdef H5
@@ -75,8 +75,8 @@ Vue.prototype.judgeLogin = function (type = "judge", callback) {
 //全局组件
 import loadMore from "@/components/common/load_more.vue";
 Vue.component("load-more", loadMore);
-import header from "@/components/common/header";
-Vue.component("z-header", header);
+import zhouWeiNavBar from "@/components/common/zhouWei-navBar";
+Vue.component("nav-bar", zhouWeiNavBar);
 App.mpType = 'app'
 
 const app = new Vue({

@@ -8,19 +8,26 @@
  * for: 微信小程序富文本解析
  * detail : http://weappdev.com/t/wxparse-alpha0-1-html-markdown/184
  */
-
+/**
+ * 请在全局下引入该文件，@import '/static/wxParse.css';
+ */
 .wxParse {
-  width: 100%;
-  font-family: Helvetica, sans-serif;
-  font-size: 30upx;
-  color: #666;
-  line-height: 1.8;
+	user-select:none;
+	width: 100%;
+	font-family: Helvetica, "PingFangSC", 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
+	color: #333;
+	line-height: 1.5;
+	font-size: 1em;
+	text-align:justify;/* //左右两端对齐 */
 }
-
-.wxParse view {
-  word-break: hyphenate;
+.wxParse view ,.wxParse uni-view{
+	word-break: break-word;
 }
-
+.wxParse .p {
+	padding-bottom: 0.5em;
+	clear: both;
+	/* letter-spacing: 0;//字间距 */
+}
 .wxParse .inline {
   display: inline;
   margin: 0;
@@ -30,46 +37,43 @@
 .wxParse .div {
   margin: 0;
   padding: 0;
+  display: block;
 }
 
-.wxParse .h1 .text {
+.wxParse .h1{
   font-size: 2em;
+  line-height: 1.2em;
   margin: 0.67em 0;
 }
-.wxParse .h2 .text {
+.wxParse .h2{
   font-size: 1.5em;
   margin: 0.83em 0;
 }
-.wxParse .h3 .text {
+.wxParse .h3{
   font-size: 1.17em;
   margin: 1em 0;
 }
-.wxParse .h4 .text {
+.wxParse .h4{
   margin: 1.33em 0;
 }
-.wxParse .h5 .text {
+.wxParse .h5{
   font-size: 0.83em;
   margin: 1.67em 0;
 }
-.wxParse .h6 .text {
-  font-size: 0.67em;
-  margin: 2.33em 0;
+.wxParse .h6{
+  font-size: 0.83em;
+  margin: 1.67em 0;
 }
 
-.wxParse .h1 .text,
-.wxParse .h2 .text,
-.wxParse .h3 .text,
-.wxParse .h4 .text,
-.wxParse .h5 .text,
-.wxParse .h6 .text,
+.wxParse .h1,
+.wxParse .h2,
+.wxParse .h3,
+.wxParse .h4,
+.wxParse .h5,
+.wxParse .h6,
 .wxParse .b,
-.wxParse .strong {
+.wxParse .strong{
   font-weight: bolder;
-}
-
-
-.wxParse .p {
-  margin: 1em 0;
 }
 
 .wxParse .i,
@@ -79,7 +83,9 @@
 .wxParse .address {
   font-style: italic;
 }
-
+.wxParse .spaceshow{
+	  white-space: pre;
+}
 .wxParse .pre,
 .wxParse .tt,
 .wxParse .code,
@@ -93,10 +99,15 @@
   padding: 16upx;
   white-space: pre;
   margin: 1em 0upx;
+  font-size: 24upx;
 }
 .wxParse .code {
-  display: inline;
-  background: #f5f5f5;
+	overflow: auto;
+	padding: 16upx;
+	white-space: pre;
+	margin: 1em 0upx;
+	background: #f5f5f5;
+	font-size: 24upx;
 }
 
 .wxParse .big {
@@ -139,12 +150,13 @@
 .wxParse .video-video {
   width: 100%;
 }
-
+.wxParse .uni-image{
+	max-width: 100%;
+}
 .wxParse .img {
-  display: inline-block;
-  width: 0;
-  height: 0;
+  display: block;
   max-width: 100%;
+  margin-bottom: 0em;/* //与p标签底部padding同时修改 */
   overflow: hidden;
 }
 
@@ -158,11 +170,10 @@
 .wxParse .blockquote .p {
   margin: 0;
 }
-
 .wxParse .ul, .wxParse .ol {
   display: block;
   margin: 1em 0;
-  padding-left: 33upx;
+  padding-left: 2em;
 }
 .wxParse .ol {
   list-style-type: disc;
@@ -200,33 +211,38 @@
 .wxParse .figure {
   overflow: hidden;
 }
-
-.wxParse .table {
-  width: 100%;
+.wxParse .table .table{
+	border-collapse:collapse;
+	box-sizing: border-box;
+	/* 内边框 */
+	border: 1px solid #dadada;
+	width: 100%;
 }
-.wxParse .thead, .wxParse .tfoot, .wxParse .tr {
-  display: flex;
-  flex-direction: row;
+.wxParse .tbody{
+	border-collapse:collapse;
+	box-sizing: border-box;
+	/* 内边框 */
+	border: 1px solid #dadada;
+}
+.wxParse .thead, .wxParse .tfoot, .wxParse .th{
+	border-collapse:collapse;
+	box-sizing: border-box;
+	background: #ececec;
+	font-weight: 40;
 }
 .wxParse .tr {
-  width:100%;
-  display: flex;
-  border-right: 2upx solid #e0e0e0;
-  border-bottom: 2upx solid #e0e0e0;
+	border-collapse:collapse;
+	box-sizing: border-box;
+	/* border: 2px solid #F0AD4E; */
+	overflow:auto;
 }
 .wxParse .th,
-.wxParse .td {
-  display: flex;
-  width: 1276upx;
-  overflow: auto;
-  flex: 1;
-  padding: 11upx;
-  border-left: 2upx solid #e0e0e0;
+.wxParse .td{
+	border-collapse:collapse;
+	box-sizing: border-box;
+	border: 2upx solid #dadada;
+	overflow:auto;
 }
-.wxParse .td:last {
-  border-top: 2upx solid #e0e0e0;
-}
-.wxParse .th {
-  background: #f0f0f0;
-  border-top: 2upx solid #e0e0e0;
+.wxParse .audio, .wxParse .uni-audio-default{
+	display: block;
 }

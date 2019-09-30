@@ -1,4 +1,5 @@
 <template>
+	<!-- '<audio/>' 组件不再维护，建议使用能力更强的 'uni.createInnerAudioContext' 接口 有时间再改-->
   <!--增加audio标签支持-->
   <audio
     :id="node.attr.id"

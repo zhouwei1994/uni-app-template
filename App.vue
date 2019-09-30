@@ -10,9 +10,9 @@ export default {
     let scene = decodeURIComponent(e.query.scene);
     scene = scene.split("&");
     let data = {
-		//场景值
-		scene:e.scene
-	};
+      //场景值
+      scene: e.scene
+    };
     scene.forEach(item => {
       let arr = item.split("=");
       if (arr.length == 2) {

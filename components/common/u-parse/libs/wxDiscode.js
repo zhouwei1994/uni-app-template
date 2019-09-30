@@ -101,7 +101,8 @@ function strGreeceDiscode(str) {
 
 function strcharacterDiscode(str) {
   // 加入常用解析
-  str = str.replace(/&nbsp;/g, ' ');
+  
+  str = str.replace(/&nbsp;/g, "<span class='spaceshow'> </span>");
   str = str.replace(/&ensp;/g, ' ');
   str = str.replace(/&emsp;/g, '　');
   str = str.replace(/&quot;/g, "'");
@@ -109,7 +110,6 @@ function strcharacterDiscode(str) {
   str = str.replace(/&lt;/g, '<');
   str = str.replace(/&gt;/g, '>');
   str = str.replace(/&#8226;/g, '•');
-
   return str;
 }
 

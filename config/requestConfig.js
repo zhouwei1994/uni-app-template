@@ -1,18 +1,22 @@
 import request from "@/utils/request";
 import store from '@/config/store';
-import md5 from '@/utils/md5';
 import { h5Login } from '@/config/html5Utils';
 import base from '@/config/baseUrl';
+//可以new多个request来支持多个域名请求
 let $http = new request({
+	//接口请求地址
 	baseUrl: base.baseUrl,
+	//服务器本地上传文件地址
 	fileUrl: base.baseUrl,
+	//设置请求头
 	headers: {
 		'content-type': 'application/json;charset=UTF-8',
 		'project_token': base.projectToken,
 	}
 });
+//当前接口请求数
 let requestNum = 0;
-//请求开始回调
+//请求开始拦截器
 $http.requestStart = function (options) {
 	if (requestNum <= 0) {
 		uni.showNavigationBarLoading();
@@ -28,7 +32,6 @@ $http.requestStart = function (options) {
 		store.commit("setRequestState", 1100);
 	}
 	requestNum += 1;
-	var callbackData = {};
 	//请求前加入token
 	if (store.state.userInfo.token) {
 		options.headers['user_token'] = store.state.userInfo.token;
@@ -46,6 +49,12 @@ $http.requestEnd = function (options, resolve) {
 	if (requestNum <= 0) {
 		uni.hideLoading();
 		uni.hideNavigationBarLoading();
+	}
+	if (resolve.errMsg && (resolve.errMsg != "request:ok" || resolve.statusCode && resolve.statusCode != 200)) { 
+		uni.showToast({
+			title: "网络错误，请检查一下网络",
+			icon: "none"
+		});
 	}
 }
 let loginPopupNum = 0;

@@ -19,7 +19,10 @@ class socket {
 			this.canInitSocket = false;
 			uni.connectSocket({
 				url: this.socketUrl + store.state.userInfo.userUid,
-				method: 'GET'
+				method: 'GET',
+				header: {
+					"Connection":"Keep-Alive"
+				}
 			});
 			uni.onSocketOpen(function(res) {
 				callback && callback();

@@ -224,10 +224,10 @@ export default {
 
 	button {
 		border-radius: 0upx;
-		background-color: $mainColor;
+		background-color: $themeColor;
 	}
 	.active {
-		background-color: $mainColor;
+		background-color: $themeColor;
 		opacity: 0.8;
 	}
 }

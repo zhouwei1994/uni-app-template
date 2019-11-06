@@ -11,7 +11,8 @@
 					<text>{{ text || '暂无内容喔~' }}</text>
 				</view>
 				<view class="noData" :style="'height:' + height + 'vh'" v-else-if="type == 2">
-					<image src="http://qn.kemean.cn/upload/201907/23/illustration1.png" mode="aspectFit"></image>
+					<!-- <image src="http://qn.kemean.cn/upload/201907/23/illustration1.png" mode="aspectFit"></image> -->
+					<image src="../../../static/icon/mall/icon_gouwuche_kong.png" mode="aspectFit"></image>
 					<text>{{ text || '购物车空空如也！' }}</text>
 				</view>
 				<view class="noData" :style="'height:' + height + 'vh'" v-else-if="type == 3">
@@ -44,7 +45,7 @@ export default {
 			default: function() {
 				return 60;
 			}
-		},
+		}, 
 		loadState: {
 			type: Number,
 			default: function() {
@@ -69,15 +70,10 @@ export default {
 	},
 	watch: {
 		requestState(val) {
-			// #ifdef MP-WEIXIN
-			if (val == 1100) {
+			// if (val == 1100) {
 				const pages = getCurrentPages();
 				this.currentPageRoute = pages[pages.length - 1].route;
-			}
-			// #endif
-			// #ifdef H5
-			this.currentPageRoute = this.getUrlRoute();
-			// #endif
+			// }
 			if (this.currentPageRoute == this.parentPageRoute) {
 				this.state = val;
 				this.$emit('change', val);
@@ -89,32 +85,15 @@ export default {
 	},
 	//第一次加载
 	created() {
-		// #ifdef MP-WEIXIN
-		this.parentPageRoute = this.$parent.__route__;
-		// #endif
-		// #ifdef H5
-		this.parentPageRoute = this.getUrlRoute();
-		// #endif
+		let currentPages = getCurrentPages();
+		let page = currentPages[currentPages.length - 1];
+		this.parentPageRoute = page.route;
 		if (this.loadState) {
 			this.state = this.loadState;
 		}
 	},
 	//方法
 	methods: {
-		getUrlRoute() {
-			let url = window.location.href;
-			const index = url.indexOf('#');
-			if (index != -1) {
-				if (url.indexOf('?') != -1 && url.indexOf('?') > index) {
-					url = url.substring(index, url.indexOf('?'));
-				} else {
-					url = url.substr(index);
-				}
-				return url;
-			} else {
-				return '';
-			}
-		}
 	}
 };
 </script>
@@ -163,8 +142,8 @@ export default {
 		justify-content: center;
 		flex-direction: column;
 		image {
-			width: 270upx;
-			height: 240upx;
+			width: 442upx;
+			height: 320upx;
 		}
 		text {
 			font-size: 28upx;

@@ -16,7 +16,7 @@ import '@/config/wxJsSDK';
 import { h5Login } from '@/config/html5Utils';
 // #endif
 //判断是否登录
-Vue.prototype.judgeLogin = function (type = "judge", callback) {
+Vue.prototype.judgeLogin = function (callback,type = "judge") {
 	var userInfo = store.state.userInfo;
 	if (type != "force" && userInfo.token) {
 		callback();
@@ -64,6 +64,21 @@ Vue.prototype.judgeLogin = function (type = "judge", callback) {
 				url: '/pages/home/home'
 			});
 		}
+		// #endif
+		// #ifdef APP-PLUS
+		uni.showModal({
+			title: "登录提示",
+			content: "此时此刻需要您登录喔~",
+			confirmText: "去登录",
+			cancelText: "再逛会",
+			success: (res) => {
+				if (res.confirm) {
+					uni.navigateTo({
+						url: "/pages/user/login"
+					});
+				}
+			}
+		});
 		// #endif
 		// #ifdef H5
 		h5Login(type, () => {

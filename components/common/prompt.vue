@@ -164,7 +164,7 @@ export default {
 	padding: 20upx 20upx 20upx 20upx;
 }
 .popupContentBox .popupBut button {
-	background-color:$mainColor;
+	background-color:$themeColor;
 	color: #fff;
 }
 @keyframes popupMask {

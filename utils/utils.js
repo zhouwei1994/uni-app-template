@@ -83,13 +83,21 @@ Date.prototype.format = function(fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz
 			k]).substr(("" + o[k]).length)));
 	return fmt;
 }
-//微信小程序支付
-export const setWxPay = function(orderNo, callback) {
-	$http.get('api/pay/v1/small_pay_sign_wx',{
-		orderNo:orderNo
+
+//支付
+export const setPay = function(payInfo, callback) {
+	let httpUrl = "";
+	if(payInfo.type == 'wxpay'){
+		httpUrl = 'api/pay/v1/pay_sign_wx'
+	}else if(payInfo.type == 'alipay'){
+		httpUrl = 'api/pay/v1/pay_sign_ali'
+	}else if(payInfo.type == 'smallPay'){
+		httpUrl = 'api/pay/v1/small_pay_sign_wx'
+	}
+	$http.get(httpUrl,{
+		orderNo:payInfo.orderNo
 	}).then(data => {
 		let payData = {
-			provider: platform,
 			success: function(res) {
 				callback && callback({success:true,data:res});
 				console.log('success:' + JSON.stringify(res));
@@ -99,27 +107,57 @@ export const setWxPay = function(orderNo, callback) {
 				console.log('fail:' + JSON.stringify(err));
 			}
 		};
-		let platform;
-		// #ifdef MP-WEIXIN
-		platform = 'weixin';
-		payData.timeStamp = data.timeStamp;
-		payData.nonceStr = data.nonceStr;
-		payData.package = data.package;
-		payData.signType = "MD5";
-		payData.paySign = data.sign;
-		// #endif
-		// #ifdef MP-ALIPAY
-		platform = 'alipay';
-		payData.orderInfo = data;
-		// #endif
-		// #ifdef MP-BAIDU
-		platform = 'baidu';
-		payData.orderInfo = data;
-		// #endif
+		if(payInfo.type == 'smallPay'){
+			// 小程序
+			payData.provider = 'wxpay';
+			payData.timeStamp = data.timestamp;
+			payData.nonceStr = data.noncestr;
+			// payData.package = data.package;
+			payData.package = "prepay_id=" + data.prepayid;
+			payData.signType = "MD5";
+			payData.paySign = data.sign;
+		}else if(payInfo.type == 'wxpay'){
+			// app微信
+			payData.provider = 'wxpay';
+			payData.orderInfo = data;
+		}else if(payInfo.type == 'alipay'){
+			// app 支付宝
+			payData.provider = 'alipay';
+			payData.orderInfo = data;
+		}else if(payInfo.type == 'baidu'){
+			payData.provider = 'baidu';
+			payData.orderInfo = data;
+		}
+		console.log("支付参数",payData);
 		uni.requestPayment(payData);
 	},err => {
 		callback && callback({success:false,data:err});
 	});
+}
+// 支付分配
+export const setPayAssign = function(orderInfo,callback) {
+	orderInfo.price = orderInfo.price || orderInfo.pricePay;
+	//支付
+	// #ifdef APP-PLUS
+	uni.navigateTo({
+		url: '/pages/home/weChatPay?orderNo=' + orderInfo.orderNo + '&price=' + orderInfo.price + '&title=' + orderInfo.title
+	});
+	// #endif 
+	// #ifdef MP-ALIPAY
+	setPay({
+		...orderInfo,
+		type:"smallPay"
+	}, callback);
+	// #endif
+	// #ifdef H5
+	if (getBrowser() === '微信') {
+		uni.navigateTo({
+			url: '/pages/home/weChatPay?orderNo=' + orderInfo.orderNo + '&price=' + orderInfo.price + '&title=' + orderInfo.title
+		});
+	} else {
+		appMutual('setJumpPay', orderInfo);
+	}
+	// #endif
 }
 // 错误提示
 export const errorToast = function(text){
@@ -128,6 +166,14 @@ export const errorToast = function(text){
 		icon:"none"
 	});
 }
+// #ifdef H5
+window.getAppLatLon = function(res){
+	store.commit("setCurrentAddress",{
+		longitude: res.longitude,
+		latitude: res.latitude
+	});
+}
+// #endif
 // 获取地址信息
 export const getLatLon = function(tip){
 	const _this = this;
@@ -200,7 +246,7 @@ export const getLatLon = function(tip){
 			let clearTime = setTimeout(() => {
 				reject("获取经纬度超时");
 				tip && errorToast("获取经纬度超时");
-			},3000);
+			},5000);
 			window.getAppLatLon = function(res){
 				clearTimeout(clearTime);
 			    store.commit("setCurrentAddress",{

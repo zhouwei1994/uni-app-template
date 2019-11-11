@@ -1,5 +1,5 @@
 //接口请求方法
-import $http from '@/config/request';
+import $http from '@/config/requestConfig';
 import base from '@/config/baseUrl';
 //获取地理位置
 export const getLocation = () => {

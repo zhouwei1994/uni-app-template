@@ -1,6 +1,6 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
-import $http from '@/config/request'
+import $http from '@/config/requestConfig'
 import {
 	modifyJson
 } from '@/utils/utils';

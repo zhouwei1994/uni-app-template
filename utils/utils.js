@@ -1,4 +1,4 @@
-import $http from '@/config/request'
+import $http from '@/config/requestConfig'
 import store from '@/config/store';
 // #ifdef H5
 import { getBrowser,appMutual } from '@/config/html5Utils';

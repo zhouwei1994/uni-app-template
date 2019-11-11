@@ -1,5 +1,7 @@
 <template>
-  <view></view>
+  <view>
+     <nav-bar>模板</nav-bar>
+  </view>
 </template>
 
 <script>

@@ -51,6 +51,11 @@ export default {
 	methods: {
 		...mapMutations(['setWebViewUrl']),
 		pageData() {},
+		onPageJump(url) {
+			uni.navigateTo({
+				url: url
+			});
+		},
 		// 轮播图点击
 		onBanner(item) {
 			if (item.jumpType == 1201) {

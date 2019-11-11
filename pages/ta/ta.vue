@@ -1,6 +1,6 @@
 <template>
   <view>
-    <z-header :back="false"></z-header>
+    <nav-bar backState="2000" title="ta"></nav-bar>
   </view>
 </template>
 

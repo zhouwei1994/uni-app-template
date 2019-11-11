@@ -1,6 +1,6 @@
 <template>
   <view>
-     <nav-bar>模板</nav-bar>
+     <nav-bar title="模板"></nav-bar>
   </view>
 </template>
 

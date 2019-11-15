@@ -1,3 +1,5 @@
+import base from '@/config/baseUrl';
+import store from '@/config/store';
 // 复制
 function onCopy(item,shareInfo){
 	let copyInfo = shareInfo.shareUrl || shareInfo.shareContent || shareInfo.shareImg;
@@ -241,3 +243,30 @@ export default function(shareInfo, callback) {
 		shareMenu
 	};
 };
+// 微信分享
+export const wxShare = function(path){
+	let shareInfo = {
+		title: base.share.title,
+		path: path || base.share.path
+	};
+	if(store.state.userInfo.token){
+		shareInfo.path += "?userUid="+store.state.userInfo.userUid
+	}
+	return shareInfo;
+}
+// 公众号
+export const publicShare = function(info){
+	let shareInfo = {
+		title: base.share.title,
+		desc: base.share.desc,
+		imgUrl: base.share.imgUrl,
+		link: base.share.link,
+	};
+	if(info){
+		shareInfo = Object.assign(shareInfo,info)
+	}
+	if(store.state.userInfo.token){
+		shareInfo.link += "?userUid="+store.state.userInfo.userUid
+	}
+	return shareInfo;
+}

@@ -1,6 +1,7 @@
 //接口请求方法
 import $http from '@/config/requestConfig';
 import base from '@/config/baseUrl';
+import {publicShare} from '@/config/share';
 //获取地理位置
 export const getLocation = () => {
 	return new Promise((resolve, reject) => {
@@ -85,7 +86,7 @@ window.onload = function(){
 	        ] // 必填，需要使用的JS接口列表
 	    });
 	    //设置分享内容
-	    setShare(base.share());
+	    setShare(publicShare());
 	});
 	//配置校验失败后执行
 	jWeixin.error(function (res) {

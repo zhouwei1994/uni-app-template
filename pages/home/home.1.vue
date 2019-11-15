@@ -31,7 +31,7 @@ export default {
   onReachBottom() {},
   //用户点击分享
   onShareAppMessage(e) {
-    return this.$base.share();
+    return this.wxShare();
   }
 };
 </script>

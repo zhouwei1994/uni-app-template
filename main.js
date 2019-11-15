@@ -9,6 +9,11 @@ Vue.prototype.$base = base;
 //挂载全局http请求
 import $http from '@/config/requestConfig'
 Vue.prototype.$http = $http;
+// #ifdef MP-WEIXIN
+//挂载全局微信分享
+import {wxShare} from '@/config/share'
+Vue.prototype.wxShare = wxShare;
+// #endif
 Vue.config.productionTip = false;
 // #ifdef H5
 //微信SDK

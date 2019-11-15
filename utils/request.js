@@ -225,7 +225,7 @@ export default class request {
 				var len = files.length;
 				var imageList = new Array;
 				//该地址需要开发者自行配置（每个后台的接口风格都不一样）
-				_this.get("api/open/v1/qn_upload").then(data => {
+				_this.get("api/kemean/aid/qn_upload").then(data => {
 					/*
 					*接口返回参数：
 					*visitPrefix:访问文件的域名

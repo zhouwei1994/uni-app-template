@@ -112,8 +112,8 @@ export const setPay = function(payInfo, callback) {
 			payData.provider = 'wxpay';
 			payData.timeStamp = data.timestamp;
 			payData.nonceStr = data.noncestr;
-			// payData.package = data.package;
-			payData.package = "prepay_id=" + data.prepayid;
+			payData.package = data.package;
+			// payData.package = "prepay_id=" + data.prepayid;
 			payData.signType = "MD5";
 			payData.paySign = data.sign;
 		}else if(payInfo.type == 'wxpay'){

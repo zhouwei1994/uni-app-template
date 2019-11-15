@@ -19,3 +19,10 @@ button {
 button::after {
 	border: none;
 }
+// 主题
+.themeBgColor {
+	background-color: $themeColor !important;
+}
+.themeFontColor {
+	color: $themeColor !important;
+}

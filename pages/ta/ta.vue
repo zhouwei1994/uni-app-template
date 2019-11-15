@@ -11,10 +11,10 @@ export default {
   },
   //第一次加载
   onLoad(e) {},
-  //方法
-  methods: {},
   //页面显示
   onShow() {},
+  //方法
+  methods: {},
   //页面隐藏
   onHide() {},
   //页面卸载
@@ -25,7 +25,7 @@ export default {
   onReachBottom() {},
   //用户点击分享
   onShareAppMessage(e) {
-    return this.$base.share();
+    return this.wxShare();
   }
 };
 </script>

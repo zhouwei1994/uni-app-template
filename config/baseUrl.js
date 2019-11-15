@@ -13,19 +13,17 @@ const courtConfig = {
 		//项目logo
 		logoUrl: "https://qn.kemean.cn/upload/201906/19/3f3b4751f3ed4a97be804450c3ec4c79",
 		//页面分享配置
-		share: function () {
-			return {
-				title: '都市云',
-				// #ifdef MP-WEIXIN
-				path: '/pages/home/home', //小程序分享路径
-				// #endif
-				// #ifdef H5
-				//公众号分享
-				desc: "都市云同城,最长24公里配送", // 分享描述
-				link: "https://www.kemean.com/sameCity/18031201/index.html", // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-				imgUrl: "http://qn.kemean.cn/upload/201901/28/23bedfc34597482292ecd6dc107f6342", // 分享图标
-				// #endif
-			}
+		share: {
+			title: '都市云',
+			// #ifdef MP-WEIXIN
+			path: '/pages/home/home', //小程序分享路径
+			// #endif
+			// #ifdef H5
+			//公众号分享
+			desc: "都市云同城,最长24公里配送", // 分享描述
+			link: "https://www.kemean.com/sameCity/18031201/index.html", // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+			imgUrl: "http://qn.kemean.cn/upload/201901/28/23bedfc34597482292ecd6dc107f6342", // 分享图标
+			// #endif
 		}
 	},
 	"交友": {
@@ -39,19 +37,17 @@ const courtConfig = {
 		//项目logo
 		logoUrl: "https://qn.kemean.cn/upload/201906/19/3f3b4751f3ed4a97be804450c3ec4c79",
 		//页面分享配置
-		share: function () {
-			return {
-				title: '青缘福田',
-				// #ifdef MP-WEIXIN
-				path: '/pages/home/home', //小程序分享路径
-				// #endif
-				// #ifdef H5
-				//公众号分享
-				desc: "都市云同城,最长24公里配送", // 分享描述
-				link: "https://www.kemean.com/sameCity/18031201/index.html", // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-				imgUrl: "http://qn.kemean.cn/upload/201901/28/23bedfc34597482292ecd6dc107f6342", // 分享图标
-				// #endif
-			}
+		share: {
+			title: '青缘福田',
+			// #ifdef MP-WEIXIN
+			path: '/pages/home/home', //小程序分享路径
+			// #endif
+			// #ifdef H5
+			//公众号分享
+			desc: "都市云同城,最长24公里配送", // 分享描述
+			link: "https://www.kemean.com/sameCity/18031201/index.html", // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+			imgUrl: "http://qn.kemean.cn/upload/201901/28/23bedfc34597482292ecd6dc107f6342", // 分享图标
+			// #endif
 		}
 	},
 };

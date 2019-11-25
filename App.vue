@@ -1,5 +1,8 @@
 <script>
 import store from "@/config/store";
+// #ifdef APP-PLUS
+import APPUpdate from "@/utils/APPUpdate";
+// #endif
 export default {
   // 只有 app 才会有 onLaunch 的生命周期
   onLaunch: function(e) {
@@ -23,6 +26,9 @@ export default {
     // #endif
   },
   onShow: function() {
+    // #ifdef APP-PLUS
+    APPUpdate();
+    // #endif
     // #ifdef MP-WEIXIN
     //小程序更新
     if (uni.getUpdateManager) {

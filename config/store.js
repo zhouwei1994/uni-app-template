@@ -13,7 +13,12 @@ const state = {
 	//数据加载状态
 	requestState: 999,
 	//微信场景参数
-	chatScenesInfo: {}
+	chatScenesInfo: {},
+	//当前位置
+	currentAddress: {
+		areaName: "请选择",
+		areaId: ''
+	},
 };
 //缓存浏览器的数据名称
 const cacheNameList = ["userInfo"];
@@ -46,12 +51,12 @@ const mutations = {
 			window.sessionStorage.setItem('userInfo', JSON.stringify(state.userInfo));
 			// #endif
 			// #ifndef H5
-			uni.setStorageSync('userInfo',state.userInfo);
+			uni.setStorageSync('userInfo', state.userInfo);
 			// #endif
 		}
 	},
 	// 退出APP
-	emptyUserInfo(state){
+	emptyUserInfo(state) {
 		state.userInfo = {};
 		// #ifdef H5
 		window.sessionStorage.removeItem("userInfo");
@@ -82,6 +87,26 @@ const mutations = {
 			state.chatScenesInfo = data;
 		}
 	},
+	//当前地址
+	setCurrentAddress(state, data) {
+		if (data) {
+			state.currentAddress = Object.assign(state.currentAddress, data);
+			let addressInfo = {
+				"provinceId": state.currentAddress.provinceId,
+				"provinceName": state.currentAddress.provinceName,
+				"cityId": state.currentAddress.cityId,
+				"cityName": state.currentAddress.cityName,
+				"areaId": state.currentAddress.areaId,
+				"areaName": state.currentAddress.areaName,
+			};
+			// #ifdef H5
+			window.sessionStorage.setItem('currentAddress', JSON.stringify(addressInfo));
+			// #endif
+			// #ifndef H5
+			uni.setStorageSync('currentAddress', addressInfo);
+			// #endif
+		}
+	}
 };
 //异步处理
 const actions = {};

@@ -1,128 +1,148 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
+// #ifdef H5
+import { setShare } from '@/config/wxJsSDK';
+// #endif
+// #ifdef APP-PLUS
 // 复制
-function onCopy(item,shareInfo){
+function onCopy(item, shareInfo) {
 	let copyInfo = shareInfo.shareUrl || shareInfo.shareContent || shareInfo.shareImg;
-	if(copyInfo){
+	if (copyInfo) {
 		uni.setClipboardData({
-			data:copyInfo,
+			data: copyInfo,
 			complete() {
 				uni.showToast({
 					title: "已复制到剪贴板",
-					icon:"none"
+					icon: "none"
 				});
 			}
 		});
 	}
 }
 // 更多
-function onMore(item,shareInfo){
+function onMore(item, shareInfo) {
 	plus.share.sendWithSystem({
-		type:"web",
-		title:shareInfo.shareTitle||"",
-		thumbs:[shareInfo.shareImg||""],
-		href:shareInfo.shareUrl||"",
-		content: shareInfo.shareContent||"",
+		type: "web",
+		title: shareInfo.shareTitle || "",
+		thumbs: [shareInfo.shareImg || ""],
+		href: shareInfo.shareUrl || "",
+		content: shareInfo.shareContent || "",
 	});
 }
 // 分享
-function onShare(item,shareInfo){ 
-	if(shareInfo.type == undefined){
+function onShare(item, shareInfo) {
+	if (shareInfo.type == undefined) {
 		shareInfo.type = item.type;
 	}
-	let shareObj={
-		provider:item.provider,
-		type:shareInfo.type,
-		success:(res)=>{
+	let shareObj = {
+		provider: item.provider,
+		type: shareInfo.type,
+		href: shareInfo.shareUrl,
+		title: shareInfo.shareTitle,
+		summary: shareInfo.shareContent,
+		imageUrl: shareInfo.shareImg,
+		success: (res) => {
 			console.log("success:" + JSON.stringify(res));
 		},
-		fail:(err)=>{
+		fail: (err) => {
 			console.log("fail:" + JSON.stringify(err));
+			uni.showToast({
+				title: "分享失败，参数缺失",
+				icon: "none"
+			});
 		}
 	};
-	if(item.scene){
+	if (item.scene) {
 		shareObj.scene = item.scene;
 	}
-	if(shareInfo.shareUrl){
-		shareObj.href = shareInfo.shareUrl;
-	}
-	if(shareInfo.shareTitle){
-		shareObj.title = shareInfo.shareTitle;
-	}
-	if(shareInfo.shareContent){
-		shareObj.summary = shareInfo.shareContent;
-	}
-	if(shareInfo.shareImg){
-		shareObj.imageUrl = shareInfo.shareImg;
-	}
-	if(shareInfo.mediaUrl){
+	if (shareInfo.mediaUrl) {
 		shareObj.mediaUrl = shareInfo.mediaUrl;
 	}
-	if(shareInfo.appId){
+	if (shareInfo.appId) {
 		shareObj.miniProgram.id = shareInfo.appId;
 		shareObj.miniProgram.path = shareInfo.appPath;
 		shareObj.miniProgram.webUrl = shareInfo.appWebUrl;
 		shareObj.miniProgram.type = shareInfo.appType || 0;
 	}
-	console.log(shareObj);
+	console.log(Object.assign(shareObj, item));
 	uni.share(shareObj);
 }
 let shareList = [
 	{
 		icon: "/static/icon/share/icon_copy.png",
 		text: "复制",
-		onClick:onCopy
+		onClick: onCopy
 	},
 	{
 		icon: "/static/icon/share/icon_more.png",
 		text: "更多",
-		onClick:onMore
+		onClick: onMore
 	}
 ];
 // 获取服务商支持的分享
 uni.getProvider({
 	service: 'share',
-	success: function(res) {
+	success: function (res) {
 		if (res.provider.includes('sinaweibo')) {
 			shareList = [{
-					icon: "/static/icon/share/icon_weibo.png",
-					text: "微博",
-					onClick:onShare,
-					provider:"sinaweibo",
-					type:0
-				}].concat(shareList);
+				icon: "/static/icon/share/icon_weibo.png",
+				text: "微博",
+				onClick: onShare,
+				provider: "sinaweibo",
+				type: 0
+			}].concat(shareList);
 		}
 		if (res.provider.includes('qq')) {
 			shareList = [{
-					icon: "/static/icon/share/icon_qq.png",
-					text: "QQ",
-					onClick:onShare,
-					provider:"qq",
-					type:1
-				}].concat(shareList);
+				icon: "/static/icon/share/icon_qq.png",
+				text: "QQ",
+				onClick: onShare,
+				provider: "qq",
+				type: 1
+			}].concat(shareList);
 		}
 		if (res.provider.includes('weixin')) {
 			shareList = [{
-					icon: "/static/icon/share/icon_weixin.png",
-					text: "微信好友",
-					onClick:onShare,
-					provider:"weixin",
-					scene:"WXSceneSession",
-					type:0
-				},
-				{
-					icon: "/static/icon/share/icon_pengyouquan.png",
-					text: "朋友圈",
-					onClick:onShare,
-					provider:"weixin",
-					scene:"WXSenceTimeline",
-					type:0
-				}
+				icon: "/static/icon/share/icon_weixin.png",
+				text: "微信好友",
+				onClick: onShare,
+				provider: "weixin",
+				scene: "WXSceneSession",
+				type: 0
+			},
+			{
+				icon: "/static/icon/share/icon_pengyouquan.png",
+				text: "朋友圈",
+				onClick: onShare,
+				provider: "weixin",
+				scene: "WXSenceTimeline",
+				type: 0
+			}
 			].concat(shareList);
 		}
 	}
 });
-export default function(shareInfo, callback) {
+// 数据处理
+function dataFactory(shareInfo) {
+	let config = {
+		...shareInfo
+	};
+	config.shareUrl = shareInfo.shareUrl || shareInfo.link || "";
+	config.shareTitle = shareInfo.shareTitle || shareInfo.title || "";
+	config.shareContent = shareInfo.shareContent || shareInfo.desc || "";
+	config.shareImg = shareInfo.shareImg || shareInfo.imgUrl || "";
+	if (store.state.userInfo.uid) {
+		if (config.shareUrl.indexOf("?") >= 0) {
+			config.shareUrl += "&recommendCode=" + store.state.userInfo.uid;
+		} else {
+			config.shareUrl += "?recommendCode=" + store.state.userInfo.uid;
+		}
+	}
+	return config;
+}
+export default function (shareInfo, callback) {
+	shareInfo = dataFactory(shareInfo);
+	console.log(shareInfo);
 	// 以下为计算菜单的nview绘制布局，为固定算法，使用者无关关心
 	let screenWidth = plus.screen.resolutionWidth
 	//以360px宽度屏幕为例，上下左右边距及2排按钮边距留25像素，图标宽度55像素，同行图标间的间距在360宽的屏幕是30px，但需要动态计算，以此原则计算4列图标分别的left位置
@@ -149,7 +169,7 @@ export default function(shareInfo, callback) {
 		width: '100%',
 		backgroundColor: 'rgba(0,0,0,0.5)'
 	});
-	alphaBg.addEventListener("click", function() { //处理遮罩层点击
+	alphaBg.addEventListener("click", function () { //处理遮罩层点击
 		alphaBg.hide();
 		shareMenu.hide();
 	})
@@ -162,33 +182,33 @@ export default function(shareInfo, callback) {
 	});
 	//绘制底部图标菜单的内容
 	shareMenu.draw([{
-			tag: 'rect', //菜单顶部的分割灰线
-			color: '#e7e7e7',
-			position: {
-				top: '0px',
-				height: '1px'
-			}
-		},
-		{
-			tag: 'font',
-			id: 'sharecancel', //底部取消按钮的文字
-			text: '取消分享',
-			textStyles: {
-				size: '14px'
-			},
-			position: {
-				bottom: '0px',
-				height: '44px'
-			}
-		},
-		{
-			tag: 'rect', //底部取消按钮的顶部边线
-			color: '#e7e7e7',
-			position: {
-				bottom: '45px',
-				height: '1px'
-			}
+		tag: 'rect', //菜单顶部的分割灰线
+		color: '#e7e7e7',
+		position: {
+			top: '0px',
+			height: '1px'
 		}
+	},
+	{
+		tag: 'font',
+		id: 'sharecancel', //底部取消按钮的文字
+		text: '取消分享',
+		textStyles: {
+			size: '14px'
+		},
+		position: {
+			bottom: '0px',
+			height: '44px'
+		}
+	},
+	{
+		tag: 'rect', //底部取消按钮的顶部边线
+		color: '#e7e7e7',
+		position: {
+			bottom: '45px',
+			height: '1px'
+		}
+	}
 	]);
 	shareList.map((v, k) => {
 		let time = new Date().getTime();
@@ -220,7 +240,7 @@ export default function(shareInfo, callback) {
 		}];
 		shareMenu.draw(item);
 	});
-	shareMenu.addEventListener("click", function(e) { //处理底部图标菜单的点击事件，根据点击位置触发不同的逻辑
+	shareMenu.addEventListener("click", function (e) { //处理底部图标菜单的点击事件，根据点击位置触发不同的逻辑
 		if (e.screenY > plus.screen.resolutionHeight - 44) { //点击了底部取消按钮
 			alphaBg.hide();
 			shareMenu.hide();
@@ -232,7 +252,7 @@ export default function(shareInfo, callback) {
 			let colIdx = Math.floor(x / itemWidth);
 			let rowIdx = Math.floor(y / itemHeight);
 			let tapIndex = colIdx + rowIdx * colNumber;
-			shareList[tapIndex].onClick(shareList[tapIndex],shareInfo);
+			shareList[tapIndex].onClick(shareList[tapIndex], shareInfo);
 			// callback && callback(tapIndex);
 		}
 	});
@@ -243,30 +263,41 @@ export default function(shareInfo, callback) {
 		shareMenu
 	};
 };
-// 微信分享
-export const wxShare = function(path){
+// #endif
+// #ifdef MP-WEIXIN
+// 微信小程序分享
+export const wxShare = function (path) {
 	let shareInfo = {
 		title: base.share.title,
 		path: path || base.share.path
 	};
-	if(store.state.userInfo.token){
-		shareInfo.path += "?userUid="+store.state.userInfo.userUid
+	if (store.state.userInfo.token) {
+		if (shareInfo.path.indexOf("?") >= 0) {
+			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
+		} else {
+			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
+		}
 	}
 	return shareInfo;
 }
+// #endif
+// #ifdef H5
 // 公众号
-export const publicShare = function(info){
+export const publicShare = function (info = {}) {
 	let shareInfo = {
-		title: base.share.title,
-		desc: base.share.desc,
-		imgUrl: base.share.imgUrl,
-		link: base.share.link,
+		title: info.shareTitle || info.title || base.share.title,
+		desc: info.desc || info.shareContent || base.share.desc,
+		imgUrl: info.imgUrl || info.shareImg || base.share.imgUrl,
+		link: info.link || info.shareUrl || base.share.link,
 	};
-	if(info){
-		shareInfo = Object.assign(shareInfo,info)
+	if (store.state.userInfo.token) {
+		if (shareInfo.link.indexOf("?") >= 0) {
+			shareInfo.link += "&recommendCode=" + store.state.userInfo.uid;
+		} else {
+			shareInfo.link += "?recommendCode=" + store.state.userInfo.uid;
+		}
 	}
-	if(store.state.userInfo.token){
-		shareInfo.link += "?userUid="+store.state.userInfo.userUid
-	}
-	return shareInfo;
+	setShare(shareInfo);
 }
+// #endif
+

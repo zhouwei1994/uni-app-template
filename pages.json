@@ -29,6 +29,30 @@
 			"style": {
 				"navigationBarTitleText": ""
 			}
+		},
+		{
+			"path": "pages/user/bindPhone",
+			"style": {
+				"navigationBarTitleText": "绑定手机号"
+			}
+		},
+		{
+			"path": "pages/user/forget",
+			"style": {
+				"navigationBarTitleText": "忘记密码"
+			}
+		},
+		{
+			"path": "pages/user/protocol",
+			"style": {
+				"navigationBarTitleText": "协议"
+			}
+		},
+		{
+			"path": "pages/user/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
 		}
 	],
 	"globalStyle": {
@@ -36,7 +60,7 @@
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#FFFFFF",
-		"navigationStyle":"custom"
+		"navigationStyle": "custom"
 	},
 	"tabBar": {
 		"color": "#444444",

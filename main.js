@@ -11,7 +11,7 @@ import $http from '@/config/requestConfig'
 Vue.prototype.$http = $http;
 // #ifdef MP-WEIXIN
 //挂载全局微信分享
-import {wxShare} from '@/config/share'
+import { wxShare } from '@/config/share'
 Vue.prototype.wxShare = wxShare;
 // #endif
 Vue.config.productionTip = false;
@@ -20,8 +20,16 @@ Vue.config.productionTip = false;
 import '@/config/wxJsSDK';
 import { h5Login } from '@/config/html5Utils';
 // #endif
+
+// #ifdef H5
+// H5调试模式
+import Vconsole from '@/utils/vconsole';
+const vConsole = new Vconsole()
+Vue.use(vConsole);
+// #endif
+
 //判断是否登录
-Vue.prototype.judgeLogin = function (callback,type = "judge") {
+Vue.prototype.judgeLogin = function (callback, type = "judge") {
 	var userInfo = store.state.userInfo;
 	if (type != "force" && userInfo.token) {
 		callback();

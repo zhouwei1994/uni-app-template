@@ -15,9 +15,6 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import base from '@/config/baseUrl';
-// #ifdef H5
-import {h5Login} from '@/config/html5Utils';
-// #endif
 let clear;
 export default {
 	props: {
@@ -42,11 +39,6 @@ export default {
 		if (!this.userInfo.token) {
 			// #ifdef MP-WEIXIN
 			this.onLogin();
-			// #endif
-			// #ifdef H5
-			h5Login('force',() => {
-				this.$emit('success');
-			});
 			// #endif
 		}
 	},

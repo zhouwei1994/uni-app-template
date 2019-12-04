@@ -3,11 +3,13 @@ const court = "开发";
 const courtConfig = {
 	/****************开发环境****************/
 	"开发": {
-		//微信小程序appid=wx04df1c9c5679b134
+		//微信小程序appid=
+		//微信公众号APPID
+		publicAppId: "",
 		//请求接口
 		baseUrl: "https://dev.kemean.net/make_friends/",
 		//webSocket地址
-		socketUrl:"wss://dev.kemean.net/make_friends/",
+		socketUrl: "wss://dev.kemean.net/make_friends/",
 		//平台名称
 		platformName: "都市云",
 		//项目logo
@@ -28,10 +30,12 @@ const courtConfig = {
 	},
 	"交友": {
 		//微信小程序appid=
+		//微信公众号APPID
+		publicAppId: "",
 		//请求接口
 		baseUrl: "",
 		//webSocket地址
-		socketUrl:"ws://dev.kemean.net",
+		socketUrl: "ws://dev.kemean.net",
 		//平台名称
 		platformName: "青缘福田",
 		//项目logo

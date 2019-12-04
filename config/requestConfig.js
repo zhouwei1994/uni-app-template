@@ -97,6 +97,7 @@ $http.dataFactory = function (options, resolve) {
 		if (options.data.pageNo && options.loadMore) {
 			store.commit("setRequestState", 1200);
 		}
+		store.commit("emptyUserInfo");
 		var content = '此时此刻需要您登录喔~';
 		if (resolve.data.code == "1000") {
 			content = '此时此刻需要您登录喔';

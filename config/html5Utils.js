@@ -10,7 +10,7 @@ import {
 export const appMutual = (name, query = null, errCallback) => {
 	if (/android/i.test(navigator.userAgent)) {
 		if (window.shangChengView) {
-			if (typeof(query) == "object") {
+			if (typeof (query) == "object") {
 				query = JSON.stringify(query);
 			}
 			window.shangChengView[name](query);
@@ -54,7 +54,7 @@ export const weiXinPay = (data, callback) => {
 		paySign: data.sign
 	};
 	function onBridgeReady() {
-		window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function(
+		window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function (
 			res
 		) {
 			if (res.err_msg == "get_brand_wcpay_request:ok") {
@@ -63,11 +63,11 @@ export const weiXinPay = (data, callback) => {
 				if (res.err_msg == "get_brand_wcpay_request:cancel") {
 					// common.loadWarn('支付遇到问题，您取消了支付');
 				} else
-			if (res.err_msg == "get_brand_wcpay_request:fail") {
-				// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
-				//   obj.wxLoginOAuth();
-				// });
-			}
+					if (res.err_msg == "get_brand_wcpay_request:fail") {
+						// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
+						//   obj.wxLoginOAuth();
+						// });
+					}
 		});
 	}
 	if (typeof window.WeixinJSBridge == "undefined") {
@@ -94,18 +94,18 @@ function getLogin(type) {
 	let urlNow = encodeURIComponent(window.location.href);
 	let url =
 		`https://open.weixin.qq.com/connect/oauth2/authorize?appid=${
-    base.publicAppId
-    }&redirect_uri=${urlNow}&response_type=code&scope=snsapi_userinfo&state=${type}#wechat_redirect`;
+		base.publicAppId
+		}&redirect_uri=${urlNow}&response_type=code&scope=snsapi_userinfo&state=${type}#wechat_redirect`;
 	window.location.replace(url);
 }
 
-function getApiLogin(result, type,callback) {
+function getApiLogin(result, type, callback) {
 	$http.post("api/open/v1/login", {
-			wxPublicOpenId: result.openId,
-			unionid: result.unionid,
-			nickname: result.nickname,
-			headImg: result.headImg
-		})
+		wxPublicOpenId: result.openId,
+		unionid: result.unionid,
+		nickname: result.nickname,
+		headImg: result.headImg
+	})
 		.then(res => {
 			if (res.thirdLoginSuccess) {
 				store.commit('setUserInfo', modifyJson(res, result));
@@ -140,30 +140,33 @@ function getApiLogin(result, type,callback) {
 }
 //判断是否登录，登录处理
 let isGetOpenId = true;
-export const h5Login = function(type = "judge", callback) {
+export const h5Login = function (type = "judge", callback) {
 	var getRequest = getUrlData();
+	if (store.state.userInfo.token) {
+		return;
+	}
 	if (getBrowser() == "微信") {
 		// #ifdef H5
-		if(getRequest.recommendCode){
-			localStorage.setItem("recommendCode",getRequest.recommendCode);
+		if (getRequest.recommendCode) {
+			localStorage.setItem("recommendCode", getRequest.recommendCode);
 		}
 		// #endif
 		if (store.state.userInfo.thirdLoginSuccess === false) {
-			getApiLogin(store.state.userInfo, type,() => {
+			getApiLogin(store.state.userInfo, type, () => {
 				callback && callback();
 			});
 		} else if (getRequest.code) {
-			if(isGetOpenId){
+			if (isGetOpenId) {
 				isGetOpenId = false;
 				$http.get("api/open/v1/get_public_login", {
-						code: getRequest.code
-					})
+					code: getRequest.code
+				})
 					.then(result => {
 						store.commit('setUserInfo', result);
-						getApiLogin(result, type,() => {
+						getApiLogin(result, type, () => {
 							callback && callback();
 						});
-					},() => {
+					}, () => {
 						isGetOpenId = true;
 					});
 			}
@@ -180,19 +183,19 @@ export const h5Login = function(type = "judge", callback) {
 				callback && callback();
 			});
 		} else {
-			appMutual("jumpLogin", null, function() {
+			appMutual("jumpLogin", null, function () {
 				if (type == "force") {
 					uni.navigateTo({
 						url: "/pages/user/login"
 					});
-				}else{
+				} else {
 					uni.showModal({
-						title:"提示",
-						content:"您还未登录，请先登录~",
+						title: "提示",
+						content: "您还未登录，请先登录~",
 						confirmText: "去登录",
 						cancelText: "再逛会",
 						success: (res) => {
-							if(res.confirm){
+							if (res.confirm) {
 								uni.navigateTo({
 									url: "/pages/user/login"
 								});

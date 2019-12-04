@@ -19,9 +19,6 @@ Vue.config.productionTip = false;
 //微信SDK
 import '@/config/wxJsSDK';
 import { h5Login } from '@/config/html5Utils';
-// #endif
-
-// #ifdef H5
 // H5调试模式
 import Vconsole from '@/utils/vconsole';
 const vConsole = new Vconsole()

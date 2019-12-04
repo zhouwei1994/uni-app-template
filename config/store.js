@@ -26,7 +26,7 @@ const mutations = {
 	//取出缓存数据
 	setCacheData(state) {
 		for (let name of cacheNameList) {
-			// #ifdef MP-WEIXIN
+			// #ifndef H5
 			let data = uni.getStorageSync(name);
 			// #endif
 			// #ifdef H5

@@ -50,7 +50,7 @@ $http.requestEnd = function (options, resolve) {
 		uni.hideLoading();
 		uni.hideNavigationBarLoading();
 	}
-	if (resolve.errMsg && (resolve.errMsg != "request:ok" || resolve.statusCode && resolve.statusCode != 200)) { 
+	if (resolve.errMsg && (resolve.errMsg != "request:ok" || resolve.statusCode && resolve.statusCode != 200)) {
 		uni.showToast({
 			title: "网络错误，请检查一下网络",
 			icon: "none"
@@ -66,6 +66,9 @@ $http.dataFactory = function (options, resolve) {
 		success: false,
 		result: ""
 	};
+	if (resolve.statusCode && resolve.statusCode != 200) {
+		return callback;
+	}
 	//判断数据是否请求成功
 	if (resolve.data.success) {
 		callback.success = true;
@@ -99,7 +102,6 @@ $http.dataFactory = function (options, resolve) {
 			content = '此时此刻需要您登录喔';
 		}
 		if (loginPopupNum <= 0) {
-			// #ifdef MP-WEIXIN
 			loginPopupNum++;
 			uni.showModal({
 				title: '温馨提示',
@@ -109,20 +111,27 @@ $http.dataFactory = function (options, resolve) {
 				success: function (res) {
 					loginPopupNum--;
 					if (res.confirm) {
+						// #ifdef MP
 						if ($http.openLogin) {
 							//调取页面上的登录事件
 							$http.openLogin();
 						} else {
 							uni.switchTab({
-								url: '/pages/home/home'
+								url: base.homePath
 							});
 						}
+						// #endif
+						// #ifdef APP-PLUS
+						uni.navigateTo({
+							url: "/pages/user/login"
+						});
+						// #endif
 					}
 				}
 			});
-			// #endif
 			// #ifdef H5
 			h5Login("force");
+			loginPopupNum--;
 			// #endif
 		}
 	} else { //其他错误提示

@@ -8,14 +8,12 @@ export default class request {
 		//默认请求头
 		this.headers = options.headers || {};
 		//默认配置
-		//是否提示--默认提示
-		this.isPrompt = options.isPrompt || true;
-		//是否显示请求动画
-		this.load = options.load || true;
-		//是否使用处理数据模板
-		this.isFactory = options.isFactory || true;
-		//列表接口是否有加载判断
-		this.loadMore = options.loadMore || true;
+		this.config = {
+			isPrompt: options.isPrompt === false ? false : true,
+			load: options.load === false ? false : true,
+			isFactory: options.isFactory === false ? false : true,
+			loadMore: options.loadMore === false ? false : true
+		};
 	}
 	// 获取默认信息
 	getDefault(url, options, type) {
@@ -27,19 +25,14 @@ export default class request {
 		} else {
 			httpUrl = urlType ? url : this.baseUrl + url;
 		}
-		let config = Object.assign({
-			isPrompt: this.isPrompt,
-			load: this.load,
-			isFactory: this.isFactory,
-			loadMore: this.loadMore
-		}, options);
+		let config = Object.assign(this.config, options);
 		//请求地址
 		config.httpUrl = httpUrl;
 		//请求头
 		config.headers = Object.assign(this.headers, options.headers);
 		return config;
 	}
-	
+
 	//post请求
 	post(url = '', data = {}, options = {}) {
 		let requestInfo = this.getDefault(url, options, "data");
@@ -108,7 +101,7 @@ export default class request {
 			});
 		});
 	}
-	
+
 	//接口请求方法
 	getRequest(ajaxType, options, callback) {
 		//请求前回调
@@ -172,11 +165,11 @@ export default class request {
 					return;
 				}
 			}
-			window[callbackName] = function(data) {
+			window[callbackName] = function (data) {
 				resolve(data);
 			}
 			var script = document.createElement("script");
-			script.src = requestInfo.httpUrl + "&callback="+callbackName;
+			script.src = requestInfo.httpUrl + "&callback=" + callbackName;
 			document.head.appendChild(script);
 			// 及时删除，防止加载过多的JS
 			document.head.removeChild(script);
@@ -192,8 +185,8 @@ export default class request {
 				count: options.count || 9, //默认9
 				sizeType: options.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: options.sourceType || ['album', 'camera'], //从相册选择
-				success: function(res) {
-					_this.qnFileUpload(res.tempFilePaths,callback).then(data => {
+				success: function (res) {
+					_this.qnFileUpload(res.tempFilePaths, callback).then(data => {
 						resolve(data);
 					}, err => {
 						reject(err);
@@ -218,10 +211,10 @@ export default class request {
 		);
 	}
 	//七牛云文件上传（支持多张上传）
-	qnFileUpload(files,callback) {
+	qnFileUpload(files, callback) {
 		const _this = this;
 		return new Promise((resolve, reject) => {
-			if(typeof(files) == "object") {
+			if (typeof (files) == "object") {
 				var len = files.length;
 				var imageList = new Array;
 				//该地址需要开发者自行配置（每个后台的接口风格都不一样）
@@ -276,7 +269,7 @@ export default class request {
 				count: data.count || 9, //默认9
 				sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: data.sourceType || ['album', 'camera'], //从相册选择
-				success: function(res) {
+				success: function (res) {
 					_this.urlFileUpload(requestInfo, res.tempFiles, (state, response) => {
 						state ? resolve(response) : reject(response);
 					});

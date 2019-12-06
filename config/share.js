@@ -2,6 +2,7 @@ import base from '@/config/baseUrl';
 import store from '@/config/store';
 // #ifdef H5
 import { setShare } from '@/config/wxJsSDK';
+import { getBrowser, appMutual } from '@/config/html5Utils';
 // #endif
 // #ifdef APP-PLUS
 // 复制
@@ -284,20 +285,22 @@ export const wxShare = function (path) {
 // #ifdef H5
 // 公众号
 export const publicShare = function (info = {}) {
-	let shareInfo = {
-		title: info.shareTitle || info.title || base.share.title,
-		desc: info.desc || info.shareContent || base.share.desc,
-		imgUrl: info.imgUrl || info.shareImg || base.share.imgUrl,
-		link: info.link || info.shareUrl || base.share.link,
-	};
-	if (store.state.userInfo.token) {
-		if (shareInfo.link.indexOf("?") >= 0) {
-			shareInfo.link += "&recommendCode=" + store.state.userInfo.uid;
-		} else {
-			shareInfo.link += "?recommendCode=" + store.state.userInfo.uid;
+	if (getBrowser() == "微信") {
+		let shareInfo = {
+			title: info.shareTitle || info.title || base.share.title,
+			desc: info.desc || info.shareContent || base.share.desc,
+			imgUrl: info.imgUrl || info.shareImg || base.share.imgUrl,
+			link: info.link || info.shareUrl || base.share.link,
+		};
+		if (store.state.userInfo.token) {
+			if (shareInfo.link.indexOf("?") >= 0) {
+				shareInfo.link += "&recommendCode=" + store.state.userInfo.uid;
+			} else {
+				shareInfo.link += "?recommendCode=" + store.state.userInfo.uid;
+			}
 		}
+		setShare(shareInfo);
 	}
-	setShare(shareInfo);
 }
 // #endif
 

@@ -51,10 +51,12 @@ $http.requestEnd = function (options, resolve) {
 		uni.hideNavigationBarLoading();
 	}
 	if (resolve.errMsg && (resolve.errMsg != "request:ok" || resolve.statusCode && resolve.statusCode != 200)) {
-		uni.showToast({
-			title: "网络错误，请检查一下网络",
-			icon: "none"
-		});
+		setTimeout(() => {
+			uni.showToast({
+				title: "网络错误，请检查一下网络",
+				icon: "none"
+			});
+		}, 500);
 	}
 }
 let loginPopupNum = 0;

@@ -22,10 +22,12 @@ $http.requestStart = function (options) {
 		uni.showNavigationBarLoading();
 		if (options.load) {
 			//打开加载动画
+			// #ifndef APP-PLUS
 			uni.showLoading({
 				title: '加载中',
 				mask: true
 			});
+			// #endif
 		}
 	}
 	if (options.data.pageNo && options.loadMore) {

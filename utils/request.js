@@ -25,7 +25,7 @@ export default class request {
 		} else {
 			httpUrl = urlType ? url : this.baseUrl + url;
 		}
-		let config = Object.assign(this.config, options);
+		let config = Object.assign({}, this.config, options);
 		//请求地址
 		config.httpUrl = httpUrl;
 		//请求头

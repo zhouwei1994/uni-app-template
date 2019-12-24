@@ -23,6 +23,10 @@
 <script>
 var clear;
 import { mapState, mapMutations } from 'vuex';
+import socket from '@/config/socket';
+// #ifdef H5
+import {publicShare} from '@/config/share';
+// #endif
 export default {
 	data() {
 		return {
@@ -162,6 +166,10 @@ export default {
 				.post('api/open/v1/third_bind',httpData)
 				.then(res => {
 					this.setUserInfo(res);
+					// #ifdef H5
+					publicShare();
+					// #endif
+					socket.init();
 					uni.showModal({
 						title: '提示',
 						content: '账号绑定成功！',

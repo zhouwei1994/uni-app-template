@@ -141,6 +141,7 @@ export default {
   left: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
+  transition: all 0.4s;
 }
 .popup_box {
   position: fixed;
@@ -150,6 +151,7 @@ export default {
   z-index: 501;
   opacity: 0;
   font-size: 28upx;
+  transition: all 0.4s;
   &.bottom {
     left: 0upx;
     /* #ifdef H5 */

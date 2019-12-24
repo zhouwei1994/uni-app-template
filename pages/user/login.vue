@@ -38,6 +38,7 @@
 import md5 from '@/utils/md5';
 var clear;
 import { mapState, mapMutations } from 'vuex';
+import socket from '@/config/socket';
 export default {
 	data() {
 		return {
@@ -52,7 +53,8 @@ export default {
 		};
 	},
 	//第一次加载
-	onLoad(e) {},
+	onLoad(e) {
+	},
 	//页面显示
 	onShow() {},
 	//方法
@@ -144,15 +146,14 @@ export default {
 			}
 			this.$http.post('api/open/v1/login', httpData).then(res => {
 				this.setUserInfo(res);
+				socket.init();
 				uni.showToast({
 					title: '登录成功',
-					duration: 2000,
-					success: () => {
-						setTimeout(() => {
-							uni.navigateBack();
-						}, 2000);
-					}
+					duration: 2000
 				});
+				setTimeout(() => {
+					uni.navigateBack();
+				}, 2000);
 			});
 		},
 		// 微信APP登录
@@ -160,9 +161,6 @@ export default {
 			uni.login({
 				provider: 'weixin',
 				success: res => {
-					console.log("登陆信息",res);
-					const clientInfo = plus.push.getClientInfo();
-					console.log("设备信息",clientInfo);
 					if(res.authResult.openid && res.authResult.unionid){
 						this.$http
 							.post('api/open/v1/login', {
@@ -176,15 +174,14 @@ export default {
 									...data,
 								});
 								if (data.thirdLoginSuccess) {
+									socket.init();
 									uni.showToast({
 										title: '登录成功',
-										duration: 2000,
-										success: () => {
-											setTimeout(() => {
-												uni.navigateBack();
-											}, 2000);
-										}
+										duration: 2000
 									});
+									setTimeout(() => {
+										uni.navigateBack();
+									}, 2000);
 								} else {
 									uni.showModal({
 										title: '提示',

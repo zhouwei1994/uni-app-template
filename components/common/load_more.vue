@@ -90,6 +90,8 @@ export default {
 		this.parentPageRoute = page.route;
 		if (this.loadState) {
 			this.state = this.loadState;
+		} else if(this.requestState){
+			this.state = this.requestState;
 		}
 	},
 	//方法

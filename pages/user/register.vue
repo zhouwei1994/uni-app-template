@@ -153,7 +153,7 @@ export default {
 				.then(res => {
 					uni.showModal({
 						title:"提示",
-						content:"登录成功！",
+						content:"注册成功，去登录！",
 						showCancel:false,
 						success: (res) => {
 							uni.navigateBack();

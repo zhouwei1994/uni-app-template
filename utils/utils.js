@@ -1,7 +1,10 @@
-import $http from '@/config/requestConfig'
+import $http from '@/config/request'
 import store from '@/config/store';
+// #ifdef APP-PLUS
+import { judgePermission } from '@/utils/permission'
+// #endif
 // #ifdef H5
-import { getBrowser,appMutual } from '@/config/html5Utils';
+import { getBrowser, appMutual } from '@/config/html5Utils';
 import { getLocation } from '@/config/wxJsSDK';
 // #endif
 /**
@@ -31,7 +34,7 @@ export const modifyJson = (json, oldJson) => {
 /**
  * 时间转换为XX前
  */
-export const clickDateDiff = function(value) {
+export const clickDateDiff = function (value) {
 	var result;
 	var minute = 1000 * 60;
 	var hour = minute * 60;
@@ -67,7 +70,7 @@ export const clickDateDiff = function(value) {
  */
 //时间戳转换为时间 format('yyyy-MM-dd hh:mm:ss')
 //时间格式转换
-Date.prototype.format = function(fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz 
+Date.prototype.format = function (fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz 
 	var o = {
 		"M+": this.getMonth() + 1, //月份 
 		"d+": this.getDate(), //日 
@@ -85,68 +88,69 @@ Date.prototype.format = function(fmt = 'yyyy-MM-dd hh:mm:ss') { //author: meizz
 }
 
 //支付
-export const setPay = function(payInfo, callback) {
+export const setPay = function (payInfo, callback) {
 	let httpUrl = "";
-	if(payInfo.type == 'wxpay'){
+	if (payInfo.type == 'wxpay') {
 		httpUrl = 'api/pay/v1/pay_sign_wx'
-	}else if(payInfo.type == 'alipay'){
+	} else if (payInfo.type == 'alipay') {
 		httpUrl = 'api/pay/v1/pay_sign_ali'
-	}else if(payInfo.type == 'smallPay'){
+	} else if (payInfo.type == 'smallPay') {
 		httpUrl = 'api/pay/v1/small_pay_sign_wx'
 	}
-	$http.get(httpUrl,{
-		orderNo:payInfo.orderNo
+	$http.get(httpUrl, {
+		orderNo: payInfo.orderNo
 	}).then(data => {
 		let payData = {
-			success: function(res) {
-				callback && callback({success:true,data:res});
+			success: function (res) {
+				callback && callback({ success: true, data: res });
 				console.log('success:' + JSON.stringify(res));
 			},
-			fail: function(err) {
-				callback && callback({success:false,data:err});
+			fail: function (err) {
+				callback && callback({ success: false, data: err });
 				console.log('fail:' + JSON.stringify(err));
 			}
 		};
-		if(payInfo.type == 'smallPay'){
+		if (payInfo.type == 'smallPay') {
 			// 小程序
 			payData.provider = 'wxpay';
 			payData.timeStamp = data.timestamp;
 			payData.nonceStr = data.noncestr;
-			payData.package = data.package;
-			// payData.package = "prepay_id=" + data.prepayid;
+			// payData.package = data.package;
+			payData.package = "prepay_id=" + data.prepayid;
 			payData.signType = "MD5";
 			payData.paySign = data.sign;
-		}else if(payInfo.type == 'wxpay'){
+		} else if (payInfo.type == 'wxpay') {
 			// app微信
 			payData.provider = 'wxpay';
 			payData.orderInfo = data;
-		}else if(payInfo.type == 'alipay'){
+		} else if (payInfo.type == 'alipay') {
 			// app 支付宝
 			payData.provider = 'alipay';
 			payData.orderInfo = data;
-		}else if(payInfo.type == 'baidu'){
+		} else if (payInfo.type == 'baidu') {
 			payData.provider = 'baidu';
 			payData.orderInfo = data;
 		}
-		console.log("支付参数",payData);
+		console.log("支付参数", payData);
 		uni.requestPayment(payData);
-	},err => {
-		callback && callback({success:false,data:err});
+	}, err => {
+		callback && callback({ success: false, data: err });
 	});
 }
 // 支付分配
-export const setPayAssign = function(orderInfo,callback) {
+export const setPayAssign = function (orderInfo, callback) {
 	orderInfo.price = orderInfo.price || orderInfo.pricePay;
+	orderInfo.title = orderInfo.title || orderInfo.orderTitle;
 	//支付
 	// #ifdef APP-PLUS
 	uni.navigateTo({
 		url: '/pages/home/weChatPay?orderNo=' + orderInfo.orderNo + '&price=' + orderInfo.price + '&title=' + orderInfo.title
 	});
 	// #endif 
-	// #ifdef MP-ALIPAY
+	// #ifdef MP-WEIXIN
 	setPay({
 		...orderInfo,
-		type:"smallPay"
+		type: "smallPay"
 	}, callback);
 	// #endif
 	// #ifdef H5
@@ -160,22 +164,22 @@ export const setPayAssign = function(orderInfo,callback) {
 	// #endif
 }
 // 错误提示
-export const errorToast = function(text){
+export const errorToast = function (text) {
 	uni.showToast({
-		title:text,
-		icon:"none"
+		title: text,
+		icon: "none"
 	});
 }
 // #ifdef H5
-window.getAppLatLon = function(res){
-	store.commit("setCurrentAddress",{
+window.getAppLatLon = function (res) {
+	store.commit("setCurrentAddress", {
 		longitude: res.longitude,
 		latitude: res.latitude
 	});
 }
 // #endif
 // 获取地址信息
-export const getLatLon = function(tip){
+export const getLatLon = function (tip) {
 	const _this = this;
 	return new Promise((resolve, reject) => {
 		// #ifdef MP
@@ -185,7 +189,7 @@ export const getLatLon = function(tip){
 					uni.getLocation({
 						type: 'gcj02',
 						success: res => {
-							store.commit("setCurrentAddress",{
+							store.commit("setCurrentAddress", {
 								latitude: res.latitude,
 								longitude: res.longitude
 							});
@@ -215,30 +219,35 @@ export const getLatLon = function(tip){
 		});
 		// #endif
 		// #ifdef APP-PLUS
-		uni.getLocation({
-			type: 'gcj02',
-			success: res => {
-				store.commit("setCurrentAddress",{
-					latitude: res.latitude,
-					longitude: res.longitude
+		judgePermission("location", function (result) {
+			if (result == 1) {
+				uni.getLocation({
+					type: 'gcj02',
+					success: res => {
+						store.commit("setCurrentAddress", {
+							latitude: res.latitude,
+							longitude: res.longitude
+						});
+						resolve(res);
+					},
+					fail: (err) => {
+						console.log("位置信息错误", err);
+						reject(err);
+						tip && errorToast("经纬度信息获取失败");
+					}
 				});
-				resolve(res);
-			},
-			fail: (err) => {
-				reject(err);
-				tip && errorToast("经纬度信息获取失败");
 			}
 		});
 		// #endif
 		// #ifdef H5
 		if (getBrowser() == '微信') {
 			getLocation().then(res => {
-				store.commit("setCurrentAddress",{
+				store.commit("setCurrentAddress", {
 					longitude: res.longitude,
 					latitude: res.latitude
 				});
 				resolve(res);
-			},err => {
+			}, err => {
 				reject(err);
 				tip && errorToast("经纬度信息获取失败");
 			});
@@ -246,16 +255,16 @@ export const getLatLon = function(tip){
 			let clearTime = setTimeout(() => {
 				reject("获取经纬度超时");
 				tip && errorToast("获取经纬度超时");
-			},5000);
-			window.getAppLatLon = function(res){
+			}, 5000);
+			window.getAppLatLon = function (res) {
 				clearTimeout(clearTime);
-			    store.commit("setCurrentAddress",{
-			    	longitude: res.longitude,
-			    	latitude: res.latitude
-			    });
-			    resolve(res);
+				store.commit("setCurrentAddress", {
+					longitude: res.longitude,
+					latitude: res.latitude
+				});
+				resolve(res);
 			}
-			appMutual("getAppLatLon",true);
+			appMutual("getAppLatLon", true);
 		}
 		// #endif
 	});

@@ -23,12 +23,27 @@ export default {
       }
     });
     store.commit("setChatScenesInfo", Object.assign(e.query, data));
+    if (store.state.userInfo.token) {
+      socket.init();
+    }
+    // #endif
+    // #ifdef H5
+    if (store.state.userInfo.token) {
+      socket.init();
+    } else {
+      h5Login("force", () => {
+        socket.init();
+      });
+    }
+    // #endif
+    // #ifdef APP-PLUS
+    if (store.state.userInfo.token) {
+      socket.init();
+    }
+    APPUpdate();
     // #endif
   },
   onShow: function() {
-    // #ifdef APP-PLUS
-    APPUpdate();
-    // #endif
     // #ifdef MP-WEIXIN
     //小程序更新
     if (uni.getUpdateManager) {

@@ -53,7 +53,7 @@ export default {
 					title = "分销、分润介绍";
 					break;
 				case 1501:
-					title = "社区生活商协议";
+					title = "社区服务商协议";
 					break;
 				case 1502:
 					title = "社区合伙人协议";
@@ -63,6 +63,9 @@ export default {
 					break;
 				case 1504:
 					title = "商家入驻协议";
+					break;
+				case 1505:
+					title = "合作协议";
 					break;
 			}
 			this.title = title;

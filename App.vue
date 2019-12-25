@@ -1,5 +1,8 @@
 <script>
 import store from "@/config/store";
+// #ifdef H5
+import { h5Login } from "@/config/html5Utils";
+// #endif
 // #ifdef APP-PLUS
 import APPUpdate from "@/utils/APPUpdate";
 // #endif

@@ -1,4 +1,4 @@
-import $http from '@/config/request'
+import $http from '@/config/requestConfig'
 import store from '@/config/store';
 // #ifdef APP-PLUS
 import { judgePermission } from '@/utils/permission'

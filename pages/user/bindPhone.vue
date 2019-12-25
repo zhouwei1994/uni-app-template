@@ -1,5 +1,6 @@
 <template>
 	<view>
+		<nav-bar title="绑定手机号"></nav-bar>
 		<view class="bindAccountBox">
 			<image :src="logoUrl"></image>
 			<view><image src="../../static/icon/bindingIcon.png"></image></view>

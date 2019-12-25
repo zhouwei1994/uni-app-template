@@ -1,5 +1,6 @@
 <template>
 	<view class="protocol_page">
+		<nav-bar title="协议"></nav-bar>
 		<view class="title">{{title}}</view>
 		<u-parse :content="protocol" />
 	</view>

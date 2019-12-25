@@ -1,7 +1,10 @@
 <template>
 	<view class="register_page">
-		<view class="title" v-if="type == 1000">验证码登录</view>
-		<view class="title" v-if="type == 2000">账号密码</view>
+		<nav-bar></nav-bar>
+		<view class="title">
+			<text :class="{active:type == 2000}" @click="type = 2000">密码登录</text>
+			<text :class="{active:type == 1000}" @click="type = 1000">验证码登录</text>
+		</view>
 		<view class="input_box"><input type="number" v-model="phone" placeholder="请输入您的手机号码" maxlength="11" /></view>
 		<view class="input_box" v-if="type == 1000">
 			<input type="number" v-model="code" placeholder="请输入手机验证码" maxlength="6" @confirm="onSubmit" />
@@ -19,10 +22,6 @@
 		<view class="nav_box" v-if="type == 2000">
 			<text class="color" @click="onPageJump('/pages/user/register')">去注册</text>
 			<text @click="onPageJump('/pages/user/forget')">忘记密码？</text>
-		</view>
-		<view class="password_register">
-			<text v-if="type == 1000" @click="type = 2000">账户密码登录</text>
-			<text v-if="type == 2000" @click="type = 1000">短信验证码登录</text>
 		</view>
 		<!-- #ifdef APP-PLUS -->
 		<view class="station"></view>
@@ -229,9 +228,21 @@ export default {
 	background-color: #fff;
 	min-height: 100vh;
 	.title {
-		font-size: 54upx;
-		color: #333333;
 		margin-bottom: 50upx;
+		display: flex;
+		align-items: center;
+		text {
+			font-size: 36upx;
+			color: #999;
+			&.active {
+				font-size: 48upx;
+				color: #333333;
+				font-weight: bold;
+			}
+			&:nth-child(2){
+				margin-left: 70upx;
+			}
+		}
 	}
 	.input_box {
 		display: flex;
@@ -274,7 +285,7 @@ export default {
 		font-size: 24upx;
 		color: #999999;
 		> text {
-			@include theme('font');
+			color: $themeColor;
 		}
 	}
 	.password_register {
@@ -294,7 +305,7 @@ export default {
 			font-size: 24upx;
 			color: #333333;
 			&.color {
-				@include theme('font');
+				color: $themeColor;
 			}
 		}
 	}

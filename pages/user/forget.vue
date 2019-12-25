@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<nav-bar></nav-bar>
 		<view class="title">忘记密码</view>
 		<view class="input_box"><input type="number" v-model="phone" placeholder="请输入手机号" /></view>
 		<view class="input_box">

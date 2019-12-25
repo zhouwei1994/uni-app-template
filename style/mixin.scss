@@ -2,26 +2,14 @@
 //主色
 $themeColor: #85d764;
 @mixin theme($type,$path:''){
-	@if $type == "font" {
-		color: $themeColor;
-	} @else if $type == "bg" {
-		background-color: $themeColor;
-	} @else if $type == "border" {
-		border: solid 2upx $themeColor;
-	} @else if $type == "gradient_bg" {
+	@if $type == "gradient_bg" {
 		background-image: linear-gradient(90deg, #ea552d 0%, #f19837 100%);
-	} @else if $type == "btn_bg" {
-		background-color: $themeColor;
-	} @else if $type == "address_img" {
-		background-image: url($path + "static/icon/orderdetails_ads.png");
 	} @else if $type == "unselected_img" {
 		background-image: url($path + "static/icon/ic_gender_unselected.png");
 	} @else if $type == "check_img" {
 		background-image: url($path + "static/icon/ic_agreed.png");
 	} @else if $type == "radio_img" {
 		background-image: url($path + "static/icon/ic_gender_selected.png");
-	} @else if $type == "my_head_img" {
-		background-image: url($path + "static/icon/mime_bg_top.png");
 	}
 }
 // 背景图片地址和大小

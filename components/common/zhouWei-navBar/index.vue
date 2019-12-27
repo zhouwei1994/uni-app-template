@@ -384,7 +384,7 @@ export default {
   }
   $height: 56upx;
   .left_info {
-    margin-right: 30upx;
+    // margin-right: 30upx;
     display: flex;
     align-items: center;
     height: $height;
@@ -447,6 +447,7 @@ export default {
     height: 100%;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
 }
 </style>

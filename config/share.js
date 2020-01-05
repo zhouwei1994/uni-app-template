@@ -269,15 +269,15 @@ export default function (shareInfo, callback) {
 // 微信小程序分享
 export const wxShare = function (path) {
 	let shareInfo = {
-		title: base.share.title,
-		path: path || base.share.path
+		title: title || base.share.title,
 	};
+	if (path && typeof (path) == "string") {
+		shareInfo.path = path;
+	} else if (path === undefined) {
+		shareInfo.path = base.share.path;
+	}
 	if (store.state.userInfo.token) {
-		if (shareInfo.path.indexOf("?") >= 0) {
-			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
-		} else {
-			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
-		}
+		shareInfo.path += "?userUid=" + store.state.userInfo.userUid
 	}
 	return shareInfo;
 }

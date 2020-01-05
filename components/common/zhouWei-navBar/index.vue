@@ -151,7 +151,7 @@ export default {
       //字体色
       navFontColor: "#000",
       //背景色
-      navBgColor: "linear-gradient(90deg, #FFF 0%, #FFF 100%)",
+      navBgColor: "",
       //透明底字体色
       navTransparentFixedFontColor: "#000",
       // 是否使用
@@ -268,6 +268,9 @@ export default {
     },
     // 获取导航背景颜色
     getNavBgColor(val) {
+      if (this.type == "transparent") {
+        return;
+      }
       if (val == "themeBgColor") {
         this.themeBgColor = true;
         this.navBgColor = "";

@@ -1,5 +1,6 @@
 <script>
 import store from "@/config/store";
+import socket from "@/config/socket";
 // #ifdef H5
 import { h5Login } from "@/config/html5Utils";
 // #endif

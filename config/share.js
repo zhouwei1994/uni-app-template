@@ -124,14 +124,14 @@ uni.getProvider({
 	}
 });
 // 数据处理
-function dataFactory(shareInfo) {
+function dataFactory(shareInfo = {}) {
 	let config = {
 		...shareInfo
 	};
-	config.shareUrl = shareInfo.shareUrl || shareInfo.link || "";
-	config.shareTitle = shareInfo.shareTitle || shareInfo.title || "";
-	config.shareContent = shareInfo.shareContent || shareInfo.desc || "";
-	config.shareImg = shareInfo.shareImg || shareInfo.imgUrl || "";
+	config.shareUrl = shareInfo.shareUrl || shareInfo.link || base.share.link;
+	config.shareTitle = shareInfo.shareTitle || shareInfo.title || base.share.title;
+	config.shareContent = shareInfo.shareContent || shareInfo.desc || base.share.desc;
+	config.shareImg = shareInfo.shareImg || shareInfo.imgUrl || base.share.imgUrl;
 	if (store.state.userInfo.uid) {
 		if (config.shareUrl.indexOf("?") >= 0) {
 			config.shareUrl += "&recommendCode=" + store.state.userInfo.uid;
@@ -139,6 +139,7 @@ function dataFactory(shareInfo) {
 			config.shareUrl += "?recommendCode=" + store.state.userInfo.uid;
 		}
 	}
+	console.log(config.shareUrl);
 	return config;
 }
 export default function (shareInfo, callback) {
@@ -267,17 +268,21 @@ export default function (shareInfo, callback) {
 // #endif
 // #ifdef MP-WEIXIN
 // 微信小程序分享
-export const wxShare = function (path) {
+export const wxShare = function (title,path) {
 	let shareInfo = {
 		title: title || base.share.title,
 	};
-	if (path && typeof (path) == "string") {
+	if(path && typeof(path) == "string"){
 		shareInfo.path = path;
-	} else if (path === undefined) {
+	}else if(path === undefined){
 		shareInfo.path = base.share.path;
 	}
 	if (store.state.userInfo.token) {
-		shareInfo.path += "?userUid=" + store.state.userInfo.userUid
+		if (shareInfo.path.indexOf("?") >= 0) {
+			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
+		} else {
+			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
+		}
 	}
 	return shareInfo;
 }

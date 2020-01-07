@@ -38,7 +38,6 @@ $http.requestStart = function (options) {
 	if (store.state.userInfo.token) {
 		options.headers['user_token'] = store.state.userInfo.token;
 	};
-	console.log("请求开始前", options);
 	return options;
 }
 //请求结束
@@ -64,7 +63,10 @@ $http.requestEnd = function (options, resolve) {
 let loginPopupNum = 0;
 //所有接口数据处理
 $http.dataFactory = function (options, resolve) {
-	console.log("接口返回结果", resolve);
+	console.log("接口请求数据", {
+		resolve: resolve,
+		options: options
+	});
 	//设置回调默认值
 	var callback = {
 		success: false,

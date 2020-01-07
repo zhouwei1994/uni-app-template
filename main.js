@@ -20,9 +20,9 @@ Vue.config.productionTip = false;
 import '@/config/wxJsSDK';
 import { h5Login } from '@/config/html5Utils';
 // H5调试模式
-import Vconsole from '@/utils/vconsole';
-const vConsole = new Vconsole()
-Vue.use(vConsole);
+// import Vconsole from '@/utils/vconsole';
+// const vConsole = new Vconsole()
+// Vue.use(vConsole);
 // #endif
 
 //判断是否登录

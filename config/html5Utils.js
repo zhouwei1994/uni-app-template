@@ -138,34 +138,81 @@ function getApiLogin(result, type, callback) {
 			}
 		});
 }
+// 获取recommendCode
+function getRecommendCode() {
+	var url = window.location.href;
+	let codeIndex = url.indexOf("recommendCode=");
+	if (codeIndex >= 0) {
+		let recommendCode = url.substr(codeIndex + 14);
+		if (recommendCode.indexOf("&") >= 0) {
+			return recommendCode.substr(0, recommendCode.indexOf("&"));
+		} else if (recommendCode.indexOf("?") >= 0) {
+			return recommendCode.substr(0, recommendCode.indexOf("?"));
+		} else if (recommendCode.indexOf("/") >= 0) {
+			return recommendCode.substr(0, recommendCode.indexOf("/"));
+		} else if (recommendCode.indexOf("#") >= 0) {
+			return recommendCode.substr(0, recommendCode.indexOf("#"));
+		}
+		return recommendCode;
+	} else {
+		return;
+	}
+}
 //判断是否登录，登录处理
 let isGetOpenId = true;
 export const h5Login = function (type = "judge", callback) {
 	var getRequest = getUrlData();
-	if (store.state.userInfo.token) {
-		return;
+	let recommendCode = getRecommendCode();
+	console.log("recommendCode=" + recommendCode);
+	if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
+		uni.setStorageSync("recommendCode", recommendCode);
 	}
 	if (getBrowser() == "微信") {
-		// #ifdef H5
-		if (getRequest.recommendCode) {
-			localStorage.setItem("recommendCode", getRequest.recommendCode);
-		}
-		// #endif
-		if (store.state.userInfo.thirdLoginSuccess === false) {
-			getApiLogin(store.state.userInfo, type, () => {
-				callback && callback();
-			});
-		} else if (getRequest.code) {
+		if (getRequest.code) {
 			if (isGetOpenId) {
 				isGetOpenId = false;
-				$http.get("api/open/v1/get_public_login", {
+				let httpData = {
 					code: getRequest.code
-				})
+				};
+				if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
+					httpData.recommendUid = recommendCode;
+				} else {
+					let recommendCode = uni.getStorageSync("recommendCode");
+					if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
+						httpData.recommendUid = recommendCode;
+					}
+				}
+				$http.get("api/open/v2/get_public_login", httpData)
 					.then(result => {
 						store.commit('setUserInfo', result);
-						getApiLogin(result, type, () => {
+						publicShare();
+						if (result.thirdLoginSuccess) {
 							callback && callback();
-						});
+							uni.showToast({
+								title: "欢迎回来",
+								icon: "none"
+							});
+						} else {
+							if (type == "judge") {
+								uni.showModal({
+									title: "提示",
+									content: "您还未绑定手机号，请先绑定手机号",
+									confirmText: "去绑定",
+									cancelText: "再逛会",
+									success: (result) => {
+										if (result.confirm) {
+											uni.navigateTo({
+												url: "/pages/user/bindPhone"
+											});
+										}
+									}
+								});
+							} else if (type == "force") {
+								uni.navigateTo({
+									url: "/pages/user/bindPhone"
+								});
+							}
+						}
 					}, () => {
 						isGetOpenId = true;
 					});

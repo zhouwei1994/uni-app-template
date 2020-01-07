@@ -370,13 +370,13 @@ export default {
         background-color: rgba(0, 0, 0, 0.2);
       }
       .back {
-        background-image: url("../../../static/zhouWei-navBar/icon_back_white.png");
+        background-image: url("../../static/zhouWei-navBar/icon_back_white.png");
       }
       text {
         background-color: rgba(255, 255, 255, 0.3);
       }
       .home {
-        background-image: url("../../../static/zhouWei-navBar/icon_home_white.png");
+        background-image: url("../../static/zhouWei-navBar/icon_home_white.png");
       }
     }
   }
@@ -387,7 +387,7 @@ export default {
   }
   $height: 56upx;
   .left_info {
-    // margin-right: 30upx;
+    margin-right: 30upx;
     display: flex;
     align-items: center;
     height: $height;
@@ -404,7 +404,7 @@ export default {
       }
     }
     .back {
-      background-image: url("../../../static/zhouWei-navBar/icon_back_black.png");
+      background-image: url("../../static/zhouWei-navBar/icon_back_black.png");
       background-position: center center;
       background-repeat: no-repeat;
       background-size: auto 55%;
@@ -414,10 +414,10 @@ export default {
     text {
       height: 30upx;
       width: 2upx;
-      background-color: rgba(255, 255, 255, 0.4);
+      background-color: rgba(0, 0, 0, 0.4);
     }
     .home {
-      background-image: url("../../../static/zhouWei-navBar/icon_home_black.png");
+      background-image: url("../../static/zhouWei-navBar/icon_home_black.png");
       background-position: center center;
       background-repeat: no-repeat;
       background-size: auto 55%;
@@ -450,7 +450,6 @@ export default {
     height: 100%;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
   }
 }
 </style>

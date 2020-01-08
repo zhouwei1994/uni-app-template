@@ -12,6 +12,7 @@ Vue.prototype.$http = $http;
 // #ifdef MP-WEIXIN
 //挂载全局微信分享
 import { wxShare } from '@/config/share'
+import { onLogin } from '@/config/login';
 Vue.prototype.wxShare = wxShare;
 // #endif
 Vue.config.productionTip = false;
@@ -51,29 +52,8 @@ Vue.prototype.judgeLogin = function (callback, type = "judge") {
 			});
 		}
 	} else {
-		// #ifdef MP-WEIXIN
-		if ($http.openLogin) {
-			if (type == "force") {
-				$http.openLogin();
-			} else {
-				uni.showModal({
-					title: "登录提示",
-					content: "此时此刻需要您登录喔~",
-					confirmText: "去登录",
-					cancelText: "再逛会",
-					success: (res) => {
-						if (res.confirm) {
-							//调取页面上的登录事件
-							$http.openLogin();
-						}
-					}
-				});
-			}
-		} else {
-			uni.switchTab({
-				url: '/pages/home/home'
-			});
-		}
+		// #ifdef MP
+		onLogin(type, callback);
 		// #endif
 		// #ifdef APP-PLUS
 		uni.showModal({

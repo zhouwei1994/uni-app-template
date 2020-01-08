@@ -1,7 +1,12 @@
 import request from "@/utils/request";
 import store from '@/config/store';
+// #ifdef H5
 import { h5Login } from '@/config/html5Utils';
+// #endif
 import base from '@/config/baseUrl';
+// #ifdef MP-WEIXIN
+import { onLogin } from '@/config/login';
+// #endif
 //可以new多个request来支持多个域名请求
 let $http = new request({
 	//接口请求地址
@@ -104,6 +109,13 @@ $http.dataFactory = function (options, resolve) {
 			store.commit("setRequestState", 1200);
 		}
 		store.commit("emptyUserInfo");
+		// #ifdef MP-WEIXIN
+		onLogin();
+		// #endif
+		// #ifdef H5
+		h5Login("force");
+		// #endif
+		// #ifdef APP-PLUS
 		var content = '此时此刻需要您登录喔~';
 		if (resolve.data.code == "1000") {
 			content = '此时此刻需要您登录喔';
@@ -118,29 +130,14 @@ $http.dataFactory = function (options, resolve) {
 				success: function (res) {
 					loginPopupNum--;
 					if (res.confirm) {
-						// #ifdef MP
-						if ($http.openLogin) {
-							//调取页面上的登录事件
-							$http.openLogin();
-						} else {
-							uni.switchTab({
-								url: base.homePath
-							});
-						}
-						// #endif
-						// #ifdef APP-PLUS
 						uni.navigateTo({
 							url: "/pages/user/login"
 						});
-						// #endif
 					}
 				}
 			});
-			// #ifdef H5
-			h5Login("force");
-			loginPopupNum--;
-			// #endif
 		}
+		// #endif
 	} else { //其他错误提示
 		if (options.data.pageNo && options.loadMore) {
 			store.commit("setRequestState", 1200);

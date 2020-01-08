@@ -14,6 +14,8 @@ const state = {
 	requestState: 999,
 	//微信场景参数
 	chatScenesInfo: {},
+	//登录弹窗状态
+	loginPopupShow: false,
 	//当前位置
 	currentAddress: {
 		areaName: "请选择",
@@ -83,9 +85,12 @@ const mutations = {
 	//微信场景参数
 	setChatScenesInfo(state, data) {
 		if (data) {
-			console.log(data);
 			state.chatScenesInfo = data;
 		}
+	},
+	//登录弹窗状态
+	setLoginPopupShow(state, data) {
+		state.loginPopupShow = data;
 	},
 	//当前地址
 	setCurrentAddress(state, data) {

@@ -16,7 +16,6 @@ function judgeIosPermissionPush() {
 	if (app.currentUserNotificationSettings) {
 		var settings = app.currentUserNotificationSettings();
 		enabledTypes = settings.plusGetAttribute("types");
-		console.log("enabledTypes1:" + enabledTypes);
 		if (enabledTypes == 0) {
 			console.log("推送权限没有开启");
 		} else {
@@ -76,8 +75,8 @@ function judgeIosPermissionRecord() {
 	}
 	plus.ios.deleteObject(avaudiosession);
 	return {
-		result:result,
-		permissionName:"麦克风"
+		result: result,
+		permissionName: "麦克风"
 	};
 }
 
@@ -95,8 +94,8 @@ function judgeIosPermissionCamera() {
 	}
 	plus.ios.deleteObject(AVCaptureDevice);
 	return {
-		result:result,
-		permissionName:"相机"
+		result: result,
+		permissionName: "相机"
 	};
 }
 
@@ -114,8 +113,8 @@ function judgeIosPermissionPhotoLibrary() {
 	}
 	plus.ios.deleteObject(PHPhotoLibrary);
 	return {
-		result:result,
-		permissionName:"相册"
+		result: result,
+		permissionName: "相册"
 	};
 }
 
@@ -132,8 +131,8 @@ function judgeIosPermissionContact() {
 	}
 	plus.ios.deleteObject(CNContactStore);
 	return {
-		result:result,
-		permissionName:"通讯录"
+		result: result,
+		permissionName: "通讯录"
 	};
 }
 
@@ -150,8 +149,8 @@ function judgeIosPermissionCalendar() {
 	}
 	plus.ios.deleteObject(EKEventStore);
 	return {
-		result:result,
-		permissionName:"日历"
+		result: result,
+		permissionName: "日历"
 	};
 }
 
@@ -168,17 +167,17 @@ function judgeIosPermissionMemo() {
 	}
 	plus.ios.deleteObject(EKEventStore);
 	return {
-		result:result,
-		permissionName:"备忘录"
+		result: result,
+		permissionName: "备忘录"
 	};
 }
 
 // Android权限查询
-function requestAndroidPermission(permissionID,permissionName) {
+function requestAndroidPermission(permissionID, permissionName) {
 	return new Promise((resolve, reject) => {
 		plus.android.requestPermissions(
 			[permissionID], // 理论上支持多个权限同时查询，但实际上本函数封装只处理了一个权限的情况。有需要的可自行扩展封装
-			function(resultObj) {
+			function (resultObj) {
 				var result = 0;
 				for (var i = 0; i < resultObj.granted.length; i++) {
 					var grantedPermission = resultObj.granted[i];
@@ -196,15 +195,15 @@ function requestAndroidPermission(permissionID,permissionName) {
 					result = -1
 				}
 				resolve({
-					result:result,
-					permissionName:permissionName
+					result: result,
+					permissionName: permissionName
 				});
 				// 若所需权限被拒绝,则打开APP设置界面,可以在APP设置界面打开相应权限
 				// if (result != 1) {
 				// gotoAppPermissionSetting()
 				// }
 			},
-			function(error) {
+			function (error) {
 				console.log('申请权限错误：' + error.code + " = " + error.message);
 				resolve({
 					code: error.code,
@@ -216,10 +215,10 @@ function requestAndroidPermission(permissionID,permissionName) {
 }
 
 // 使用一个方法，根据参数判断权限
-function judgePermission(permissionID,callback) {
-	function handle(res){
+function judgePermission(permissionID, callback) {
+	function handle(res) {
 		callback && callback(res.result);
-		if(res.result === -1){
+		if (res.result === -1) {
 			uni.showModal({
 				title: "提示",
 				content: "您还未开通" + res.permissionName + "权限,是否去应用设置里开通~",
@@ -234,58 +233,58 @@ function judgePermission(permissionID,callback) {
 		}
 	}
 	if (permissionID == "location") { // 位置
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionLocation());
-		} else{
-			requestAndroidPermission("android.permission.ACCESS_FINE_LOCATION","位置").then(handle);
+		} else {
+			requestAndroidPermission("android.permission.ACCESS_FINE_LOCATION", "位置").then(handle);
 		}
 	} else if (permissionID == "camera") { // 摄像头
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionCamera());
-		} else{
-			requestAndroidPermission("android.permission.CAMERA","摄像头").then(handle);
+		} else {
+			requestAndroidPermission("android.permission.CAMERA", "摄像头").then(handle);
 		}
 	} else if (permissionID == "photoLibrary") { // 相册
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionPhotoLibrary());
-		} else{
-			return requestAndroidPermission("android.permission.READ_EXTERNAL_STORAGE","相册读取").then(handle);
+		} else {
+			return requestAndroidPermission("android.permission.READ_EXTERNAL_STORAGE", "相册读取").then(handle);
 		}
 	} else if (permissionID == "record") { // 麦克风
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionRecord());
-		} else{
-			return requestAndroidPermission("android.permission.RECORD_AUDIO","麦克风").then(handle);
+		} else {
+			return requestAndroidPermission("android.permission.RECORD_AUDIO", "麦克风").then(handle);
 		}
 	} else if (permissionID == "push") { // 推送
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionPush());
-		}else{
+		} else {
 			handle(1);
 		}
 	} else if (permissionID == "contact") { // 通讯录
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionContact());
-		} else{
-			return requestAndroidPermission("android.permission.READ_CONTACTS","通讯录读取").then(handle);
+		} else {
+			return requestAndroidPermission("android.permission.READ_CONTACTS", "通讯录读取").then(handle);
 		}
 	} else if (permissionID == "calendar") { // 日历
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionCalendar());
-		} else{
-			return requestAndroidPermission("android.permission.READ_CALENDAR","日历读取").then(handle);
+		} else {
+			return requestAndroidPermission("android.permission.READ_CALENDAR", "日历读取").then(handle);
 		}
 	} else if (permissionID == "memo") { // 备忘录
-		if(isIos){
+		if (isIos) {
 			handle(judgeIosPermissionMemo());
-		} else{
+		} else {
 			handle(1);
 		}
 	} else if (permissionID == "call_phone") { // 拨打电话
-		if(isIos){
+		if (isIos) {
 			handle(1);
-		} else{
-			return requestAndroidPermission("android.permission.CALL_PHONE","拨打电话").then(handle);
+		} else {
+			return requestAndroidPermission("android.permission.CALL_PHONE", "拨打电话").then(handle);
 		}
 	}
 }

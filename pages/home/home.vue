@@ -10,13 +10,16 @@
 			</swiper>
 		</view>
 		<view class="video_box" v-if="videoShow" @click="onCloseVideo"><video :src="videoUrl" autoplay="true" controls></video></view>
-		<z-login ref="login" @success="pageData"></z-login>
+		<z-login ref="login"></z-login>
 	</view>
 </template>
 
 <script>
 import zLogin from '@/components/module/login';
 import { mapState, mapMutations } from 'vuex';
+// #ifdef MP-WEIXIN
+import {onLogin} from '@/config/login';
+// #endif
 export default {
 	components: {
 		zLogin
@@ -34,16 +37,11 @@ export default {
 	},
 	//第一次加载
 	onLoad(e) {
-		const _this = this;
-		// 页面植入打开登录方法
-		this.$http.openLogin = function() {
-			//跳转到首页
-			uni.switchTab({
-				url: '/pages/home/home'
-			});
-			//打开人脸识别
-			_this.$refs.login.openLogin();
-		};
+		// #ifdef MP-WEIXIN
+		onLogin(() => {
+			this.getCoupon();
+		});
+		// #endif
 	},
 	//页面显示
 	onShow() {},

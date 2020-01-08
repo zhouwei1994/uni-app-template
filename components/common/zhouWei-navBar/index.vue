@@ -192,6 +192,12 @@ export default {
   watch: {
     title(val) {
       this.navTitle = val;
+      // #ifdef H5
+      document.title = val;
+      // #endif
+      uni.setNavigationBarTitle({
+        title: val
+      });
     },
     fontColor(val) {
       this.navFontColor = val;
@@ -207,6 +213,9 @@ export default {
   //第一次加载
   created() {
     this.navTitle = this.title;
+    // #ifdef H5
+    document.title = this.title;
+    // #endif
     this.navFontColor = this.fontColor;
     this.getNavBgColor(this.bgColor);
     this.navTransparentFixedFontColor = this.transparentFixedFontColor;
@@ -436,8 +445,8 @@ export default {
     white-space: nowrap;
     display: flex;
     align-items: center;
-    /* #ifndef APP-PLUS||H5 */
-    max-width: 60vw;
+    /* #ifdef MP */
+    max-width: calc(100vw - 160upx);
     /* #endif */
     &.center {
       position: absolute;

@@ -115,7 +115,7 @@ export default {
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 4;
+	z-index: 510;
 	animation: popupMask 0.4s;
 }
 .popupContentBox {
@@ -125,7 +125,7 @@ export default {
 	width: 80%;
 	transform: translateY(-50%);
 	background-color: #fff;
-	z-index: 5;
+	z-index: 511;
 	animation: popupContentBox 0.4s;
 }
 .popupContentBox .close {

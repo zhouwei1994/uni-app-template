@@ -57,10 +57,15 @@ export default {
 		// 轮播图点击
 		onBanner(item) {
 			if (item.jumpType == 1201) {
-				this.setWebViewUrl(item.jumpRecord.webViewUrl);
+				// #ifdef H5
+				window.open(item.jumpRecord.webViewUrl);
+				// #endif 
+				// #ifndef H5
+				this.$store.commit("setWebViewUrl", item.jumpRecord.webViewUrl);
 				uni.navigateTo({
 					url: '/pages/home/webView'
 				});
+				// #endif
 			} else if (item.jumpType == 1301) {
 				this.videoUrl = item.jumpRecord.videoUrl;
 				this.videoShow = true;

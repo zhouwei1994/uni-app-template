@@ -2,19 +2,18 @@
 	<view class="protocol_page">
 		<nav-bar title="协议"></nav-bar>
 		<view class="title">{{title}}</view>
-		<u-parse :content="protocol" />
+		<jyf-parser ref="article"></jyf-parser>
 	</view>
 </template>
 
 <script>
-import uParse from '@/components/common/u-parse/parse.vue';
+import jyfParser from '@/components/common/jyf-parser/jyf-parser.vue';
 export default {
-	components: { uParse },
+	components: { jyfParser },
 	data() {
 		return {
 			type:1202,
-			title:"用户协议",
-			protocol: '<b/>'
+			title:"用户协议"
 		};
 	},
 	//第一次加载
@@ -23,50 +22,8 @@ export default {
 			this.type = parseInt(e.type);
 			let title;
 			switch (this.type) {
-				case 1101:
-					title = "帮我买的【预估费】";
-					break;
-				case 1102:
-					title = "帮我买价格说明";
-					break;
-				case 1103:
-					title = "取送价格说明";
-					break;
-				case 1104:
-					title = "帮忙价格说明";
-					break;
-				case 1201:
-					title = "跑腿帮我买服务协议";
-					break;
 				case 1202:
 					title = "登录注册用户协议";
-					break;
-				case 1203:
-					title = "跑腿取送服务协议";
-					break;
-				case 1204:
-					title = "跑腿帮忙服务协议";
-					break;
-				case 1205:
-					title = "跑腿服务协议";
-					break;
-				case 1401:
-					title = "分销、分润介绍";
-					break;
-				case 1501:
-					title = "社区服务商协议";
-					break;
-				case 1502:
-					title = "社区合伙人协议";
-					break;
-				case 1503:
-					title = "社区运营商协议";
-					break;
-				case 1504:
-					title = "商家入驻协议";
-					break;
-				case 1505:
-					title = "合作协议";
 					break;
 			}
 			this.title = title;
@@ -83,7 +40,7 @@ export default {
 					type: this.type
 				})
 				.then(res => {
-					this.protocol = res;
+					this.$refs.article.setContent(res);
 				});
 		}
 	},

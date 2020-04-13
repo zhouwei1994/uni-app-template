@@ -69,8 +69,11 @@ let loginPopupNum = 0;
 //所有接口数据处理
 $http.dataFactory = function (options, resolve) {
 	console.log("接口请求数据", {
-		resolve: resolve,
-		options: options
+		httpUrl:options.httpUrl,
+		resolve:resolve.data,
+		headers:options.headers,
+		data:options.data,
+		method:options.method,
 	});
 	//设置回调默认值
 	var callback = {

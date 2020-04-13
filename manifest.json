@@ -55,7 +55,8 @@
                     "<uses-permission android:name=\"android.permission.WRITE_SMS\"/>"
                 ]
             }
-        }
+        },
+        "nvueLaunchMode" : "fast"
     },
     // 5+App特有相关
     "quickapp" : {},

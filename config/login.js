@@ -1,6 +1,7 @@
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
 import base from '@/config/baseUrl';
+import { h5Login } from '@/config/html5Utils';
 let code = "";
 let loginStart = true;
 let userInfo = {
@@ -8,7 +9,7 @@ let userInfo = {
 };
 let lastPageUrl = "";
 //判断登录状态
-function onLogin(type = "judge", callback) {
+function onLogin(type = "judge",callback) {
 	if (loginStart) {
 		lastPageUrl = "";
 		loginStart = false;
@@ -25,40 +26,40 @@ function onLogin(type = "judge", callback) {
 		// #endif
 		uni.login({
 			provider: platform,
-			success: function (loginRes) {
+			success: function(loginRes) {
 				if (loginRes.errMsg == 'login:ok') {
 					code = loginRes.code;
 					// 获取用户信息
 					uni.getUserInfo({
 						provider: platform,
-						success: function (infoRes) {
+						success: function(infoRes) {
 							getUserInfo(infoRes, "", callback);
 						},
 						fail() {
-							if (type != "try") {
+							if(type != "try"){
 								//获取微信的所有页面
 								let currentPages = getCurrentPages();
-								if (["pages/home/home", "pages/home/home99TC", "pages/mall/home99TC", "pages/mall/home", "pages/mall/homeJPDD", "pages/mall/shopPage/goodsDetail"].includes(currentPages[currentPages.length - 1].route)) {
+								if(["pages/home/home"].includes(currentPages[currentPages.length - 1].route)){
 									store.commit('setLoginPopupShow', true);
 									Object.defineProperty(userInfo, "token", {
-										get: function (val) {
+										get: function(val) {
 											return {};
 										},
-										set: function (newVal) {
+										set: function(newVal) {
 											callback && callback();
 										}
 									});
-								} else {
+								}else{
 									uni.showModal({
-										title: "登录提示",
-										content: "此时此刻需要您登录喔~",
+										title:"登录提示",
+										content:"此时此刻需要您登录喔~",
 										confirmText: "去登录",
 										cancelText: "再逛会",
 										success: (res) => {
-											if (res.confirm) {
+											if(res.confirm){
 												store.commit('setLoginPopupShow', true);
 												uni.switchTab({
-													url: base.homePath
+													url:base.homePath
 												});
 											}
 										}
@@ -67,7 +68,7 @@ function onLogin(type = "judge", callback) {
 								setTimeout(() => {
 									loginStart = true;
 								}, 2000);
-							} else {
+							}else{
 								loginStart = true;
 							}
 						}
@@ -80,17 +81,17 @@ function onLogin(type = "judge", callback) {
 //获取用户信息
 function getUserInfo(info, type, callback) {
 	$http.post('api/open/v1/login', {
-		wxSmallCode: code,
-		iv: info.iv,
-		encryptedData: info.encryptedData
-	})
+			wxSmallCode: code,
+			iv: info.iv,
+			encryptedData: info.encryptedData
+		})
 		.then(res => {
 			loginStart = true;
 			store.commit('setUserInfo', res);
 			if (type == "authorized") {
 				userInfo.token = res.token;
 				store.commit('setLoginPopupShow', false);
-			} else {
+			}else{
 				callback && callback();
 			}
 			uni.showToast({
@@ -100,7 +101,62 @@ function getUserInfo(info, type, callback) {
 			loginStart = true;
 		});
 }
-module.exports = {
+//判断是否登录
+function judgeLogin(callback, type = "judge"){
+	let storeUserInfo = store.state.userInfo;
+	if(!storeUserInfo.token){
+		storeUserInfo = uni.getStorageSync("userInfo");
+	}
+	if (type != "force" && storeUserInfo.token) {
+		callback();
+	} else if (storeUserInfo.wxSmallOpenId && !storeUserInfo.thirdLoginSuccess) {
+		if (type = "force") {
+			uni.navigateTo({
+				url: '/pages/user/bindPhone'
+			});
+		} else {
+			uni.showModal({
+				title: "提示",
+				content: "您还未绑定手机号，请先绑定~",
+				confirmText: "去绑定",
+				cancelText: "再逛会",
+				success: (res) => {
+					if (res.confirm) {
+						uni.navigateTo({
+							url: '/pages/user/bindPhone'
+						});
+					}
+				}
+			});
+		}
+	} else {
+		// #ifdef MP
+		onLogin(type, callback);
+		// #endif
+		// #ifdef APP-PLUS
+		uni.showModal({
+			title: "登录提示",
+			content: "此时此刻需要您登录喔~",
+			confirmText: "去登录",
+			cancelText: "再逛会",
+			success: (res) => {
+				if (res.confirm) {
+					uni.navigateTo({
+						url: "/pages/user/login"
+					});
+				}
+			}
+		});
+		// #endif
+		// #ifdef H5
+		h5Login(type, () => {
+			callback();
+		});
+		// #endif
+	}
+}
+export {
 	onLogin,
-	getUserInfo
+	getUserInfo,
+	judgeLogin
 }

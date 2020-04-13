@@ -11,8 +11,7 @@
 					<text>{{ text || '暂无内容喔~' }}</text>
 				</view>
 				<view class="noData" :style="'height:' + height + 'vh'" v-else-if="type == 2">
-					<!-- <image src="http://qn.kemean.cn/upload/201907/23/illustration1.png" mode="aspectFit"></image> -->
-					<image src="../../../static/icon/mall/icon_gouwuche_kong.png" mode="aspectFit"></image>
+					<image src="http://qn.kemean.cn/upload/201907/23/illustration1.png" mode="aspectFit"></image>
 					<text>{{ text || '购物车空空如也！' }}</text>
 				</view>
 				<view class="noData" :style="'height:' + height + 'vh'" v-else-if="type == 3">

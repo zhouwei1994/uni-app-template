@@ -87,7 +87,6 @@ export default {
 @import "./style/common.scss";
 @import "./style/icon.scss";
 @import "./style/input.scss";
-@import "./components/common/u-parse/parse.css";
 // #ifdef H5
 // 头部导航
 uni-page-head {

@@ -178,60 +178,78 @@ window.getAppLatLon = function (res) {
 	});
 }
 // #endif
-// 获取地址信息
-export const getLatLon = function (tip) {
-	const _this = this;
-	return new Promise((resolve, reject) => {
-		// #ifdef MP
-		uni.getSetting({
-			success: res => {
-				if (res.authSetting['scope.userLocation']) {
-					uni.getLocation({
-						type: 'gcj02',
-						success: res => {
-							store.commit("setCurrentAddress", {
-								latitude: res.latitude,
-								longitude: res.longitude
-							});
-							resolve(res);
-						},
-						fail: (err) => {
-							tip && errorToast("经纬度信息获取失败");
-							reject(err);
-						}
-					});
-				} else {
-					reject("“位置信息”未授权");
-					tip && errorToast("“位置信息”未授权");
-					uni.showModal({
-						title: '提示',
-						content: '请先在设置页面打开“位置信息”使用权限',
-						confirmText: '去设置',
-						cancelText: '再逛会',
-						success: res => {
-							if (res.confirm) {
-								uni.openSetting();
-							}
-						}
-					});
-				}
-			}
-		});
-		// #endif
-		// #ifdef APP-PLUS
-		judgePermission("location", function (result) {
-			if (result == 1) {
+function wxAppletsLocation(successCallback,errCallback){
+	uni.getSetting({
+		success: res => {
+			if (res.authSetting['scope.userLocation']) {
 				uni.getLocation({
 					type: 'gcj02',
 					success: res => {
-						store.commit("setCurrentAddress", {
+						store.commit("setCurrentAddress",{
+							latitude: res.latitude,
+							longitude: res.longitude
+						});
+						successCallback(res);
+					},
+					fail: (err) => {
+						tip && errorToast("经纬度信息获取失败");
+						errCallback(err);
+					}
+				});
+			} else {
+				errCallback("“位置信息”未授权");
+				tip && errorToast("“位置信息”未授权");
+				uni.showModal({
+					title: '提示',
+					content: '请先在设置页面打开“位置信息”使用权限',
+					confirmText: '去设置',
+					cancelText: '再逛会',
+					success: res => {
+						if (res.confirm) {
+							uni.openSetting();
+						}
+					}
+				});
+			}
+		}
+	});
+}
+// 获取地址信息
+let locationAuthorize = true;
+export const getLatLon = function(tip){
+	const _this = this;
+	return new Promise((resolve, reject) => {
+		// #ifdef MP
+		if(locationAuthorize){
+			uni.authorize({
+				scope: 'scope.userLocation',
+				success:() => {
+					wxAppletsLocation(resolve,reject);
+					locationAuthorize = false;
+				},
+				fail:() => {
+					locationAuthorize = false;
+				}
+			});
+		}else{
+			wxAppletsLocation(resolve,reject);
+		}
+		// #endif
+		// #ifdef APP-PLUS
+		judgePermission("location",function(result){
+			console.log("获取定位权限",result);
+			if(result == 1){
+				uni.getLocation({
+					type: 'gcj02',
+					success: res => {
+						store.commit("setCurrentAddress",{
 							latitude: res.latitude,
 							longitude: res.longitude
 						});
 						resolve(res);
 					},
 					fail: (err) => {
-						console.log("位置信息错误", err);
+						console.log("位置信息错误",err);
 						reject(err);
 						tip && errorToast("经纬度信息获取失败");
 					}
@@ -242,12 +260,12 @@ export const getLatLon = function (tip) {
 		// #ifdef H5
 		if (getBrowser() == '微信') {
 			getLocation().then(res => {
-				store.commit("setCurrentAddress", {
+				store.commit("setCurrentAddress",{
 					longitude: res.longitude,
 					latitude: res.latitude
 				});
 				resolve(res);
-			}, err => {
+			},err => {
 				reject(err);
 				tip && errorToast("经纬度信息获取失败");
 			});
@@ -255,16 +273,16 @@ export const getLatLon = function (tip) {
 			let clearTime = setTimeout(() => {
 				reject("获取经纬度超时");
 				tip && errorToast("获取经纬度超时");
-			}, 5000);
-			window.getAppLatLon = function (res) {
+			},5000);
+			window.getAppLatLon = function(res){
 				clearTimeout(clearTime);
-				store.commit("setCurrentAddress", {
-					longitude: res.longitude,
-					latitude: res.latitude
-				});
-				resolve(res);
+			    store.commit("setCurrentAddress",{
+			    	longitude: res.longitude,
+			    	latitude: res.latitude
+			    });
+			    resolve(res);
 			}
-			appMutual("getAppLatLon", true);
+			appMutual("getAppLatLon",true);
 		}
 		// #endif
 	});

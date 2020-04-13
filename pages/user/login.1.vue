@@ -136,7 +136,7 @@ export default {
 				height: 78upx;
 				line-height: 78upx;
 				font-size: 30upx;
-				@include theme("font");
+				color: $themeColor;
 				&:active {
 					background-color: transparent;
 				}
@@ -147,7 +147,7 @@ export default {
 			justify-content: space-between;
 			margin-top: 20upx;
 			font-size: 26upx;
-			@include theme("font");
+			color: $themeColor;
 		}
 		.btn_box {
 			margin-top: 40upx;
@@ -165,7 +165,7 @@ export default {
 			text-align: center;
 			margin-top: 20upx;
 			text {
-				@include theme("font");
+				color: $themeColor;
 			}
 		}
 	}

@@ -109,6 +109,6 @@ export default {
 	color: #999;
 }
 .addresTitle text:last-child {
-	@include theme("font");
+	color: $themeColor;
 }
 </style>

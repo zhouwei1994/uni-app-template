@@ -204,7 +204,7 @@ export default {
 			height: 78upx;
 			line-height: 78upx;
 			font-size: 30upx;
-			@include theme("font");
+			color: $themeColor;
 			&:active {
 				background-color: transparent;
 			}
@@ -226,7 +226,7 @@ export default {
 		text-align: center;
 		margin-top: 20upx;
 		text {
-			@include theme("font");
+			color: $themeColor;
 		}
 	}
 }

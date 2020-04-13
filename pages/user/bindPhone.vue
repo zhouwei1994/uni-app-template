@@ -234,7 +234,7 @@ export default {
 	text-align: center;
 	line-height: 90upx;
 	height: 90upx;
-	@include theme("bg");
+	background-color: $themeColor;
 	color: #fff;
 }
 .inputItem {
@@ -275,6 +275,6 @@ export default {
 	padding: 0 15upx;
 	border: 1upx solid $themeColor;
 	background-color: #fff;
-	@include theme("font");
+	color: $themeColor;
 }
 </style>

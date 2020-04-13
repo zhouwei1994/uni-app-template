@@ -157,7 +157,7 @@ export default {
 }
 .addres_select_val > view > view.select {
 	border-bottom: 2upx solid $themeColor;
-	@include theme("font");
+	color: $themeColor;
 }
 .addres_box {
 	padding: 0upx 20upx;
@@ -171,6 +171,6 @@ export default {
 	font-size: 28upx;
 }
 .addres_box view > view.select {
-	@include theme("font");
+	color: $themeColor;
 }
 </style>

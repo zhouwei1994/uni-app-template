@@ -87,11 +87,7 @@ export default {
 @import "./style/common.scss";
 @import "./style/icon.scss";
 @import "./style/input.scss";
-// #ifdef H5
-// 头部导航
-uni-page-head {
-  display: none;
-}
+/* #ifdef H5 */
 //修复H5底部导航挡住内容bug
 uni-app {
   height: auto;
@@ -100,7 +96,7 @@ uni-app {
 .uni-input-form {
   height: 100%;
 }
-// #endif
+/* #endif */
 
 page {
   height: 100%;

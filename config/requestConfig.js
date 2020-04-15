@@ -67,95 +67,93 @@ $http.requestEnd = function (options, resolve) {
 }
 let loginPopupNum = 0;
 //所有接口数据处理
-$http.dataFactory = function (options, resolve) {
+$http.dataFactory = function (res) {
 	console.log("接口请求数据", {
-		httpUrl:options.httpUrl,
-		resolve:resolve.data,
-		headers:options.headers,
-		data:options.data,
-		method:options.method,
+		httpUrl:res.httpUrl,
+		resolve:res.response,
+		headers:res.headers,
+		data:res.data,
+		method:res.method,
 	});
-	//设置回调默认值
-	var callback = {
-		success: false,
-		result: ""
-	};
-	if (resolve.statusCode && resolve.statusCode != 200) {
-		return callback;
-	}
-	//判断数据是否请求成功
-	if (resolve.data.success) {
-		callback.success = true;
-		callback.result = resolve.data.data;
-		if (options.data.pageNo && options.loadMore) {
-			if (resolve.data.data.data) {
-				const len = resolve.data.data.data.length;
-				if (len < options.data.pageSize) {
-					if (options.data.pageNo == 1) {
-						if (len == 0) {
-							store.commit("setRequestState", 1400);
+	if (res.response.statusCode && res.response.statusCode == 200) {
+		let httpData = res.response.data;
+		//判断数据是否请求成功
+		if (httpData.success) {
+			if (res.data.pageNo && res.loadMore) {
+				if (httpData.data.data) {
+					const len = httpData.data.data.length;
+					if (len < res.data.pageSize) {
+						if (res.data.pageNo == 1) {
+							if (len == 0) {
+								store.commit("setRequestState", 1400);
+							} else {
+								store.commit("setRequestState", 999);
+							}
 						} else {
-							store.commit("setRequestState", 999);
+							store.commit("setRequestState", 1300);
 						}
+					} else if (res.data.pageNo < httpData.data.pages) {
+						store.commit("setRequestState", 1000);
 					} else {
-						store.commit("setRequestState", 1300);
+						store.commit("setRequestState", 999);
 					}
-				} else if (options.data.pageNo < resolve.data.data.pages) {
-					store.commit("setRequestState", 1000);
-				} else {
-					store.commit("setRequestState", 999);
 				}
 			}
-		}
-	} else if (resolve.data.code == "1000" || resolve.data.code == "1001") {
-		if (options.data.pageNo && options.loadMore) {
-			store.commit("setRequestState", 1200);
-		}
-		store.commit("emptyUserInfo");
-		// #ifdef MP-WEIXIN
-		onLogin();
-		// #endif
-		// #ifdef H5
-		h5Login("force");
-		// #endif
-		// #ifdef APP-PLUS
-		var content = '此时此刻需要您登录喔~';
-		if (resolve.data.code == "1000") {
-			content = '此时此刻需要您登录喔';
-		}
-		if (loginPopupNum <= 0) {
-			loginPopupNum++;
-			uni.showModal({
-				title: '温馨提示',
-				content: content,
-				confirmText: "去登录",
-				cancelText: "再逛会",
-				success: function (res) {
-					loginPopupNum--;
-					if (res.confirm) {
-						uni.navigateTo({
-							url: "/pages/user/login"
-						});
+			// 返回正确的结果(then接受数据)
+			res.resolve(httpData.data);
+		} else if (httpData.code == "1000" || httpData.code == "1001") {
+			if (options.data.pageNo && options.loadMore) {
+				store.commit("setRequestState", 1200);
+			}
+			store.commit("emptyUserInfo");
+			// #ifdef MP-WEIXIN
+			onLogin();
+			// #endif
+			// #ifdef H5
+			h5Login("force");
+			// #endif
+			// #ifdef APP-PLUS
+			var content = '此时此刻需要您登录喔~';
+			if (resolve.data.code == "1000") {
+				content = '此时此刻需要您登录喔';
+			}
+			if (loginPopupNum <= 0) {
+				loginPopupNum++;
+				uni.showModal({
+					title: '温馨提示',
+					content: content,
+					confirmText: "去登录",
+					cancelText: "再逛会",
+					success: function (res) {
+						loginPopupNum--;
+						if (res.confirm) {
+							uni.navigateTo({
+								url: "/pages/user/login"
+							});
+						}
 					}
-				}
-			});
-		}
-		// #endif
-	} else { //其他错误提示
-		if (options.data.pageNo && options.loadMore) {
-			store.commit("setRequestState", 1200);
-		}
-		if (options.isPrompt) {
-			setTimeout(function () {
-				uni.showToast({
-					title: resolve.data.info,
-					icon: "none",
-					duration: 3000
 				});
-			}, 500);
+			}
+			// #endif
+		} else { //其他错误提示
+			if (res.data.pageNo && res.loadMore) {
+				store.commit("setRequestState", 1200);
+			}
+			if (res.isPrompt) {
+				setTimeout(function () {
+					uni.showToast({
+						title: httpData.info,
+						icon: "none",
+						duration: 3000
+					});
+				}, 500);
+			}
+			// 返回错误的结果(catch接受数据)
+			res.reject(httpData);
 		}
-		callback.result = resolve.data;
+	}else{
+		// 返回错误的结果(catch接受数据)
+		res.reject(res.response);
 	}
-	return callback;
 };
 export default $http;

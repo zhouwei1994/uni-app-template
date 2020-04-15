@@ -42,8 +42,12 @@ export default class request {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
-					var factoryInfo = this.dataFactory(requestInfo, response);
-					factoryInfo.success ? resolve(factoryInfo.result) : reject(factoryInfo.result);
+					this.dataFactory({
+						...requestInfo,
+						response:response,
+						resolve:resolve,
+						reject:reject
+					});
 				} else {
 					state ? resolve(response) : reject(response);
 				}
@@ -59,8 +63,12 @@ export default class request {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
-					var factoryInfo = this.dataFactory(requestInfo, response);
-					factoryInfo.success ? resolve(factoryInfo.result) : reject(factoryInfo.result);
+					this.dataFactory({
+						...requestInfo,
+						response:response,
+						resolve:resolve,
+						reject:reject
+					});
 				} else {
 					state ? resolve(response) : reject(response);
 				}
@@ -76,8 +84,12 @@ export default class request {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
-					var factoryInfo = this.dataFactory(requestInfo, response);
-					factoryInfo.success ? resolve(factoryInfo.result) : reject(factoryInfo.result);
+					this.dataFactory({
+						...requestInfo,
+						response:response,
+						resolve:resolve,
+						reject:reject
+					});
 				} else {
 					state ? resolve(response) : reject(response);
 				}
@@ -93,8 +105,12 @@ export default class request {
 				//是否用外部的数据处理方法
 				if (state && requestInfo.isFactory && this.dataFactory) {
 					//数据处理
-					var factoryInfo = this.dataFactory(requestInfo, response);
-					factoryInfo.success ? resolve(factoryInfo.result) : reject(factoryInfo.result);
+					this.dataFactory({
+						...requestInfo,
+						response:response,
+						resolve:resolve,
+						reject:reject
+					});
 				} else {
 					state ? resolve(response) : reject(response);
 				}

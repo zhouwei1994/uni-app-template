@@ -57,7 +57,10 @@ function judgeIosPermissionLocation() {
 		console.log("手机系统的定位没有打开或未给予定位权限");
 	} */
 	plus.ios.deleteObject(cllocationManger);
-	return result;
+	return {
+		result: result,
+		permissionName: "定位"
+	};
 }
 
 // 判断麦克风权限是否开启
@@ -248,13 +251,13 @@ function judgePermission(permissionID, callback) {
 		if (isIos) {
 			handle(judgeIosPermissionPhotoLibrary());
 		} else {
-			return requestAndroidPermission("android.permission.READ_EXTERNAL_STORAGE", "相册读取").then(handle);
+			requestAndroidPermission("android.permission.READ_EXTERNAL_STORAGE", "相册读取").then(handle);
 		}
 	} else if (permissionID == "record") { // 麦克风
 		if (isIos) {
 			handle(judgeIosPermissionRecord());
 		} else {
-			return requestAndroidPermission("android.permission.RECORD_AUDIO", "麦克风").then(handle);
+			requestAndroidPermission("android.permission.RECORD_AUDIO", "麦克风").then(handle);
 		}
 	} else if (permissionID == "push") { // 推送
 		if (isIos) {
@@ -266,13 +269,13 @@ function judgePermission(permissionID, callback) {
 		if (isIos) {
 			handle(judgeIosPermissionContact());
 		} else {
-			return requestAndroidPermission("android.permission.READ_CONTACTS", "通讯录读取").then(handle);
+			requestAndroidPermission("android.permission.READ_CONTACTS", "通讯录读取").then(handle);
 		}
 	} else if (permissionID == "calendar") { // 日历
 		if (isIos) {
 			handle(judgeIosPermissionCalendar());
 		} else {
-			return requestAndroidPermission("android.permission.READ_CALENDAR", "日历读取").then(handle);
+			requestAndroidPermission("android.permission.READ_CALENDAR", "日历读取").then(handle);
 		}
 	} else if (permissionID == "memo") { // 备忘录
 		if (isIos) {
@@ -284,7 +287,7 @@ function judgePermission(permissionID, callback) {
 		if (isIos) {
 			handle(1);
 		} else {
-			return requestAndroidPermission("android.permission.CALL_PHONE", "拨打电话").then(handle);
+			requestAndroidPermission("android.permission.CALL_PHONE", "拨打电话").then(handle);
 		}
 	}
 }

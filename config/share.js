@@ -38,10 +38,6 @@ function onShare(item, shareInfo) {
 	let shareObj = {
 		provider: item.provider,
 		type: shareInfo.type,
-		href: shareInfo.shareUrl,
-		title: shareInfo.shareTitle,
-		summary: shareInfo.shareContent,
-		imageUrl: shareInfo.shareImg,
 		success: (res) => {
 			console.log("success:" + JSON.stringify(res));
 		},
@@ -53,17 +49,71 @@ function onShare(item, shareInfo) {
 			});
 		}
 	};
+	if(shareInfo.type == 0){
+		if (shareInfo.shareUrl) {
+			shareObj.href = shareInfo.shareUrl;
+		}else{
+			uni.showToast({
+				title: "缺失分享的地址",
+				icon: "none"
+			});
+			return;
+		}
+	}
+	if(shareInfo.type == 1){
+		if (shareInfo.shareContent) {
+			shareObj.summary = shareInfo.shareContent;
+		}else{
+			uni.showToast({
+				title: "缺失分享的描述",
+				icon: "none"
+			});
+			return;
+		}
+	}
+	if([0,2,5].includes(shareInfo.type)){
+		if (shareInfo.shareImg) {
+			shareObj.imageUrl = shareInfo.shareImg;
+		}else{
+			uni.showToast({
+				title: "缺失分享的图片",
+				icon: "none"
+			});
+			return;
+		}
+	}
+	if([3,4].includes(shareInfo.type)){
+		if (shareInfo.mediaUrl) {
+			shareObj.mediaUrl = shareInfo.mediaUrl;
+		}else{
+			uni.showToast({
+				title: "缺失分享的音视频地址",
+				icon: "none"
+			});
+			return;
+		}
+	}
+	if(shareInfo.type == 5){
+		if (shareInfo.appId && shareInfo.appPath) {
+			shareObj.miniProgram.id = shareInfo.appId;
+			shareObj.miniProgram.path = shareInfo.appPath;
+			shareObj.miniProgram.webUrl = shareInfo.appWebUrl || "";
+			if(shareInfo.appType){
+				shareObj.miniProgram.type = shareInfo.appType;
+			}
+		}else{
+			uni.showToast({
+				title: "缺失分享小程序的参数",
+				icon: "none"
+			});
+			return;
+		}
+	}
+	if (shareInfo.shareTitle) {
+		shareObj.title = shareInfo.shareTitle;
+	}
 	if (item.scene) {
 		shareObj.scene = item.scene;
-	}
-	if (shareInfo.mediaUrl) {
-		shareObj.mediaUrl = shareInfo.mediaUrl;
-	}
-	if (shareInfo.appId) {
-		shareObj.miniProgram.id = shareInfo.appId;
-		shareObj.miniProgram.path = shareInfo.appPath;
-		shareObj.miniProgram.webUrl = shareInfo.appWebUrl;
-		shareObj.miniProgram.type = shareInfo.appType || 0;
 	}
 	console.log(Object.assign(shareObj, item));
 	uni.share(shareObj);
@@ -128,10 +178,10 @@ function dataFactory(shareInfo = {}) {
 	let config = {
 		...shareInfo
 	};
-	config.shareUrl = shareInfo.shareUrl || shareInfo.link || base.share.link;
-	config.shareTitle = shareInfo.shareTitle || shareInfo.title || base.share.title;
-	config.shareContent = shareInfo.shareContent || shareInfo.desc || base.share.desc;
-	config.shareImg = shareInfo.shareImg || shareInfo.imgUrl || base.share.imgUrl;
+	config.shareUrl = shareInfo.shareUrl || shareInfo.link || base.share.link; // 分享打开的地址
+	config.shareTitle = shareInfo.shareTitle || shareInfo.title || base.share.title; // 分享的标题
+	config.shareContent = shareInfo.shareContent || shareInfo.desc || base.share.desc; // 分享的描述
+	config.shareImg = shareInfo.shareImg || shareInfo.imgUrl || base.share.imgUrl; // 分享的图片
 	if (store.state.userInfo.uid) {
 		if (config.shareUrl.indexOf("?") >= 0) {
 			config.shareUrl += "&recommendCode=" + store.state.userInfo.uid;

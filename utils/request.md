@@ -8,6 +8,9 @@
 7. 支持 Promise
 8. 支持拦截器
 
+### QQ交流群(学习干货多多) 607391225
+![QQ交流群](http://qn.kemean.cn//upload/202004/14/15868301778472k7oubi6.png)
+
 # 文件说明
 1. `request.js` 源码文件
 2. `requestConfig.js` 请求配置文件（具体看代码）
@@ -15,7 +18,7 @@
 
 # 在main.js引入并挂在Vue上
 ```
-import $http from '@/config/requestConfig';
+import $http from '@/zhouWei-request/requestConfig';
 Vue.prototype.$http = $http;
 ```
 
@@ -32,8 +35,10 @@ then(function (response) {
 
 # post请求 async写法 
 ```
-let data = await this.$http.post('aid/region',{pid:0});
-console.log(data);
+async request(){
+	let data = await this.$http.post('aid/region',{pid:0});
+	console.log(data);
+}
 ```
 
 # 其他功能配置项

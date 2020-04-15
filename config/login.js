@@ -80,12 +80,15 @@ function onLogin(type = "judge",callback) {
 }
 //获取用户信息
 function getUserInfo(info, type, callback) {
-	$http.post('api/open/v1/login', {
-			wxSmallCode: code,
-			iv: info.iv,
-			encryptedData: info.encryptedData
-		})
-		.then(res => {
+	let httpData = {
+		wxSmallCode: code,
+		iv: info.iv,
+		encryptedData: info.encryptedData
+	};
+	if(store.state.chatScenesInfo.recommendCode){
+		httpData.recommendUid = store.state.chatScenesInfo.recommendCode;
+	}
+	$http.post('api/open/v1/login', httpData).then(res => {
 			loginStart = true;
 			store.commit('setUserInfo', res);
 			if (type == "authorized") {

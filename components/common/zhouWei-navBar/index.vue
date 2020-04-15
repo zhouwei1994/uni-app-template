@@ -1,53 +1,78 @@
 <template>
 	<view>
-		<view class="header" :class="{ fixed: navFixed, absolute: type == 'transparent', line: navLine, colorWhite: isWhite, themeBgColor: themeBgColor }"
+		<view :class="{ 'header_fixed': navFixed, 'header_absolute': type == 'transparent', 'header_shadow': navShadow, 'header_colorWhite': isWhite, themeBgColor: themeBgColor}"
 		 :style="{ paddingTop: statusBarHeight + 'px', backgroundImage: navBgColor, color: navFontColor, opacity: transparentValue }">
-			<view class="left_box">
-				<slot name="left">
-					<view class="left_info" :class="{ btnMongol: isTwoBtn }" v-if="back || $slots.left || home">
-						<view class="back" v-if="back && !firstPage" @click="onBackPage"></view>
-						<text v-if="isTwoBtn"></text>
-						<view class="home" v-if="(firstPage && back) || home" @click="onBackHome"></view>
+			<view class="header_content">
+				<view class="header_left_box">
+					<slot name="left">
+						<view class="header_left_info" :class="{ 'header_btnMongol':isTwoBtn,'header_colorWhite_btnMongol': isWhite && isTwoBtn}"
+						 v-if="back || $slots.left || home">
+							<view class="header_left_back" :class="{'header_btnMongol_left_back':isTwoBtn}" v-if="back && !firstPage" @click="onBackPage">
+								<image class="header_icon" v-if="isWhite" src="/static/zhouWei-navBar/icon_back_white.png" mode="aspectFit"></image>
+								<image class="header_icon" v-else src="/static/zhouWei-navBar/icon_back_black.png" mode="aspectFit"></image>
+							</view>
+							<text class="header_left_line" :class="{'header_colorWhite_left_line': isWhite}" v-if="isTwoBtn"></text>
+							<view class="header_left_home" :class="{'header_btnMongol_left_home':isTwoBtn}" v-if="(firstPage && back) || home"
+							 @click="onBackHome">
+								<image class="header_icon" v-if="isWhite" src="/static/zhouWei-navBar/icon_home_white.png" mode="aspectFit"></image>
+								<image class="header_icon" v-else src="/static/zhouWei-navBar/icon_home_black.png" mode="aspectFit"></image>
+							</view>
+						</view>
+					</slot>
+					<view class="header_title" v-if="!titleCenter && ($slots.default || navTitle)" :style="{color: navFontColor}">
+						<slot><text :style="{color: navFontColor}">{{ navTitle }}</text></slot>
 					</view>
-				</slot>
-				<view class="title" :class="{ center: titleCenter, color: navFontColor }" v-if="$slots.default || navTitle">
-					<slot>{{ navTitle }}</slot>
+				</view>
+				<view class="header_title header_title_center" v-if="titleCenter && ($slots.default || navTitle)" :style="{color: navFontColor}">
+					<slot><text :style="{color: navFontColor}">{{ navTitle }}</text></slot>
+				</view>
+				<view class="header_right_info">
+					<slot name="right"></slot>
 				</view>
 			</view>
-			<view class="right_info">
-				<slot name="right"></slot>
-			</view>
 		</view>
-		<view class="header transparentFixed fixed" :class="{ colorWhite: isWhite }" v-if="type == 'transparentFixed'" :style="{ paddingTop: statusBarHeight + 'px', color: navTransparentFixedFontColor, opacity: 1 - transparentValue, zIndex: transparentValue < 0.3 ? 100 : 90 }">
-			<view class="left_box">
-				<slot name="transparentFixedLeft">
-					<view class="left_info" v-if="back || $slots.left || home">
-						<view class="back" v-if="back && !firstPage" @click="onBackPage"></view>
-						<text v-if="isTwoBtn"></text>
-						<view class="home" v-if="(firstPage && back) || home" @click="onBackHome"></view>
+		<view class="header_transparentFixed header_fixed" v-if="type == 'transparentFixed'" :style="{ paddingTop: statusBarHeight + 'px', color: navTransparentFixedFontColor, opacity: 1 - transparentValue, zIndex: transparentValue < 0.3 ? 100 : 90 }">
+			<view class="header_content">
+				<view class="header_left_box">
+					<slot name="transparentFixedLeft">
+						<view class="header_left_info header_transparentFixed_left_info" :class="{'header_transparentFixed_colorWhite_left_info': isWhite}"
+						 v-if="back || $slots.left || home">
+							<view class="header_left_back" :class="{'header_btnMongol_left_back':isTwoBtn}" v-if="back && !firstPage" @click="onBackPage">
+								<image class="header_icon" v-if="isWhite" src="/static/zhouWei-navBar/icon_back_white.png" mode="aspectFit"></image>
+								<image class="header_icon" v-else src="/static/zhouWei-navBar/icon_back_black.png" mode="aspectFit"></image>
+							</view>
+							<text class="header_left_line" v-if="isTwoBtn"></text>
+							<view class="header_left_home" :class="{'header_btnMongol_left_home':isTwoBtn}" v-if="(firstPage && back) || home"
+							 @click="onBackHome">
+								<image class="header_icon" v-if="isWhite" src="/static/zhouWei-navBar/icon_home_white.png" mode="aspectFit"></image>
+								<image class="header_icon" v-else src="/static/zhouWei-navBar/icon_home_black.png" mode="aspectFit"></image>
+							</view>
+						</view>
+					</slot>
+					<view class="header_title" v-if="!titleCenter && navTitle" :style="{ color: navTransparentFixedFontColor}">
+						<slot name="transparentFixed"><text :style="{color: navTransparentFixedFontColor}">{{ navTitle }}</text></slot>
 					</view>
-				</slot>
-				<view class="title" :class="{ center: titleCenter }" v-if="$slots.default || navTitle">
-					<slot name="transparentFixed">{{ navTitle }}</slot>
+				</view>
+				<view class="header_title header_title_center" v-if="titleCenter && navTitle" :style="{color: navTransparentFixedFontColor}">
+					<slot name="transparentFixed"><text :style="{color: navTransparentFixedFontColor}">{{ navTitle }}</text></slot>
+				</view>
+				<view class="header_right_info">
+					<slot name="transparentFixedRight"></slot>
 				</view>
 			</view>
-			<view class="right_info">
-				<slot name="transparentFixedRight"></slot>
-			</view>
 		</view>
-		<view v-if="type == 'fixed'" class="station" :style="{ paddingTop: statusBarHeight + 'px' }"></view>
+		<view v-if="type == 'fixed'" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="header_station"></view>
+		</view>
 	</view>
 </template>
 <script>
-	import base from '@/config/baseUrl';
 	// 主页页面的页面路径
 	// 关联功能：打开的页面只有一个的时候右上角自动显示返回首页按钮，下面这个数组是排除显示返回首页的页面。
 	// 主页使用场景：小程序分享出去的页面，用户点击开是分享页面，很多情况下是没有返回首页按钮的
-	const mainPagePath = ['pages/home/home', 'pages/home/classify', 'pages/live/live', 'pages/message/message',
-		'pages/shopCar/shopCar', 'pages/my/my'
-	];
+	const mainPagePath = ['pages/home/home', 'pages/my/my'];
 	//返回首页的地址
-	const homePath = base.homePath;
+	const homePath = '/pages/home/home';
 	//白色表达值
 	const whiteList = ['#FFF', '#FFFFFF', 'white', 'rgb(255,255,255)', 'rgba(255,255,255,1)'];
 	export default {
@@ -72,7 +97,7 @@
 			bgColor: {
 				type: [String, Array],
 				default: function() {
-					return '#FFF';
+					return '#FFFFFF';
 				}
 			},
 			// 导航背景色渐变角度
@@ -86,7 +111,7 @@
 			fontColor: {
 				type: String,
 				default: function() {
-					return '#000';
+					return '#000000';
 				}
 			},
 			//标题是否居中
@@ -117,9 +142,23 @@
 			transparentFixedFontColor: {
 				type: String,
 				default: function() {
-					return '#000';
+					return '#000000';
 				}
-			}
+			},
+			// 屏幕滑动距离顶部距离(透明固定导航比传)
+			scrollTop: {
+				type: Number,
+				default: function() {
+					return 0;
+				}
+			},
+			// 是否显示阴影
+			shadow: {
+				type: Boolean,
+				default: function() {
+					return true;
+				}
+			},
 		},
 		data() {
 			return {
@@ -130,15 +169,17 @@
 				//标题
 				navTitle: '',
 				//字体色
-				navFontColor: '#000',
+				navFontColor: '#000000',
 				//背景色
-				navBgColor: 'linear-gradient(90deg, #FFF 0%, #FFF 100%)',
+				navBgColor: 'none',
 				//透明底字体色
-				navTransparentFixedFontColor: '#000',
+				navTransparentFixedFontColor: '#000000',
 				// 是否使用
 				themeBgColor: false,
 				// 导航栏高度
-				statusBarHeight: 0
+				statusBarHeight: 0,
+				// 上次显示的导航栏颜色
+				lastFrontColor:""
 			};
 		},
 		computed: {
@@ -154,8 +195,8 @@
 				}
 			},
 			//导航底部线是否显示
-			navLine() {
-				return this.type !== 'transparent' && whiteList.includes(this.navBgColor);
+			navShadow() {
+				return this.shadow && this.type !== 'transparent';
 			},
 			//导航字体是否是白色颜色
 			isWhite() {
@@ -179,6 +220,18 @@
 			},
 			transparentFixedFontColor(val) {
 				this.navTransparentFixedFontColor = val;
+			},
+			scrollTop(val) {
+				if (val && val > 0) {
+					if (val > 180) {
+						this.transparentValue = 1;
+					} else {
+						this.transparentValue = val / 180;
+					}
+				} else {
+					this.transparentValue = 0;
+				}
+				this.settingColor();
 			}
 		},
 		//第一次加载
@@ -187,11 +240,26 @@
 			this.navFontColor = this.fontColor;
 			this.getNavBgColor(this.bgColor);
 			this.navTransparentFixedFontColor = this.transparentFixedFontColor;
+			if (this.scrollTop && this.scrollTop > 0) {
+				if (e.scrollTop > 180) {
+					_this.transparentValue = 1;
+				} else {
+					_this.transparentValue = e.scrollTop / 180;
+				}
+			}
 			//获取手机状态栏高度
 			this.statusBarHeight = uni.getSystemInfoSync()['statusBarHeight'];
 			const _this = this;
 			if (this.type == 'transparentFixed') {
-				this.transparentValue = 0;
+				if (this.scrollTop && this.scrollTop > 0) {
+					if (this.scrollTop > 180) {
+						this.transparentValue = 1;
+					} else {
+						this.transparentValue = this.scrollTop / 180;
+					}
+				} else {
+					this.transparentValue = 0;
+				}
 			}
 			this.settingColor();
 			//获取所有页面
@@ -200,35 +268,6 @@
 			//判断是否是第一个页面，如果是有设置back为true的页面，将不显示返回箭头，而显示返回首页按钮
 			if (pageLen == 1 && !mainPagePath.includes(currentPages[0].route)) {
 				this.firstPage = true;
-			}
-			//监听页面滚动，type为transparentFixed的时候页面向下滚动的时候导航逐渐变白
-			if (this.type == 'transparentFixed') {
-				// #ifndef H5
-				if (currentPages[0].onPageScroll) {
-					// 普通编译模式支持
-					currentPages[0].onPageScroll = function(e) {
-						_this.$emit('scroll', e);
-						if (e.scrollTop > 180) {
-							_this.transparentValue = 1;
-						} else {
-							_this.transparentValue = e.scrollTop / 180;
-						}
-					};
-				}
-				// #endif
-				// #ifdef H5
-				window.onscroll = function(e) {
-					let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-					_this.$emit('scroll', {
-						scrollTop: scrollTop
-					});
-					if (scrollTop > 180) {
-						_this.transparentValue = 1;
-					} else {
-						_this.transparentValue = scrollTop / 180;
-					}
-				};
-				// #endif
 			}
 		},
 		//方法
@@ -253,16 +292,20 @@
 				} else {
 					this.transparentValue = e.scrollTop / 180;
 				}
+				this.settingColor();
 			},
 			// 获取导航背景颜色
 			getNavBgColor(val) {
 				if (val == 'themeBgColor') {
 					this.themeBgColor = true;
 					this.navBgColor = 'none';
+				} else if (this.type == 'transparent') {
+					this.themeBgColor = false;
+					this.navBgColor = 'none';
 				} else {
 					if (typeof val == 'string') {
-						this.navBgColor = 'linear-gradient(90deg, ' + val + ' 0%, ' + val + ' 100%)';
-					} else if (val instanceof Array && val.length >= 2) {
+						this.navBgColor = 'linear-gradient(90deg,' + val + ',' + val + ')';
+					} else if (Array.isArray(val) && val.length >= 2) {
 						let navBgColor = 'linear-gradient(' + this.bgColorAngle + 'deg';
 						val.forEach(item => {
 							if (typeof item == 'string') {
@@ -278,195 +321,224 @@
 			},
 			//设置手机状态栏颜色
 			settingColor() {
+				let navColor = this.navFontColor;
+				if (this.type == 'transparentFixed' && this.transparentValue <= 0.5) {
+					navColor = this.navTransparentFixedFontColor;
+				}
+				let frontColor = "#000000";
+				if (whiteList.includes(navColor)) {
+					frontColor = '#ffffff';
+				}
+				if (this.lastFrontColor == frontColor) {
+					return;
+				}
 				setTimeout(() => {
-					//判断导航栏颜色
-					if (whiteList.includes(this.navFontColor)) {
-						// 改变手机状态栏颜色
-						uni.setNavigationBarColor({
-							frontColor: '#ffffff',
-							backgroundColor: this.navBgColor,
-							animation: {
-								duration: 400,
-								timingFunc: 'easeIn'
-							}
-						});
-					} else {
-						// 改变手机状态栏颜色
-						uni.setNavigationBarColor({
-							frontColor: '#000000',
-							backgroundColor: this.navBgColor,
-							animation: {
-								duration: 400,
-								timingFunc: 'easeIn'
-							}
-						});
-					}
-				}, 500);
+					this.lastFrontColor = frontColor;
+					// 改变手机状态栏颜色
+					uni.setNavigationBarColor({
+						frontColor: frontColor,
+						backgroundColor: "#FFFFFF"
+					});
+				}, 150);
 			}
 		}
 	};
 </script>
 <style lang="scss">
-	.station {
-		box-sizing: content-box;
-		height: 88upx;
+	/* #ifdef APP-PLUS-NVUE */
+	@function unit($num) {
+		@return $num + 0rpx;
+	}
+	/* #endif */
+	/* #ifndef APP-PLUS-NVUE */
+	@function unit($num) {
+		@return $num + 0upx;
+	}
+	/* #endif */
+	.header_content {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		/* #ifdef MP */
+		padding-right: unit(190);
+		box-sizing: border-box;
+		/* #endif */
+		width: unit(750);
+		align-items: flex-end;
+		justify-content: space-between;
+		flex-direction: row;
+		height: unit(88);
+		position: relative;
 	}
 
-	.header {
+	.header_station {
+		height: unit(88);
+	}
+
+	.header_shadow {
+		// border-style: solid;
+		// border-width: unit(2);
+		// border-color: #f5f5f5;
+		box-shadow: 0 0 unit(6) 0 #ddd;
+	}
+
+	.header_fixed {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: unit(750);
+		z-index: 99;
+	}
+
+	.header_absolute {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 99;
+		width: unit(750);
+		background-color: transparent !important;
+	}
+
+	.header_left_box {
+		/* #ifndef APP-PLUS-NVUE */
 		display: flex;
-		align-items: flex-end;
-		position: relative;
-		justify-content: space-between;
-		box-sizing: content-box;
-		height: 88upx;
-		/* #ifdef MP */
-		padding-right: 190upx;
-
 		/* #endif */
-		&.fixed {
-			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 99;
-		}
+		flex-direction: row;
+		align-items: center;
+		height: unit(88);
+		flex: 1;
+	}
 
-		&.absolute {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 99;
-			background-color: transparent !important;
-		}
+	.header_left_line {
+		height: unit(30);
+		width: unit(2);
+		background-color: rgba(255, 255, 255, 0.4);
+	}
 
-		&.line {
-			//需要显示线条的在这打开
-			// border-bottom: 2upx solid #f5f5f5;
-			// box-shadow: 0 0 6upx 0 #ddd;
-		}
+	.header_left_back {
+		width: unit(56);
+		height: 100%;
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		/* #endif */
+		align-items: center;
+		justify-content: center;
+	}
 
-		&.transparentFixed {
-			border-bottom: 0;
-			background-color: initial;
-			background-image: initial;
+	.header_icon {
+		width: unit(30);
+		height: unit(30);
+	}
 
-			.left_info {
-				border: 2upx solid rgba(0, 0, 0, 0.1);
-				background-color: rgba(255, 255, 255, 0.7);
-				border-radius: 33upx;
-				box-sizing: border-box;
-			}
+	.header_left_home {
+		width: unit(56);
+		height: 100%;
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		/* #endif */
+		align-items: center;
+		justify-content: center;
+	}
 
-			&.colorWhite .left_info {
-				border: 2upx solid rgba(255, 255, 255, 0.3);
-				background-color: rgba(0, 0, 0, 0.2);
-			}
-		}
+	.header_left_info {
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		align-items: center;
+		height: unit(56);
+		margin-left: unit(16);
+	}
 
-		//颜色白色
-		&.colorWhite {
-			.left_info {
-				&.btnMongol {
-					border: 2upx solid rgba(255, 255, 255, 0.3);
-					background-color: rgba(0, 0, 0, 0.2);
-				}
+	.header_title {
+		height: unit(88);
+		font-size: unit(32);
+		padding-left: unit(30);
+		padding-right: unit(30);
+		font-weight: 700;
+		text-overflow: ellipsis;
+		/* #ifndef APP-PLUS-NVUE */
+		white-space: nowrap;
+		display: flex;
+		overflow: hidden;
+		/* #endif */
+		/* #ifdef APP-PLUS-NVUE */
+		lines: 1;
+		/* #endif */
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		/* #ifdef MP */
+		max-width: calc(100vw - 160upx);
+		/* #endif */
+	}
 
-				.back {
-					background-image: url('../../../static/zhouWei-navBar/icon_back_white.png');
-				}
+	.header_title_center {
+		position: absolute;
+		bottom: unit(0);
+		left: unit(375);
+		transform: translateX(-50%);
+	}
 
-				text {
-					background-color: rgba(255, 255, 255, 0.3);
-				}
+	.header_right_info {
+		height: unit(88);
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		flex-shrink: 0;
+		/* #endif */
+		flex-direction: row;
+		align-items: center;
+	}
 
-				.home {
-					background-image: url('../../../static/zhouWei-navBar/icon_home_white.png');
-				}
-			}
-		}
+	.header_btnMongol {
+		border-radius: unit(33);
+		border-style: solid;
+		border-width: unit(2);
+		border-color: rgba(0, 0, 0, 0.1);
+		background-color: rgba(255, 255, 255, 0.7);
+		/* #ifndef APP-PLUS-NVUE */
+		box-sizing: border-box;
+		/* #endif */
+	}
 
-		.left_box {
-			display: flex;
-			align-items: center;
-			height: 100%;
-		}
+	.header_btnMongol_left_back,
+	.header_btnMongol_left_home {
+		width: unit(70);
+	}
 
-		$height: 56upx;
+	.header_transparentFixed {
+		border-bottom-width: 0;
+		background-color: transparent;
+		background-image: transparent;
+	}
 
-		.left_info {
-			// margin-right: 30upx;
-			display: flex;
-			align-items: center;
-			height: $height;
-			transition: all 0.6s;
-			margin-left: 16upx;
+	.header_transparentFixed_left_info {
+		border-style: solid;
+		border-width: unit(2);
+		border-color: rgba(0, 0, 0, 0.1);
+		background-color: rgba(255, 255, 255, 0.7);
+		border-radius: unit(33);
+		/* #ifndef APP-PLUS-NVUE */
+		box-sizing: border-box;
+		/* #endif */
+	}
 
-			&.btnMongol {
-				border-radius: 33upx;
-				border: 2upx solid rgba(0, 0, 0, 0.1);
-				background-color: rgba(255, 255, 255, 0.7);
-				box-sizing: border-box;
+	.header_transparentFixed_colorWhite_left_info {
+		border-style: solid;
+		border-width: unit(2);
+		border-color: rgba(255, 255, 255, 0.3);
+		background-color: rgba(0, 0, 0, 0.2);
+	}
 
-				.back,
-				.home {
-					width: 70upx;
-				}
-			}
+	//颜色白色
+	.header_colorWhite_btnMongol {
+		border-style: solid;
+		border-width: unit(2);
+		border-color: rgba(255, 255, 255, 0.3);
+		background-color: rgba(0, 0, 0, 0.2);
+	}
 
-			.back {
-				background-image: url('../../../static/zhouWei-navBar/icon_back_black.png');
-				background-position: center center;
-				background-repeat: no-repeat;
-				background-size: auto 55%;
-				width: $height;
-				height: 100%;
-			}
-
-			text {
-				height: 30upx;
-				width: 2upx;
-				background-color: rgba(255, 255, 255, 0.4);
-			}
-
-			.home {
-				background-image: url('../../../static/zhouWei-navBar/icon_home_black.png');
-				background-position: center center;
-				background-repeat: no-repeat;
-				background-size: auto 55%;
-				width: $height;
-				height: 100%;
-			}
-		}
-
-		.title {
-			height: 88upx;
-			font-size: 32upx;
-			padding-left: 30upx;
-			padding-right: 30upx;
-			font-weight: 700;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			display: flex;
-			align-items: center;
-			/* #ifdef MP */
-			max-width: calc(100vw - 160upx);
-
-			/* #endif */
-			&.center {
-				position: absolute;
-				bottom: 0;
-				left: 50%;
-				transform: translateX(-50%);
-			}
-		}
-
-		.right_info {
-			height: 100%;
-			display: flex;
-			align-items: center;
-			flex-shrink: 0;
-		}
+	.header_colorWhite_left_line {
+		background-color: rgba(255, 255, 255, 0.3);
 	}
 </style>

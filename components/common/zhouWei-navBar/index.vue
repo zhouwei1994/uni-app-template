@@ -196,7 +196,11 @@
 			},
 			//导航底部线是否显示
 			navShadow() {
-				return this.shadow && this.type !== 'transparent';
+				if(this.bgColor && typeof(this.bgColor) == "string"){
+					return this.shadow && this.type !== 'transparent' && whiteList.includes(this.bgColor);
+				}else{
+					return false;
+				}
 			},
 			//导航字体是否是白色颜色
 			isWhite() {

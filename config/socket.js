@@ -43,14 +43,12 @@ class socket {
 			},
 			fail: () => {
 				callback && callback(false);
-				if (data.messageType != "jump") {
-					uni.showToast({
-						title: "消息发送失败,请重新发送",
-						icon: "none"
-					});
-					_this.canInitSocket = true;
-					_this.init();
-				}
+				uni.showToast({
+					title: "消息发送失败,请重新发送",
+					icon: "none"
+				});
+				_this.canInitSocket = true;
+				_this.init();
 			}
 		});
 	}
@@ -60,16 +58,6 @@ class socket {
 		uni.onSocketMessage(function (res) {
 			let data = JSON.parse(res.data);
 			console.log('收到服务器内容：', data);
-			if (data.messageType == "service") {
-				if (data.toShopId == _this.roomId) {
-					_this.getPageReceive && _this.getPageReceive(data);
-				} else {
-					uni.showTabBarRedDot({
-						index: 2
-					});
-					_this.getListReceive && _this.getListReceive(data);
-				}
-			}
 		});
 	}
 	//关闭Socket
@@ -97,10 +85,8 @@ class socket {
 	getHeartbeat() {
 		const _this = this;
 		this.send({
-			toShopId: 0,
-			messageType: "jump",
-			content: "心跳",
-			contentType: "txt"
+			type: "心跳",
+			userUid: store.state.userInfo.userUid
 		}, (val) => {
 			setTimeout(() => {
 				if (val) {

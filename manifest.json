@@ -70,7 +70,7 @@
             "minified" : true
         },
         "usingComponents" : true,
-        "appid" : "wx04df1c9c5679b134",
+        "appid" : "wx4277c1145515b274",
         "permission" : {
             "scope.userLocation" : {
                 "desc" : "你的位置信息将用于小程序位置接口的效果展示"

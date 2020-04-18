@@ -44,7 +44,8 @@ export default {
 		// #endif
 	},
 	//页面显示
-	onShow() {},
+	onShow() {
+	},
 	//方法
 	methods: {
 		...mapMutations(['setWebViewUrl']),

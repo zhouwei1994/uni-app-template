@@ -1,6 +1,7 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
+import{publicShare} from '@/config/share'
 import {
 	modifyJson
 } from '@/utils/utils';
@@ -186,33 +187,11 @@ export const h5Login = function (type = "judge", callback) {
 					.then(result => {
 						store.commit('setUserInfo', result);
 						publicShare();
-						if (result.thirdLoginSuccess) {
-							callback && callback();
-							uni.showToast({
-								title: "欢迎回来",
-								icon: "none"
-							});
-						} else {
-							if (type == "judge") {
-								uni.showModal({
-									title: "提示",
-									content: "您还未绑定手机号，请先绑定手机号",
-									confirmText: "去绑定",
-									cancelText: "再逛会",
-									success: (result) => {
-										if (result.confirm) {
-											uni.navigateTo({
-												url: "/pages/user/bindPhone"
-											});
-										}
-									}
-								});
-							} else if (type == "force") {
-								uni.navigateTo({
-									url: "/pages/user/bindPhone"
-								});
-							}
-						}
+						callback && callback();
+						uni.showToast({
+							title: "欢迎回来",
+							icon: "none"
+						});
 					}, () => {
 						isGetOpenId = true;
 					});

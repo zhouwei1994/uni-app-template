@@ -112,7 +112,7 @@ function judgeLogin(callback, type = "judge"){
 	}
 	if (type != "force" && storeUserInfo.token) {
 		callback();
-	} else if (storeUserInfo.wxSmallOpenId && !storeUserInfo.thirdLoginSuccess) {
+	} else if (storeUserInfo.token && !storeUserInfo.phone) {
 		if (type = "force") {
 			uni.navigateTo({
 				url: '/pages/user/bindPhone'

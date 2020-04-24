@@ -1,4 +1,4 @@
-# request请求、配置简单、源码清晰注释多、超强的适应性（很方便的支持多域名请求）
+# request请求、配置简单、批量上传图片、超强适应性（很方便的支持多域名请求）
 1. 配置简单、源码清晰注释多、适用于一项目多域名请求、第三方请求、七牛云图片上传、本地服务器图片上传等等
 2. 支持请求`get`、`post`、`put`、`delete`
 3. 自动显示请求加载动画（可单个接口关闭）
@@ -7,9 +7,29 @@
 6. 全局自动提示接口抛出的错误信息（可单个接口关闭）
 7. 支持 Promise
 8. 支持拦截器
+9. 支持七牛云文件（图片）批量上传
+10. 支持本地服务器文件（图片）批量上传
+11. 支持上传文件拦截过滤
 
 ### QQ交流群(学习干货多多) 607391225
 ![QQ交流群](http://qn.kemean.cn//upload/202004/14/15868301778472k7oubi6.png)
+
+# 常见问题
+1.接口请求成功了，没有返回数据或者数据是走的catch回调
+
+答：`requestConfig.js` 请求配置文件里面，有一个`$http.dataFactory`方法，里面写的只是参考示例，`此方法需要开发者根据各自的接口返回类型修改`
+
+2.官方的方法有数据，本插件方法请求报错跨域问题
+
+答：`requestConfig.js` 请求配置文件里面，`headers`请求头设置的`content-type`请求类型需求和后台保持一致
+
+3.登录后用户`token`怎么设置？
+
+答：`requestConfig.js` 请求配置文件里面，`$http.requestStart`请求开始拦截器里面设置
+
+4.怎么判断上传的文件（图片）太大？怎么过滤掉太大的文件（图片）？
+
+答：`requestConfig.js` 请求配置文件里面，`$http.requestStart`请求开始拦截器里面设置
 
 # 文件说明
 1. `request.js` 源码文件
@@ -54,55 +74,102 @@ let data = await this.$http.post(
 		headers: { //默认 无 说明：请求头
 			'Content-Type': 'application/json'
 		},
-		isFactory: true //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
+		isFactory: true //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
 	}
 );
 ```
 
 # 本地服务器图片上传（支持多张上传）
 ```
-let data = await this.$http.urlImgUpload('flie/upload',{
+this.$http.urlImgUpload('flie/upload',{
 	name:"后台接受文件key名称", //默认 file
 	count:"最大选择数",//默认 9
 	sizeType:"选择压缩图原图，默认两个都选",//默认 ['original', 'compressed']
 	sourceType:"选择相机拍照或相册上传 默认两个都选",//默认 ['album','camera']
-	data:"而外参数" //可不填
+	data:"而外参数" //可不填,
+	eachUpdate: res => {
+		console.log("单张上传成功返回：",res);
+	},
+	progressUpdate: res => {
+		console.log("上传进度返回：",res);
+	}
+},{
+	isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
+	load: true,//（默认 true 说明：本接口是否提示加载动画）
+	headers: { //默认 无 说明：请求头
+		'Content-Type': 'application/json'
+	},
+	isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
+	maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+}).then(res => {
+	console.log("全部上传完返回结果：",res);
 });
 ```
 # 本地服务器文件上传（支持多张上传）
 ```
-this.$http.urlFileUpload({
+this.$http.urlFileUpload("flie/upload",{
+		files:[], // 必填 临时文件路径
 		data:"向服务器传递的参数", //可不填
 		name:"后台接受文件key名称", //默认 file
+		eachUpdate: res => {
+			console.log("单张上传成功返回：",res);
+		},
+		progressUpdate: res => {
+			console.log("上传进度返回：",res);
+		}
 	},
-	[], // 必填 临时文件路径
-	(res) => {
-		//这里是上传完成了数据数组
-	}
-);
+	{
+		isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
+		load: true,//（默认 true 说明：本接口是否提示加载动画）
+		headers: { //默认 无 说明：请求头
+			'Content-Type': 'application/json'
+		},
+		isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
+		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+	}).then(res => {
+		console.log("全部上传完返回结果：",res);
+	});
 ```
 
 # 七牛云图片上传（支持多张上传）
 ```
-let data = await this.$http.qnImgUpload({ 
-		count:"最大选择数",//默认 9
-		sizeType:"选择压缩图原图，默认两个都选",//默认 ['original', 'compressed']
-		sourceType:"选择相机拍照或相册上传 默认两个都选",//默认 ['album','camera']
+this.$http.qnImgUpload({
+		count:"最大选择数", // 默认 9
+		sizeType:"选择压缩图原图，默认两个都选", // 默认 ['original', 'compressed']
+		sourceType:"选择相机拍照或相册上传 默认两个都选", // 默认 ['album','camera']
+		eachUpdate: res => {
+			console.log("单张上传成功返回：",res);
+		},
+		progressUpdate: res => {
+			console.log("上传进度返回：",res);
+		}
 	},
-	(res) => {
-		//这里是每上传一张都返回一张图片地址
-	}
-);
+	{
+		load: true, //（默认 true 说明：本接口是否提示加载动画）
+		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+	}).then(res => {
+		console.log("全部上传完返回结果：",res);
+	});
 ```
 
 # 七牛云文件上传（支持多张上传）
 ```
-let data = await this.$http.qnFileUpload(
-	[], // 必填 临时文件路径
-	(res) => {
-		//这里是每上传一张都返回一张图片地址
-	}
-);
+this.$http.qnFileUpload(
+	{
+		files:[], // 必填 临时文件路径
+		eachUpdate: res => {
+			console.log("单张上传成功返回：",res);
+		},
+		progressUpdate: res => {
+			console.log("上传进度返回：",res);
+		}
+	},
+	{
+		load: true, //（默认 true 说明：本接口是否提示加载动画）
+		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+	}).then(res => {
+		console.log("全部上传完返回结果：",res);
+	});
 ```
 # jsonp 跨域请求（只支持H5）
 ```

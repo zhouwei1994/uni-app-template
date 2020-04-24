@@ -1,7 +1,7 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
-import{publicShare} from '@/config/share'
+import { publicShare } from '@/config/share.js';
 import {
 	modifyJson
 } from '@/utils/utils';
@@ -139,7 +139,8 @@ function getApiLogin(result, type, callback) {
 			}
 		});
 }
-// 获取recommendCode
+//判断是否登录，登录处理
+let isGetOpenId = true;
 function getRecommendCode() {
 	var url = window.location.href;
 	let codeIndex = url.indexOf("recommendCode=");
@@ -159,18 +160,19 @@ function getRecommendCode() {
 		return;
 	}
 }
-//判断是否登录，登录处理
-let isGetOpenId = true;
-export const h5Login = function (type = "judge", callback) {
+export const h5Login = function(type = "judge", callback) {
 	var getRequest = getUrlData();
 	let recommendCode = getRecommendCode();
-	console.log("recommendCode=" + recommendCode);
 	if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
 		uni.setStorageSync("recommendCode", recommendCode);
 	}
 	if (getBrowser() == "微信") {
-		if (getRequest.code) {
-			if (isGetOpenId) {
+		if (store.state.userInfo.thirdLoginSuccess === false) {
+			getApiLogin(store.state.userInfo, type,() => {
+				callback && callback();
+			});
+		} else if (getRequest.code) {
+			if(isGetOpenId){
 				isGetOpenId = false;
 				let httpData = {
 					code: getRequest.code
@@ -186,13 +188,13 @@ export const h5Login = function (type = "judge", callback) {
 				$http.get("api/open/v2/get_public_login", httpData)
 					.then(result => {
 						store.commit('setUserInfo', result);
-						publicShare();
+						//publicShare();
 						callback && callback();
 						uni.showToast({
 							title: "欢迎回来",
 							icon: "none"
 						});
-					}, () => {
+					},() => {
 						isGetOpenId = true;
 					});
 			}
@@ -209,19 +211,19 @@ export const h5Login = function (type = "judge", callback) {
 				callback && callback();
 			});
 		} else {
-			appMutual("jumpLogin", null, function () {
+			appMutual("jumpLogin", null, function() {
 				if (type == "force") {
 					uni.navigateTo({
 						url: "/pages/user/login"
 					});
-				} else {
+				}else{
 					uni.showModal({
-						title: "提示",
-						content: "您还未登录，请先登录~",
+						title:"提示",
+						content:"您还未登录，请先登录~",
 						confirmText: "去登录",
 						cancelText: "再逛会",
 						success: (res) => {
-							if (res.confirm) {
+							if(res.confirm){
 								uni.navigateTo({
 									url: "/pages/user/login"
 								});

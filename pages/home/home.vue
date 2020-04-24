@@ -9,6 +9,7 @@
 				</swiper-item>
 			</swiper>
 		</view>
+		<button type="default" @click="onFileUpdata">图片上传</button>
 		<view class="video_box" v-if="videoShow" @click="onCloseVideo"><video :src="videoUrl" autoplay="true" controls></video></view>
 		<z-login ref="login"></z-login>
 	</view>
@@ -45,10 +46,42 @@ export default {
 	},
 	//页面显示
 	onShow() {
+		
 	},
 	//方法
 	methods: {
 		...mapMutations(['setWebViewUrl']),
+		onFileUpdata(){
+			// this.$http.urlImgUpload("http://api.xpuree.com/api/attachment",{
+			// 	count:3,
+			// 	eachUpdate: res => {
+			// 		console.log("单张上传成功返回：",res);
+			// 	},
+			// 	progressUpdate: res => {
+			// 		console.log("上传进度返回：",res);
+			// 	},
+			// },{
+			// 	headers:{
+			// 		AccessToken: "VgG8NwFveqlFnTV4fR/aoAr3SMcptO+rrYkijy0HO4hDEadqW9uJa+FAbWLaul9LSeS9B26oxxRmsMBEv51qXOUxGShLHizR29Q+Q2CnyXY=",
+			// 		"content-type": "multipart/form-data"
+			// 	}
+			// }).then(res => {
+			// 	console.log("全部上传返回结果：",res);
+			// });
+			this.$http.qnImgUpload({
+				count:3,
+				eachUpdate: res => {
+					console.log("单张上传成功返回：",res);
+				},
+				progressUpdate: res => {
+					console.log("上传进度返回：",res);
+				},
+			},{
+				// maxSize:100000
+			}).then(res => {
+				console.log("总框架返回：",res);
+			});
+		},
 		pageData() {},
 		onPageJump(url) {
 			uni.navigateTo({

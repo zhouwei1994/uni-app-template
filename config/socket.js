@@ -6,16 +6,13 @@ class socket {
 		this.socketUrl = base.socketUrl + "kemeanim_handle/user_token=";
 		//当前房间Id
 		this.roomId = "";
-		//是否重新连接
-		this.canInitSocket = true;
 		this.monitorSocketError();
 		this.monitorSocketClose();
 		this.socketReceive();
 	}
 	init(callback) {
 		const _this = this;
-		if (base.socketUrl && this.canInitSocket) {
-			this.canInitSocket = false;
+		if (base.socketUrl) {
 			uni.connectSocket({
 				url: this.socketUrl + store.state.userInfo.token,
 				method: 'GET'
@@ -23,11 +20,10 @@ class socket {
 			uni.onSocketOpen(function (res) {
 				callback && callback();
 				console.log('WebSocket连接已打开！');
-				_this.getHeartbeat();
-				setTimeout(() => {
-					_this.canInitSocket = true;
-				}, 5000);
 			});
+			setTimeout(() => {
+				_this.getHeartbeat();
+			},5000);
 		}
 	}
 	//Socket给服务器发送消息
@@ -47,7 +43,6 @@ class socket {
 					title: "消息发送失败,请重新发送",
 					icon: "none"
 				});
-				_this.canInitSocket = true;
 				_this.init();
 			}
 		});

@@ -49,11 +49,11 @@
 							</view>
 						</view>
 					</slot>
-					<view class="header_title" v-if="!titleCenter && navTitle" :style="{ color: navTransparentFixedFontColor}">
+					<view class="header_title" v-if="!titleCenter && (navTitle || $slots.transparentFixed)" :style="{ color: navTransparentFixedFontColor}">
 						<slot name="transparentFixed"><text :style="{color: navTransparentFixedFontColor}">{{ navTitle }}</text></slot>
 					</view>
 				</view>
-				<view class="header_title header_title_center" v-if="titleCenter && navTitle" :style="{color: navTransparentFixedFontColor}">
+				<view class="header_title header_title_center" v-if="titleCenter && (navTitle || $slots.transparentFixed)" :style="{color: navTransparentFixedFontColor}">
 					<slot name="transparentFixed"><text :style="{color: navTransparentFixedFontColor}">{{ navTitle }}</text></slot>
 				</view>
 				<view class="header_right_info">
@@ -226,16 +226,9 @@
 				this.navTransparentFixedFontColor = val;
 			},
 			scrollTop(val) {
-				if (val && val > 0) {
-					if (val > 180) {
-						this.transparentValue = 1;
-					} else {
-						this.transparentValue = val / 180;
-					}
-				} else {
-					this.transparentValue = 0;
-				}
-				this.settingColor();
+				this.pageScroll({
+					scrollTop: val
+				}); 
 			}
 		},
 		//第一次加载
@@ -244,28 +237,12 @@
 			this.navFontColor = this.fontColor;
 			this.getNavBgColor(this.bgColor);
 			this.navTransparentFixedFontColor = this.transparentFixedFontColor;
-			if (this.scrollTop && this.scrollTop > 0) {
-				if (e.scrollTop > 180) {
-					_this.transparentValue = 1;
-				} else {
-					_this.transparentValue = e.scrollTop / 180;
-				}
-			}
 			//获取手机状态栏高度
 			this.statusBarHeight = uni.getSystemInfoSync()['statusBarHeight'];
 			const _this = this;
-			if (this.type == 'transparentFixed') {
-				if (this.scrollTop && this.scrollTop > 0) {
-					if (this.scrollTop > 180) {
-						this.transparentValue = 1;
-					} else {
-						this.transparentValue = this.scrollTop / 180;
-					}
-				} else {
-					this.transparentValue = 0;
-				}
-			}
-			this.settingColor();
+			this.pageScroll({
+				scrollTop: this.scrollTop
+			});
 			//获取所有页面
 			let currentPages = getCurrentPages();
 			let pageLen = currentPages.length;
@@ -291,12 +268,18 @@
 				});
 			},
 			pageScroll(e) {
-				if (e.scrollTop > 180) {
-					this.transparentValue = 1;
-				} else {
-					this.transparentValue = e.scrollTop / 180;
+				if (this.type == 'transparentFixed') {
+					if (e.scrollTop && e.scrollTop > 0) {
+						if (e.scrollTop > 180) {
+							this.transparentValue = 1;
+						} else {
+							this.transparentValue = e.scrollTop / 180;
+						}
+					} else {
+						this.transparentValue = 0;
+					}
+					this.settingColor();
 				}
-				this.settingColor();
 			},
 			// 获取导航背景颜色
 			getNavBgColor(val) {

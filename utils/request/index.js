@@ -18,7 +18,7 @@ export default class request {
 	// 获取默认信息
 	getDefault(url, options, type) {
 		//判断url是不是链接
-		var urlType = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~/])+$/.test(url);
+		let urlType = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~/])+$/.test(url);
 		let httpUrl;
 		if (type == "file") {
 			httpUrl = urlType ? url : this.fileUrl + url;
@@ -44,9 +44,9 @@ export default class request {
 					//数据处理
 					this.dataFactory({
 						...requestInfo,
-						response:response,
-						resolve:resolve,
-						reject:reject
+						response: response,
+						resolve: resolve,
+						reject: reject
 					});
 				} else {
 					state ? resolve(response) : reject(response);
@@ -65,9 +65,9 @@ export default class request {
 					//数据处理
 					this.dataFactory({
 						...requestInfo,
-						response:response,
-						resolve:resolve,
-						reject:reject
+						response: response,
+						resolve: resolve,
+						reject: reject
 					});
 				} else {
 					state ? resolve(response) : reject(response);
@@ -86,9 +86,9 @@ export default class request {
 					//数据处理
 					this.dataFactory({
 						...requestInfo,
-						response:response,
-						resolve:resolve,
-						reject:reject
+						response: response,
+						resolve: resolve,
+						reject: reject
 					});
 				} else {
 					state ? resolve(response) : reject(response);
@@ -107,9 +107,9 @@ export default class request {
 					//数据处理
 					this.dataFactory({
 						...requestInfo,
-						response:response,
-						resolve:resolve,
-						reject:reject
+						response: response,
+						resolve: resolve,
+						reject: reject
 					});
 				} else {
 					state ? resolve(response) : reject(response);
@@ -123,7 +123,7 @@ export default class request {
 		//请求前回调
 		if (this.requestStart) {
 			options.method = ajaxType;
-			var requestStart = this.requestStart(options);
+			let requestStart = this.requestStart(options);
 			if (typeof requestStart == "object") {
 				options.data = requestStart.data;
 				options.headers = requestStart.headers;
@@ -169,7 +169,7 @@ export default class request {
 			let callbackName = "callback" + Math.ceil(Math.random() * 1000000);
 			if (_this.requestStart) {
 				requestInfo.data = data;
-				var requestStart = _this.requestStart(requestInfo);
+				let requestStart = _this.requestStart(requestInfo);
 				if (typeof requestStart == "object") {
 					requestInfo.data = requestStart.data;
 					requestInfo.headers = requestStart.headers;
@@ -181,32 +181,34 @@ export default class request {
 					return;
 				}
 			}
-			window[callbackName] = function (data) {
+			window[callbackName] = function(data) {
 				resolve(data);
 			}
-			var script = document.createElement("script");
+			let script = document.createElement("script");
 			script.src = requestInfo.httpUrl + "&callback=" + callbackName;
 			document.head.appendChild(script);
 			// 及时删除，防止加载过多的JS
 			document.head.removeChild(script);
 			//请求完成回调
-			_this.requestEnd && _this.requestEnd(requestInfo, {});
+			_this.requestEnd && _this.requestEnd(requestInfo, {
+				errMsg: "request:ok",
+				statusCode: 200
+			});
 		});
 	}
 	//七牛云上传图片
-	qnImgUpload(options = {}, callback) {
+	qnImgUpload(data = {}, options = {}) {
 		const _this = this;
 		return new Promise((resolve, reject) => {
 			uni.chooseImage({
-				count: options.count || 9, //默认9
-				sizeType: options.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-				sourceType: options.sourceType || ['album', 'camera'], //从相册选择
-				success: function (res) {
-					_this.qnFileUpload(res.tempFilePaths, callback).then(data => {
-						resolve(data);
-					}, err => {
-						reject(err);
-					});
+				count: data.count || 9, //默认9
+				sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
+				sourceType: data.sourceType || ['album', 'camera'], //从相册选择
+				success: function(res) {
+					_this.qnFileUpload({
+						files: res.tempFiles,
+						...data
+					}, options).then(resolve, reject);
 				}
 			});
 		});
@@ -214,9 +216,9 @@ export default class request {
 	//七牛云上传文件命名
 	randomChar(l, url = "") {
 		const x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
-		var tmp = "";
-		var time = new Date();
-		for (var i = 0; i < l; i++) {
+		let tmp = "";
+		let time = new Date();
+		for (let i = 0; i < l; i++) {
 			tmp += x.charAt(Math.ceil(Math.random() * 100000000) % x.length);
 		}
 		return (
@@ -227,138 +229,332 @@ export default class request {
 		);
 	}
 	//七牛云文件上传（支持多张上传）
-	qnFileUpload(files, callback) {
+	qnFileUpload(data = {}, options = {}) {
 		const _this = this;
+		let requestInfo = {
+			...data, 
+			...this.config, 
+			...options,
+			method: "FILE"
+		};
 		return new Promise((resolve, reject) => {
-			if (typeof (files) == "object") {
-				var len = files.length;
-				var imageList = new Array;
+			//请求前回调
+			if (_this.requestStart) {
+				let requestStart = _this.requestStart(requestInfo);
+				if (typeof requestStart == "object") {
+					requestInfo.load = requestStart.load;
+					requestInfo.files = requestStart.files;
+				} else {
+					//请求完成回调
+					_this.requestEnd && _this.requestEnd(requestInfo, {
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
+					reject({
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
+					return;
+				}
+			}
+			if (Array.isArray(requestInfo.files)) {
+				let len = requestInfo.files.length;
+				let imageList = new Array;
 				//该地址需要开发者自行配置（每个后台的接口风格都不一样）
 				_this.get("api/kemean/aid/qn_upload").then(data => {
 					/*
-					*接口返回参数：
-					*visitPrefix:访问文件的域名
-				    *token:七牛云上传token
-				    *folderPath:上传的文件夹
-				    */
+					 *接口返回参数：
+					 *visitPrefix:访问文件的域名
+					 *token:七牛云上传token
+					 *folderPath:上传的文件夹
+					 */
 					uploadFile(0);
+
 					function uploadFile(i) {
+						let fileData = {
+							fileIndex: i,
+							files: requestInfo.files,
+							size: requestInfo.files[i].size
+						};
+						// #ifdef H5
+						fileData.name = requestInfo.files[i].name;
+						fileData.type = requestInfo.files[i].type;
+						// #endif
 						// 交给七牛上传
-						qiniuUploader.upload(files[i], (res) => {
-							callback && callback(res.imageURL);
+						qiniuUploader.upload(requestInfo.files[i].path, (res) => {
+							fileData.url = res.imageURL;
+							requestInfo.eachUpdate && requestInfo.eachUpdate({
+								url: res.imageURL,
+								...fileData
+							});
 							imageList.push(res.imageURL);
 							if (len - 1 > i) {
 								uploadFile(i + 1);
 							} else {
+								//请求完成回调
+								_this.requestEnd && _this.requestEnd(requestInfo, {
+									errMsg: "request:ok",
+									statusCode: 200,
+									data: imageList
+								});
 								resolve(imageList);
 							}
 						}, (error) => {
 							console.log('error: ' + error);
+							//请求完成回调
+							_this.requestEnd && _this.requestEnd(requestInfo, error);
 							reject(error)
 						}, {
 							region: 'SCN', //地区
-							domain: data.visitPrefix, // // bucket 域名，下载资源时用到。
+							domain: data.visitPrefix, // bucket 域名，下载资源时用到。
 							key: _this.randomChar(8, data.folderPath),
 							uptoken: data.token, // 由其他程序生成七牛 uptoken
 							uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
 						}, (res) => {
-							console.log('上传进度', res.progress)
+							requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+							// console.log('上传进度', res.progress)
 							// console.log('已经上传的数据长度', res.totalBytesSent)
 							// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
 						});
 					}
 				});
 			} else {
-				console.error("files 必须是数组类型");
-				reject("files 必须是数组类型")
-			}
+				//请求完成回调
+				_this.requestEnd && _this.requestEnd(requestInfo, {
+					errMsg: "files 必须是数组类型",
+					statusCode: 0
+				});
+				reject({
+					errMsg: "files 必须是数组类型",
+					statusCode: 0
+				});
+			};
 		});
 
 	}
 	//本地服务器图片上传
 	urlImgUpload(url = '', data = {}, options = {}) {
-		let requestInfo = this.getDefault(url, options, "file");
-		requestInfo.data = data;
 		const _this = this;
 		return new Promise((resolve, reject) => {
 			uni.chooseImage({
 				count: data.count || 9, //默认9
 				sizeType: data.sizeType || ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: data.sourceType || ['album', 'camera'], //从相册选择
-				success: function (res) {
-					_this.urlFileUpload(requestInfo, res.tempFiles, (state, response) => {
-						state ? resolve(response) : reject(response);
-					});
+				success: function(res) {
+					_this.urlFileUpload(url,{
+						...data,
+						files: res.tempFiles
+					}, options).then(resolve, reject);
 				}
 			});
 		});
 	}
 	//本地服务器文件上传方法
-	urlFileUpload(options, files, callback) {
+	urlFileUpload(url = '', data = {}, options = {}) {
+		let requestInfo = this.getDefault(url, options, "file");
+		requestInfo.method = "FILE";
 		const _this = this;
-		//请求前回调
-		if (this.requestStart) {
-			options.method = "FILE";
-			var requestStart = this.requestStart(options);
-			if (typeof requestStart == "object") {
+		return new Promise((resolve, reject) => {
+			//请求前回调
+			if (_this.requestStart) {
+				let requestStart = _this.requestStart({
+					...requestInfo,
+					...data
+				});
 				if (typeof requestStart == "object") {
-					options.data = requestStart.data;
-					options.headers = requestStart.headers;
-					options.isPrompt = requestStart.isPrompt;
-					options.load = requestStart.load;
-					options.isFactory = requestStart.isFactory;
+					requestInfo.data = requestStart.data;
+					requestInfo.headers = requestStart.headers;
+					requestInfo.isPrompt = requestStart.isPrompt;
+					requestInfo.load = requestStart.load;
+					requestInfo.isFactory = requestStart.isFactory;
+					requestInfo.files = requestStart.files;
 				} else {
-					callback(false, "请求开始拦截器未通过");
+					//请求完成回调
+					_this.requestEnd && _this.requestEnd(requestInfo, {
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
+					reject({
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
 					return;
 				}
 			}
-		}
-		const len = files.length - 1;
-		let fileList = new Array;
-		fileUpload(0);
-		function fileUpload(i) {
-			var config = {
-				url: options.httpUrl,
-				filePath: files[i].path,
-				header: options.headers, //加入请求头
-				name: options.name || "file",
-				success: (response) => {
-					response.data = JSON.parse(response.data);
-					//请求完成回调
-					_this.requestEnd && _this.requestEnd(options, response);
-					//是否用外部的数据处理方法
-					if (options.isFactory && _this.dataFactory) {
-						//数据处理
-						var factoryInfo = _this.dataFactory(options, response);
-						if (factoryInfo.success) {
-							fileList.push(factoryInfo.result);
-							if (len <= i) {
-								callback(true, fileList);
-							} else {
-								fileUpload(i + 1);
-							}
-						} else {
-							callback(false, factoryInfo.result);
+			if (Array.isArray(requestInfo.files)) {
+				// #ifdef APP-PLUS || H5
+				let files = [];
+				requestInfo.files.forEach(item => {
+					files.push({
+						url: item.path,
+						name: requestInfo.name || "file"
+					});
+				});
+				let config = {
+					url: requestInfo.httpUrl,
+					files: files,
+					header: requestInfo.headers, //加入请求头
+					success: (response) => {
+						if (typeof(response.data) == "string") {
+							response.data = JSON.parse(response.data);
 						}
-					} else {
-						fileList.push(response.data);
-						if (len <= i) {
-							callback(true, fileList);
+						//是否用外部的数据处理方法
+						if (requestInfo.isFactory && _this.dataFactory) {
+							//数据处理
+							_this.dataFactory({
+								...requestInfo,
+								response: response,
+								resolve: function(data) {
+									requestInfo.eachUpdate && requestInfo.eachUpdate({
+										data: data,
+										...fileData
+									});
+									//请求完成回调
+									_this.requestEnd && _this.requestEnd(requestInfo, {
+										errMsg: "request:ok",
+										statusCode: 200,
+										data: data
+									});
+									resolve(data);
+								},
+								reject: function(err) {
+									//请求完成回调
+									_this.requestEnd && _this.requestEnd(requestInfo, {
+										errMsg: "数据工厂返回错误",
+										statusCode: 0,
+										data: err
+									});
+									reject(err);
+								}
+							});
 						} else {
-							fileUpload(i + 1);
+							requestInfo.eachUpdate && requestInfo.eachUpdate({
+								data: response,
+								...fileData
+							});
+							//请求完成回调
+							_this.requestEnd && _this.requestEnd(requestInfo, response);
+							resolve(response);
 						}
+					},
+					fail: (err) => {
+						//请求完成回调
+						_this.requestEnd && _this.requestEnd(requestInfo, err);
+						reject(err);
 					}
-				},
-				fail: (err) => {
-					//请求完成回调
-					_this.requestEnd && _this.requestEnd(options, err);
-					callback(false, err);
+				};
+				if (requestInfo.data) {
+					config.formData = requestInfo.data;
 				}
-			};
-			if (options.data) {
-				config.formData = options.data;
+				console.log("上传文件参数", config);
+				const uploadTask = uni.uploadFile(config);
+				uploadTask.onProgressUpdate(res => {
+					requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+				});
+				// #endif
+				// #ifdef MP
+				const len = requestInfo.files.length - 1;
+				let fileList = new Array;
+				fileUpload(0);
+				function fileUpload(i) {
+					let fileData = {
+						fileIndex: i,
+						files: requestInfo.files,
+						size: requestInfo.files[i].size
+					};
+					// #ifdef H5
+					fileData.name = requestInfo.files[i].name;
+					fileData.type = requestInfo.files[i].type;
+					// #endif
+					let config = {
+						url: requestInfo.httpUrl,
+						filePath: requestInfo.files[i].path,
+						header: requestInfo.headers, //加入请求头
+						name: requestInfo.name || "file",
+						success: (response) => {
+							if (typeof(response.data) == "string") {
+								response.data = JSON.parse(response.data);
+							}
+							//是否用外部的数据处理方法
+							if (requestInfo.isFactory && _this.dataFactory) {
+								//数据处理
+								_this.dataFactory({
+									...requestInfo,
+									response: response,
+									resolve: function(data) {
+										requestInfo.eachUpdate && requestInfo.eachUpdate({
+											data: data,
+											...fileData
+										});
+										fileList.push(data);
+										if (len <= i) {
+											//请求完成回调
+											_this.requestEnd && _this.requestEnd(requestInfo, {
+												errMsg: "request:ok",
+												statusCode: 200,
+												data: fileList
+											});
+											resolve(fileList);
+										} else {
+											fileUpload(i + 1);
+										}
+									},
+									reject: function(err) {
+										//请求完成回调
+										_this.requestEnd && _this.requestEnd(requestInfo, {
+											errMsg: "数据工厂返回错误",
+											statusCode: 0,
+											data: err
+										});
+										reject(err);
+									}
+								});
+							} else {
+								requestInfo.eachUpdate && requestInfo.eachUpdate({
+									data: response,
+									...fileData
+								});
+								fileList.push(response);
+								if (len <= i) {
+									//请求完成回调
+									_this.requestEnd && _this.requestEnd(requestInfo, {
+										errMsg: "request:ok",
+										statusCode: 200,
+										data: fileList
+									});
+									resolve(fileList);
+								} else {
+									fileUpload(i + 1);
+								}
+							}
+						},
+						fail: (err) => {
+							//请求完成回调
+							_this.requestEnd && _this.requestEnd(requestInfo, err);
+							reject(err);
+						}
+					};
+					if (requestInfo.data) {
+						config.formData = requestInfo.data;
+					}
+					console.log("上传文件参数", config);
+					const uploadTask = uni.uploadFile(config);
+					uploadTask.onProgressUpdate(res => {
+						requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+					});
+				}
+				// #endif
+			} else {
+				//请求完成回调
+				_this.requestEnd && _this.requestEnd(requestInfo, {
+					errMsg: "files 必须是数组类型",
+					statusCode: 0
+				});
+				reject({
+					errMsg: "files 必须是数组类型",
+					statusCode: 0
+				})
 			}
-			uni.uploadFile(config);
-		}
+		});
 	}
 }

@@ -1,7 +1,7 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 // #ifdef H5
-import { setShare } from '@/config/wxJsSDK';
+import { setShare } from '@/utils/wxJsSDK';
 import { getBrowser, appMutual } from '@/config/html5Utils';
 // #endif
 

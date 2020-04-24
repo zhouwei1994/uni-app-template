@@ -60,6 +60,7 @@ export const setShare = (data, callback) => {
 	});
 }
 window.onload = function () {
+	// 配置文件里面没有publicAppId将不激活微信SDK功能
 	if (!base.publicAppId) {
 		return;
 	}

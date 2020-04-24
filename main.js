@@ -20,7 +20,7 @@ Vue.prototype.judgeLogin = judgeLogin;
 Vue.config.productionTip = false;
 // #ifdef H5
 //微信SDK
-import '@/config/wxJsSDK';
+import '@/utils/wxJsSDK';
 // #endif
 
 //全局组件

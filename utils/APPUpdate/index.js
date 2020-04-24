@@ -16,14 +16,18 @@ export const getCurrentNo = function(callback) {
 	});
 } 
 // 发起ajax请求获取服务端版本号
-export const getServerNo = function(isPrompt, callback) {
-	let httpData = {};
+export const getServerNo = function(version,isPrompt = false, callback) {
+	let httpData = {
+		version:version
+	};
 	if (platform == "android") {
 		httpData.type = 1101;
 	} else {
 		httpData.type = 1102;
 	}
-	$http.get("api/kemean/aid/app_version", httpData).then(res => {
+	$http.get("api/kemean/aid/v2/app_version", httpData,{
+		isPrompt: isPrompt
+	}).then(res => {
 		/* res的数据说明
 		 * | 参数名称	     | 一定返回 	| 类型	    | 描述
 		 * | -------------|--------- | --------- | ------------- |
@@ -542,7 +546,10 @@ function downloadPopup(data, callback, cancelCallback,rebootCallback) {
 	let progressValue = 0;
 	let progressTip = 0;
 	let contentText = 0;
-	let buttonNum = data.buttonNum || 2;
+	let buttonNum = 2;
+	if(data.buttonNum >= 0){
+		buttonNum = data.buttonNum;
+	}
 	popupView.draw(popupViewData.elementList);
 	popupView.addEventListener("click", function(e) {
 		let maxTop = popupViewData.popupViewHeight - popupViewData.viewContentPadding;
@@ -667,11 +674,21 @@ function downloadPopup(data, callback, cancelCallback,rebootCallback) {
 		}
 	});
 }
-export default function(isPrompt) {
+export default function(isPrompt = false) {
 	getCurrentNo(version => {
-		getServerNo(isPrompt, res => {
-			if (version.versionCode < res.versionCode) {
-				if (res.forceUpdate) {
+		getServerNo(version.versionCode,isPrompt, res => {
+			if (res.forceUpdate) {
+				if (/\.wgt$/i.test(res.downloadUrl)) {
+					getDownload(res);
+				} else {
+					if (platform == "android") {
+						getDownload(res);
+					} else {
+						plus.runtime.openURL(res.downloadUrl);
+					}
+				}
+			} else {
+				updatePopup(res, function() {
 					if (/\.wgt$/i.test(res.downloadUrl)) {
 						getDownload(res);
 					} else {
@@ -681,23 +698,6 @@ export default function(isPrompt) {
 							plus.runtime.openURL(res.downloadUrl);
 						}
 					}
-				} else {
-					updatePopup(res, function() {
-						if (/\.wgt$/i.test(res.downloadUrl)) {
-							getDownload(res);
-						} else {
-							if (platform == "android") {
-								getDownload(res);
-							} else {
-								plus.runtime.openURL(res.downloadUrl);
-							}
-						}
-					});
-				}
-			} else if (isPrompt) {
-				uni.showToast({
-					title: "当前已是最新版本了",
-					icon: "none"
 				});
 			}
 		});

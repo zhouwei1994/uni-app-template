@@ -1,42 +1,43 @@
 // #ifdef APP-PLUS
 // 复制
-function onCopy(item, shareInfo) {
+function onCopy(item, shareInfo,callback) {
 	let copyInfo = shareInfo.shareUrl || shareInfo.shareContent || shareInfo.shareImg;
 	if (copyInfo) {
 		uni.setClipboardData({
 			data: copyInfo,
-			complete() {
+			success:() => {
 				uni.showToast({
 					title: "已复制到剪贴板",
 					icon: "none"
 				});
+				callback && callback(item);
 			}
 		});
 	} 
 }
 // 更多
-function onMore(item, shareInfo) {
+function onMore(item, shareInfo,callback) {
 	plus.share.sendWithSystem({
 		type: "text",
 		title: shareInfo.shareTitle || "",
 		href: shareInfo.shareUrl || "",
 		content: shareInfo.shareContent || "",
 	},function(res){ 
-		
+		callback && callback(item);
 	},function(err){
 		console.log(err);
 	});
 }
 // 分享
-function onShare(item, shareInfo) {
+function onShare(item, shareInfo,callback) {
 	if (shareInfo.type == undefined) {
 		shareInfo.type = item.type;
 	}
-	
 	let shareObj = {
 		provider: item.provider,
 		type: shareInfo.type,
 		success: (res) => {
+			callback && callback(item);
 			console.log("success:" + JSON.stringify(res));
 		},
 		fail: (err) => {
@@ -118,18 +119,19 @@ function onShare(item, shareInfo) {
 	if (item.scene) {
 		shareObj.scene = item.scene;
 	}
-	console.log(shareObj);
 	uni.share(shareObj);
 }
 let otherShareList = [
 	{
 		icon: "/static/share/icon_copy.png",
 		text: "复制",
+		provider: "copy",
 		onClick: onCopy
 	},
 	{
 		icon: "/static/share/icon_more.png",
 		text: "更多",
+		provider: "more",
 		onClick: onMore
 	}
 ];
@@ -328,8 +330,7 @@ export default function (shareInfo, callback) {
 			let colIdx = Math.floor(x / itemWidth);
 			let rowIdx = Math.floor(y / itemHeight);
 			let tapIndex = colIdx + rowIdx * colNumber;
-			shareList[tapIndex].onClick(shareList[tapIndex], shareInfo);
-			// callback && callback(tapIndex);
+			shareList[tapIndex].onClick(shareList[tapIndex], shareInfo,callback);
 		}
 	});
 	alphaBg.show();

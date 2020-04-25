@@ -283,7 +283,7 @@ export default class request {
 						// 交给七牛上传
 						qiniuUploader.upload(requestInfo.files[i].path, (res) => {
 							fileData.url = res.imageURL;
-							requestInfo.eachUpdate && requestInfo.eachUpdate({
+							requestInfo.onEachUpdate && requestInfo.onEachUpdate({
 								url: res.imageURL,
 								...fileData
 							});
@@ -311,7 +311,7 @@ export default class request {
 							uptoken: data.token, // 由其他程序生成七牛 uptoken
 							uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
 						}, (res) => {
-							requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+							requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
 							// console.log('上传进度', res.progress)
 							// console.log('已经上传的数据长度', res.totalBytesSent)
 							// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
@@ -405,7 +405,7 @@ export default class request {
 								...requestInfo,
 								response: response,
 								resolve: function(data) {
-									requestInfo.eachUpdate && requestInfo.eachUpdate({
+									requestInfo.onEachUpdate && requestInfo.onEachUpdate({
 										data: data,
 										...fileData
 									});
@@ -428,7 +428,7 @@ export default class request {
 								}
 							});
 						} else {
-							requestInfo.eachUpdate && requestInfo.eachUpdate({
+							requestInfo.onEachUpdate && requestInfo.onEachUpdate({
 								data: response,
 								...fileData
 							});
@@ -449,7 +449,7 @@ export default class request {
 				console.log("上传文件参数", config);
 				const uploadTask = uni.uploadFile(config);
 				uploadTask.onProgressUpdate(res => {
-					requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+					requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
 				});
 				// #endif
 				// #ifdef MP
@@ -482,7 +482,7 @@ export default class request {
 									...requestInfo,
 									response: response,
 									resolve: function(data) {
-										requestInfo.eachUpdate && requestInfo.eachUpdate({
+										requestInfo.onEachUpdate && requestInfo.onEachUpdate({
 											data: data,
 											...fileData
 										});
@@ -510,7 +510,7 @@ export default class request {
 									}
 								});
 							} else {
-								requestInfo.eachUpdate && requestInfo.eachUpdate({
+								requestInfo.onEachUpdate && requestInfo.onEachUpdate({
 									data: response,
 									...fileData
 								});
@@ -540,7 +540,7 @@ export default class request {
 					console.log("上传文件参数", config);
 					const uploadTask = uni.uploadFile(config);
 					uploadTask.onProgressUpdate(res => {
-						requestInfo.progressUpdate && requestInfo.progressUpdate(Object.assign({}, fileData, res));
+						requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
 					});
 				}
 				// #endif

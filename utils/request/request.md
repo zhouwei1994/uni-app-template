@@ -10,6 +10,8 @@
 9. 支持七牛云文件（图片）批量上传
 10. 支持本地服务器文件（图片）批量上传
 11. 支持上传文件拦截过滤
+12. 支持上传文件进度监听
+13. 支持上传文件单张成功回调
 
 ### QQ交流群(学习干货多多) 607391225
 ![QQ交流群](http://qn.kemean.cn//upload/202004/14/15868301778472k7oubi6.png)
@@ -87,10 +89,10 @@ this.$http.urlImgUpload('flie/upload',{
 	sizeType:"选择压缩图原图，默认两个都选",//默认 ['original', 'compressed']
 	sourceType:"选择相机拍照或相册上传 默认两个都选",//默认 ['album','camera']
 	data:"而外参数" //可不填,
-	eachUpdate: res => {
+	onEachUpdate: res => {
 		console.log("单张上传成功返回：",res);
 	},
-	progressUpdate: res => {
+	onProgressUpdate: res => {
 		console.log("上传进度返回：",res);
 	}
 },{
@@ -100,7 +102,7 @@ this.$http.urlImgUpload('flie/upload',{
 		'Content-Type': 'application/json'
 	},
 	isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
-	maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+	maxSize: 300000 //（默认 无 说明：上传的文件最大字节数限制，默认不限制）
 }).then(res => {
 	console.log("全部上传完返回结果：",res);
 });
@@ -111,10 +113,10 @@ this.$http.urlFileUpload("flie/upload",{
 		files:[], // 必填 临时文件路径
 		data:"向服务器传递的参数", //可不填
 		name:"后台接受文件key名称", //默认 file
-		eachUpdate: res => {
+		onEachUpdate: res => {
 			console.log("单张上传成功返回：",res);
 		},
-		progressUpdate: res => {
+		onProgressUpdate: res => {
 			console.log("上传进度返回：",res);
 		}
 	},
@@ -125,7 +127,7 @@ this.$http.urlFileUpload("flie/upload",{
 			'Content-Type': 'application/json'
 		},
 		isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
-		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+		maxSize: 300000 //（默认 无 说明：上传的文件最大字节数限制，默认不限制）
 	}).then(res => {
 		console.log("全部上传完返回结果：",res);
 	});
@@ -137,16 +139,16 @@ this.$http.qnImgUpload({
 		count:"最大选择数", // 默认 9
 		sizeType:"选择压缩图原图，默认两个都选", // 默认 ['original', 'compressed']
 		sourceType:"选择相机拍照或相册上传 默认两个都选", // 默认 ['album','camera']
-		eachUpdate: res => {
+		onEachUpdate: res => {
 			console.log("单张上传成功返回：",res);
 		},
-		progressUpdate: res => {
+		onProgressUpdate: res => {
 			console.log("上传进度返回：",res);
 		}
 	},
 	{
 		load: true, //（默认 true 说明：本接口是否提示加载动画）
-		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+		maxSize: 300000 //（默认 无 说明：上传的文件最大字节数限制，默认不限制）
 	}).then(res => {
 		console.log("全部上传完返回结果：",res);
 	});
@@ -157,16 +159,16 @@ this.$http.qnImgUpload({
 this.$http.qnFileUpload(
 	{
 		files:[], // 必填 临时文件路径
-		eachUpdate: res => {
+		onEachUpdate: res => {
 			console.log("单张上传成功返回：",res);
 		},
-		progressUpdate: res => {
+		onProgressUpdate: res => {
 			console.log("上传进度返回：",res);
 		}
 	},
 	{
 		load: true, //（默认 true 说明：本接口是否提示加载动画）
-		maxSize: 200000 //（默认 200000 说明：上传的文件最大字节数）
+		maxSize: 300000 //（默认 无 说明：上传的文件最大字节数限制，默认不限制）
 	}).then(res => {
 		console.log("全部上传完返回结果：",res);
 	});

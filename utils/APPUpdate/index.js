@@ -25,6 +25,10 @@ export const getServerNo = function(version,isPrompt = false, callback) {
 	} else {
 		httpData.type = 1102;
 	}
+	/* 接口入参说明
+	 * version: 应用当前版本号（已自动获取）
+	 * type：平台（1101是安卓，1102是IOS）
+	 */
 	$http.get("api/kemean/aid/v2/app_version", httpData,{
 		isPrompt: isPrompt
 	}).then(res => {

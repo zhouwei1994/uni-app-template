@@ -38,13 +38,9 @@ $http.requestStart = function (options) {
 		requestNum += 1;
 	}
 	// 图片上传大小限制
-	if(options.method == "FILE"){
-		// 文件最大字节
-		let maxSize = 300000;
-		if(options.maxSize){
-			// options.maxSize 可以在调用方法的时候加入参数
-			maxSize = options.maxSize;
-		}
+	if(options.method == "FILE" && options.maxSize){
+		// 文件最大字节: options.maxSize 可以在调用方法的时候加入参数
+		maxSize = options.maxSize;
 		for(let item of options.files){
 			if(item.size > maxSize){
 				setTimeout(() => {
@@ -72,11 +68,11 @@ $http.requestEnd = function (options, resolve) {
 		store.commit("setRequestState", 1200);
 	}
 	//判断当前接口是否需要加载动画
+	uni.hideNavigationBarLoading();
 	if (options.load) {
 		requestNum = requestNum - 1;
 		if (requestNum <= 0) {
 			uni.hideLoading();
-			uni.hideNavigationBarLoading();
 		}
 	}
 	if (resolve.errMsg && resolve.statusCode && resolve.statusCode > 300) {

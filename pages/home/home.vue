@@ -52,23 +52,7 @@ export default {
 	methods: {
 		...mapMutations(['setWebViewUrl']),
 		onFileUpdata(){
-			// this.$http.urlImgUpload("http://api.xpuree.com/api/attachment",{
-			// 	count:3,
-			// 	eachUpdate: res => {
-			// 		console.log("单张上传成功返回：",res);
-			// 	},
-			// 	progressUpdate: res => {
-			// 		console.log("上传进度返回：",res);
-			// 	},
-			// },{
-			// 	headers:{
-			// 		AccessToken: "VgG8NwFveqlFnTV4fR/aoAr3SMcptO+rrYkijy0HO4hDEadqW9uJa+FAbWLaul9LSeS9B26oxxRmsMBEv51qXOUxGShLHizR29Q+Q2CnyXY=",
-			// 		"content-type": "multipart/form-data"
-			// 	}
-			// }).then(res => {
-			// 	console.log("全部上传返回结果：",res);
-			// });
-			this.$http.qnImgUpload({
+			this.$http.urlImgUpload("http://api.xpuree.com/api/attachment",{
 				count:3,
 				eachUpdate: res => {
 					console.log("单张上传成功返回：",res);
@@ -77,10 +61,26 @@ export default {
 					console.log("上传进度返回：",res);
 				},
 			},{
-				// maxSize:100000
+				headers:{
+					AccessToken: "VgG8NwFveqlFnTV4fR/aoAr3SMcptO+rrYkijy0HO4hDEadqW9uJa+FAbWLaul9LSeS9B26oxxRmsMBEv51qXOUxGShLHizR29Q+Q2CnyXY=",
+					"content-type": "multipart/form-data"
+				}
 			}).then(res => {
-				console.log("总框架返回：",res);
+				console.log("全部上传返回结果：",res);
 			});
+			// this.$http.qnImgUpload({
+			// 	count:3,
+			// 	eachUpdate: res => {
+			// 		console.log("单张上传成功返回：",res);
+			// 	},
+			// 	progressUpdate: res => {
+			// 		console.log("上传进度返回：",res);
+			// 	},
+			// },{
+			// 	// maxSize:100000
+			// }).then(res => {
+			// 	console.log("总框架返回：",res);
+			// });
 		},
 		pageData() {},
 		onPageJump(url) {

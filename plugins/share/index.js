@@ -1,4 +1,10 @@
 // #ifdef APP-PLUS
+let alphaBg, shareMenu;
+// 关闭弹窗
+export const closeShare = function(){
+	alphaBg && alphaBg.close();
+	alphaBg && shareMenu.close();
+}
 // 复制
 function onCopy(item, shareInfo,callback) {
 	let copyInfo = shareInfo.shareUrl || shareInfo.shareContent || shareInfo.shareImg;
@@ -115,7 +121,6 @@ function onShare(item, shareInfo,callback) {
 			return;
 		}
 	}
-			
 	if (item.scene) {
 		shareObj.scene = item.scene;
 	}
@@ -174,39 +179,63 @@ uni.getProvider({
 				provider: "weixin",
 				scene: "WXSenceTimeline",
 				type: 0
+			},
+			{
+				icon: "/static/share/ic_xiaochengxu.png",
+				text: "小程序",
+				onClick: onShare,
+				provider: "weixin",
+				scene: "WXSceneSession",
+				type: 5
 			}].concat(platformShareList);
 		}
 	}
 });
 // 根据type类型过滤掉不支持的平台
 function platformFilter(data){
+	let platformList = [];
+	let supportList = [
+		["weixin","sinaweibo"],
+		["weixin","sinaweibo","qq"],
+		["weixin","sinaweibo","qq"],
+		["weixin","qq"],
+		["weixin","sinaweibo"],
+		["weixin"],
+	];
+	let currentSupport = [];
 	if(data.type >= 0 && data.type <= 5){
-		let platformList = [];
-		let supportList = [
-			["weixin","sinaweibo"],
-			["weixin","sinaweibo","qq"],
-			["weixin","sinaweibo","qq"],
-			["weixin","qq"],
-			["weixin","sinaweibo"],
-			["weixin"],
-		];
-		let currentSupport = supportList[data.type];
-		platformShareList.forEach((item,index) => {
+		currentSupport = supportList[data.type];
+	}
+	platformShareList.forEach((item,index) => {
+		if(data.type >= 0 && data.type <= 5){
 			if(currentSupport.includes(item.provider)){
-				if(data.type == 5){
-					if(item.scene == "WXSceneSession"){
+				if(item.provider == "weixin"){
+					if(item.text == "小程序"){
+						if(data.type == 5){
+							platformList.push(item);
+						}
+					}else if(data.type !== 5){
 						platformList.push(item);
 					}
 				} else {
 					platformList.push(item);
 				}
 			}
-		});
-		return platformList.concat(otherShareList);
-	}else{
-		return platformShareList.concat(otherShareList);
-	}
-	
+		}else{
+			if(item.provider == "weixin"){
+				if(item.text == "小程序"){
+					if(data.appId && data.appPath){
+						platformList.push(item);
+					}
+				}else {
+					platformList.push(item);
+				}
+			} else {
+				platformList.push(item);
+			}
+		}
+	});
+	return platformList.concat(otherShareList);
 }
 // 数据处理
 function dataFactory(shareInfo = {}) {
@@ -239,7 +268,7 @@ export default function (shareInfo, callback) {
 	let itemWidth = iconWidth + initMargin;
 	let itemHeight = iconHeight + icontextSpace + textHeight + marginTop;
 	let textTop = iconHeight + icontextSpace;
-	let alphaBg = new plus.nativeObj.View("alphaBg", { //先创建遮罩层
+	alphaBg = new plus.nativeObj.View("alphaBg", { //先创建遮罩层
 		top: '0px',
 		left: '0px',
 		height: '100%',
@@ -247,11 +276,11 @@ export default function (shareInfo, callback) {
 		backgroundColor: 'rgba(0,0,0,0.5)'
 	});
 	alphaBg.addEventListener("click", function () { //处理遮罩层点击
-		alphaBg.hide();
-		shareMenu.hide();
+		alphaBg.close();
+		shareMenu.close();
 	});
 	let shareList = platformFilter(shareInfo);
-	let shareMenu = new plus.nativeObj.View("shareMenu", { //创建底部图标菜单
+	shareMenu = new plus.nativeObj.View("shareMenu", { //创建底部图标菜单
 		bottom: '0px',
 		left: '0px',
 		height: Math.ceil(shareList.length / colNumber) * itemHeight + marginTop + 44 + 1 + 'px',
@@ -320,8 +349,8 @@ export default function (shareInfo, callback) {
 	});
 	shareMenu.addEventListener("click", function (e) { //处理底部图标菜单的点击事件，根据点击位置触发不同的逻辑
 		if (e.screenY > plus.screen.resolutionHeight - 44) { //点击了底部取消按钮
-			alphaBg.hide();
-			shareMenu.hide();
+			alphaBg.close();
+			shareMenu.close();
 		} else if (e.clientX < 5 || e.clientX > screenWidth - 5 || e.clientY < 5) {
 			//屏幕左右边缘5像素及菜单顶部5像素不处理点击
 		} else { //点击了图标按钮
@@ -336,8 +365,10 @@ export default function (shareInfo, callback) {
 	alphaBg.show();
 	shareMenu.show();
 	return {
-		alphaBg,
-		shareMenu
+		close: function(){
+			alphaBg && alphaBg.close();
+			alphaBg && shareMenu.close();
+		}
 	};
 };
 // #endif

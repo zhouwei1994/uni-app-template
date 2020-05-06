@@ -4,6 +4,8 @@ import $http from '@/config/requestConfig';
 const platform = uni.getSystemInfoSync().platform;
 // 主颜色
 const $mainColor = "FF5B78";
+// 弹窗图标url
+const $iconUrl = "/static/icon/ic_ar.png";
 
 // 获取当前应用的版本号
 export const getCurrentNo = function(callback) {
@@ -39,7 +41,7 @@ export const getServerNo = function(version,isPrompt = false, callback) {
 		 * | versionName	 | y	    | String	| 版本名称      |
 		 * | versionInfo	 | y	    | String	| 版本信息      |
 		 * | forceUpdate	 | y	    | boolean	| 是否强制更新  |
-		 * | downloadUrl	 | y	    | String	| 版本下载链接  |
+		 * | downloadUrl	 | y	    | String	| 版本下载链接（IOS安装包更新请放跳转store应用商店链接,安卓apk和wgt文件放文件下载链接）  |
 		 */
 		if (res && res.downloadUrl) {
 			callback && callback(res);
@@ -224,7 +226,7 @@ function updatePopup(data, callback) {
 		height: "30px",
 	});
 	popupView.draw([{
-			src: "/static/icon/ic_ar.png",
+			src: $iconUrl,
 			id: "logo",
 			tag: "img",
 			position: {

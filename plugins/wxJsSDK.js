@@ -1,7 +1,7 @@
 //接口请求方法
 import $http from '@/config/requestConfig';
 import base from '@/config/baseUrl';
-import { publicShare } from '@/config/share';
+import { publicShare } from '@/config/utils';
 //获取地理位置
 export const getLocation = () => {
 	return new Promise((resolve, reject) => {
@@ -56,7 +56,7 @@ export const setShare = (data, callback) => {
 				// 设置成功
 				callback && callback();
 			}
-		})
+		});
 	});
 }
 window.onload = function () {

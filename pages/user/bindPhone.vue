@@ -26,7 +26,7 @@ var clear;
 import { mapState, mapMutations } from 'vuex';
 import socket from '@/config/socket';
 // #ifdef H5
-import {publicShare} from '@/config/share';
+import {publicShare} from '@/config/utils';
 // #endif
 export default {
 	data() {

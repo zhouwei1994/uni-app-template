@@ -16,7 +16,7 @@
 ### QQ交流群(学习干货多多) 607391225
 ![QQ交流群](http://qn.kemean.cn//upload/202004/14/15868301778472k7oubi6.png)
 
-# 常见问题
+### 常见问题
 1.接口请求成功了，没有返回数据或者数据是走的catch回调
 
 答：`requestConfig.js` 请求配置文件里面，有一个`$http.dataFactory`方法，里面写的只是参考示例，`此方法需要开发者根据各自的接口返回类型修改`
@@ -33,18 +33,41 @@
 
 答：`requestConfig.js` 请求配置文件里面，`$http.requestStart`请求开始拦截器里面设置
 
-# 文件说明
-1. `request.js` 源码文件
-2. `requestConfig.js` 请求配置文件（具体看代码）
-3. `qiniuUploader.js` 七牛云官方上传文件
+### 文件说明
+1. `request => request.js` 请求方法的源码文件
+2. `request => fileUpload.js` 七牛云上传和服务器上传的源码文件
+3. `request => index.js` 输出方法的文件
+4. `request => qiniuUploader.js` 七牛云官方上传文件
+5. `requestConfig.js` 请求配置文件（具体看代码）
 
-# 在main.js引入并挂在Vue上
+### 在main.js引入并挂在Vue上
 ```
 import $http from '@/zhouWei-request/requestConfig';
 Vue.prototype.$http = $http;
 ```
 
-# get请求 正常写法 
+### 通用请求方法（此方法不支持文件上传和JSONP）
+```
+this.$http.request({
+	url: 'aid/region',
+	method: "GET", // POST、GET、PUT、DELETE
+	data: {pid:0}
+},{
+	isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
+	load: true,//（默认 true 说明：本接口是否提示加载动画）
+	headers: { //默认 无 说明：请求头
+		'Content-Type': 'application/json'
+	},
+	isFactory: true //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
+}).then(function (response) {
+	//这里只会在接口是成功状态返回
+}).catch(function (error) {
+	//这里只会在接口是失败状态返回，不需要去处理错误提示
+	console.log(error);
+});
+```
+
+### get请求 正常写法 
 ```
 this.$http.get('aid/region',{pid:0}).
 then(function (response) {
@@ -55,7 +78,7 @@ then(function (response) {
 });
 ```
 
-# post请求 async写法 
+### post请求 async写法 
 ```
 async request(){
 	let data = await this.$http.post('aid/region',{pid:0});
@@ -63,7 +86,7 @@ async request(){
 }
 ```
 
-# 其他功能配置项
+### 其他功能配置项
 ```
 let data = await this.$http.post(
 	'http://www.aaa.com/aid/region', //可以直接放链接(将不启用全局定义域名)
@@ -81,7 +104,7 @@ let data = await this.$http.post(
 );
 ```
 
-# 本地服务器图片上传（支持多张上传）
+### 本地服务器图片上传（支持多张上传）
 ```
 this.$http.urlImgUpload('flie/upload',{
 	name:"后台接受文件key名称", //默认 file
@@ -107,7 +130,7 @@ this.$http.urlImgUpload('flie/upload',{
 	console.log("全部上传完返回结果：",res);
 });
 ```
-# 本地服务器文件上传（支持多张上传）
+### 本地服务器文件上传（支持多张上传）
 ```
 this.$http.urlFileUpload("flie/upload",{
 		files:[], // 必填 临时文件路径
@@ -133,7 +156,7 @@ this.$http.urlFileUpload("flie/upload",{
 	});
 ```
 
-# 七牛云图片上传（支持多张上传）
+### 七牛云图片上传（支持多张上传）
 ```
 this.$http.qnImgUpload({
 		count:"最大选择数", // 默认 9
@@ -154,7 +177,7 @@ this.$http.qnImgUpload({
 	});
 ```
 
-# 七牛云文件上传（支持多张上传）
+### 七牛云文件上传（支持多张上传）
 ```
 this.$http.qnFileUpload(
 	{
@@ -173,7 +196,7 @@ this.$http.qnFileUpload(
 		console.log("全部上传完返回结果：",res);
 	});
 ```
-# jsonp 跨域请求（只支持H5）
+### jsonp 跨域请求（只支持H5）
 ```
 let data = await this.$http.jsonp('http://www.aaa.com/aid/region',{pid:0});
 ```

@@ -11,7 +11,7 @@ import $http from '@/config/requestConfig'
 Vue.prototype.$http = $http;
 // #ifdef MP-WEIXIN
 //挂载全局微信分享
-import { wxShare } from '@/config/share'
+import { wxShare } from '@/config/utils'
 Vue.prototype.wxShare = wxShare;
 // #endif
 //判断是否登录
@@ -20,7 +20,7 @@ Vue.prototype.judgeLogin = judgeLogin;
 Vue.config.productionTip = false;
 // #ifdef H5
 //微信SDK
-import '@/utils/wxJsSDK';
+import '@/plugins/wxJsSDK';
 // #endif
 
 //全局组件

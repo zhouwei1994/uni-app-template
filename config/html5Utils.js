@@ -1,17 +1,14 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
-import { publicShare } from '@/config/share.js';
-import {
-	modifyJson
-} from '@/utils/utils';
+import { getLocation, setShare } from '@/plugins/wxJsSDK';
 /**
  * 安卓IOS交互
  */
 export const appMutual = (name, query = null, errCallback) => {
 	if (/android/i.test(navigator.userAgent)) {
 		if (window.shangChengView) {
-			if (typeof (query) == "object") {
+			if (typeof(query) == "object") {
 				query = JSON.stringify(query);
 			}
 			window.shangChengView[name](query);
@@ -54,8 +51,9 @@ export const weiXinPay = (data, callback) => {
 		signType: data.signType,
 		paySign: data.sign
 	};
+
 	function onBridgeReady() {
-		window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function (
+		window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function(
 			res
 		) {
 			if (res.err_msg == "get_brand_wcpay_request:ok") {
@@ -64,11 +62,11 @@ export const weiXinPay = (data, callback) => {
 				if (res.err_msg == "get_brand_wcpay_request:cancel") {
 					// common.loadWarn('支付遇到问题，您取消了支付');
 				} else
-					if (res.err_msg == "get_brand_wcpay_request:fail") {
-						// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
-						//   obj.wxLoginOAuth();
-						// });
-					}
+			if (res.err_msg == "get_brand_wcpay_request:fail") {
+				// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
+				//   obj.wxLoginOAuth();
+				// });
+			}
 		});
 	}
 	if (typeof window.WeixinJSBridge == "undefined") {
@@ -90,6 +88,46 @@ export const getBrowser = () => {
 	}
 	return "其他";
 };
+// 获取地址信息
+export const getLatLonH5 = function(successCallback, errCallback) {
+	if (getBrowser() == '微信') {
+		getLocation().then(res => {
+			successCallback(res);
+		}, err => {
+			console.log("位置信息错误", err);
+			errCallback("位置信息获取失败");
+		});
+	} else {
+		let clearTime = setTimeout(() => {
+			errCallback("获取经纬度超时");
+		}, 5000);
+		window.getAppLatLon = function(res) {
+			clearTimeout(clearTime);
+			successCallback(res);
+		}
+		appMutual("getAppLatLon", true);
+	}
+};
+// 公众号分享
+export const publicShare = function (info = {}) {
+	if (getBrowser() == "微信") {
+		let shareInfo = {
+			title: info.shareTitle || info.title || base.share.title,
+			desc: info.desc || info.shareContent || base.share.desc,
+			imgUrl: info.imgUrl || info.shareImg || base.share.imgUrl,
+			link: info.link || info.shareUrl || base.share.link,
+		};
+		if (store.state.userInfo.token) {
+			if (shareInfo.link.indexOf("?") >= 0) {
+				shareInfo.link += "&recommendCode=" + store.state.userInfo.uid;
+			} else {
+				shareInfo.link += "?recommendCode=" + store.state.userInfo.uid;
+			}
+		}
+		return setShare(shareInfo);
+	}
+}
+
 //获取code
 function getLogin(type) {
 	let urlNow = encodeURIComponent(window.location.href);
@@ -102,21 +140,21 @@ function getLogin(type) {
 
 function getApiLogin(result, type, callback) {
 	$http.post("api/open/v1/login", {
-		wxPublicOpenId: result.openId,
-		unionid: result.unionid,
-		nickname: result.nickname,
-		headImg: result.headImg
-	})
+			wxPublicOpenId: result.openId,
+			unionid: result.unionid,
+			nickname: result.nickname,
+			headImg: result.headImg
+		})
 		.then(res => {
 			if (res.thirdLoginSuccess) {
-				store.commit('setUserInfo', modifyJson(res, result));
+				store.commit('setUserInfo', res);
 				callback && callback();
 				uni.showToast({
 					title: "欢迎回来",
 					icon: "none"
 				});
 			} else {
-				store.commit('setUserInfo', modifyJson(res, result));
+				store.commit('setUserInfo', res);
 				if (type == "judge") {
 					uni.showModal({
 						title: "提示",
@@ -141,6 +179,7 @@ function getApiLogin(result, type, callback) {
 }
 //判断是否登录，登录处理
 let isGetOpenId = true;
+
 function getRecommendCode() {
 	var url = window.location.href;
 	let codeIndex = url.indexOf("recommendCode=");
@@ -168,11 +207,11 @@ export const h5Login = function(type = "judge", callback) {
 	}
 	if (getBrowser() == "微信") {
 		if (store.state.userInfo.thirdLoginSuccess === false) {
-			getApiLogin(store.state.userInfo, type,() => {
+			getApiLogin(store.state.userInfo, type, () => {
 				callback && callback();
 			});
 		} else if (getRequest.code) {
-			if(isGetOpenId){
+			if (isGetOpenId) {
 				isGetOpenId = false;
 				let httpData = {
 					code: getRequest.code
@@ -194,7 +233,7 @@ export const h5Login = function(type = "judge", callback) {
 							title: "欢迎回来",
 							icon: "none"
 						});
-					},() => {
+					}, () => {
 						isGetOpenId = true;
 					});
 			}
@@ -216,14 +255,14 @@ export const h5Login = function(type = "judge", callback) {
 					uni.navigateTo({
 						url: "/pages/user/login"
 					});
-				}else{
+				} else {
 					uni.showModal({
-						title:"提示",
-						content:"您还未登录，请先登录~",
+						title: "提示",
+						content: "您还未登录，请先登录~",
 						confirmText: "去登录",
 						cancelText: "再逛会",
 						success: (res) => {
-							if(res.confirm){
+							if (res.confirm) {
 								uni.navigateTo({
 									url: "/pages/user/login"
 								});

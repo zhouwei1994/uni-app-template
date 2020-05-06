@@ -13,7 +13,7 @@
 	</view>
 </template>
 <script>
-import md5 from '@/utils/md5';
+import md5 from '@/plugins/md5';
 var clear;
 export default {
 	data() {

@@ -1,11 +1,15 @@
-import request from "@/utils/request";
+import request from "@/plugins/request";
 import store from '@/config/store';
 // #ifdef H5
-import { h5Login } from '@/config/html5Utils';
+import {
+	h5Login
+} from '@/config/html5Utils';
 // #endif
 import base from '@/config/baseUrl';
 // #ifdef MP-WEIXIN
-import { onLogin } from '@/config/login';
+import {
+	onLogin
+} from '@/config/login';
 // #endif
 //可以new多个request来支持多个域名请求
 let $http = new request({
@@ -22,27 +26,24 @@ let $http = new request({
 //当前接口请求数
 let requestNum = 0;
 //请求开始拦截器
-$http.requestStart = function (options) {
-	console.log("请求开始",options);
-	uni.showNavigationBarLoading();
+$http.requestStart = function(options) {
+	console.log("请求开始", options);
 	if (options.load) {
 		if (requestNum <= 0) {
 			//打开加载动画
-			// #ifndef APP-PLUS
 			uni.showLoading({
 				title: '加载中',
 				mask: true
 			});
-			// #endif
 		}
 		requestNum += 1;
 	}
 	// 图片上传大小限制
-	if(options.method == "FILE" && options.maxSize){
+	if (options.method == "FILE" && options.maxSize) {
 		// 文件最大字节: options.maxSize 可以在调用方法的时候加入参数
 		maxSize = options.maxSize;
-		for(let item of options.files){
-			if(item.size > maxSize){
+		for (let item of options.files) {
+			if (item.size > maxSize) {
 				setTimeout(() => {
 					uni.showToast({
 						title: "图片过大，请重新上传",
@@ -63,12 +64,11 @@ $http.requestStart = function (options) {
 	return options;
 }
 //请求结束
-$http.requestEnd = function (options, resolve) {
+$http.requestEnd = function(options, resolve) {
 	if (resolve.statusCode !== 200 && options.data && options.data.pageNo && options.loadMore) {
 		store.commit("setRequestState", 1200);
 	}
 	//判断当前接口是否需要加载动画
-	uni.hideNavigationBarLoading();
 	if (options.load) {
 		requestNum = requestNum - 1;
 		if (requestNum <= 0) {
@@ -86,19 +86,19 @@ $http.requestEnd = function (options, resolve) {
 }
 let loginPopupNum = 0;
 //所有接口数据处理（此方法需要开发者根据各自的接口返回类型修改，以下只是模板）
-$http.dataFactory = function (res) {
+$http.dataFactory = function(res) {
 	console.log("接口请求数据", {
-		httpUrl:res.httpUrl,
-		resolve:res.response,
-		headers:res.headers,
-		data:res.data,
-		method:res.method,
+		url: res.url,
+		resolve: res.response,
+		headers: res.headers,
+		data: res.data,
+		method: res.method,
 	});
 	if (res.response.statusCode && res.response.statusCode == 200) {
 		let httpData = res.response.data;
-		
+
 		/*********以下只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-		
+
 		//判断数据是否请求成功
 		if (httpData.success) {
 			if (res.data.pageNo && res.loadMore && httpData.data.data) {
@@ -144,7 +144,7 @@ $http.dataFactory = function (res) {
 					content: content,
 					confirmText: "去登录",
 					cancelText: "再逛会",
-					success: function (res) {
+					success: function(res) {
 						loginPopupNum--;
 						if (res.confirm) {
 							uni.navigateTo({
@@ -180,12 +180,12 @@ $http.dataFactory = function (res) {
 			}
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
-		}  else { //其他错误提示
+		} else { //其他错误提示
 			if (res.data.pageNo && res.loadMore) {
 				store.commit("setRequestState", 1200);
 			}
 			if (res.isPrompt) {
-				setTimeout(function () {
+				setTimeout(function() {
 					uni.showToast({
 						title: httpData.info,
 						icon: "none",
@@ -196,10 +196,10 @@ $http.dataFactory = function (res) {
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
 		}
-		
+
 		/*********以上只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-		
-	}else{
+
+	} else {
 		// 返回错误的结果(catch接受数据)
 		res.reject(res.response);
 	}

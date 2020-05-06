@@ -24,8 +24,8 @@
 			<text @click="onPageJump('/pages/user/forget')">忘记密码？</text>
 		</view>
 		<!-- #ifdef APP-PLUS -->
-		<view class="station"></view>
-		<view class="third_party_login_box">
+		<view class="station" v-if="!isIos"></view>
+		<view class="third_party_login_box" v-if="!isIos">
 			<view class="third_party_title"><text>第三方登录</text></view>
 			<view class="third_party_content"><image src="../../static/icon/wechat.png" @click="onWxAppLogin" mode="aspectFit"></image></view>
 		</view>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import md5 from '@/utils/md5';
+import md5 from '@/plugins/md5';
 var clear;
 import { mapState, mapMutations } from 'vuex';
 import socket from '@/config/socket';
@@ -48,11 +48,15 @@ export default {
 			//验证码
 			codeText: '获取验证码',
 			//验证码已发
-			readonly: false
+			readonly: false,
+			isIos:true
 		};
 	},
 	//第一次加载
 	onLoad(e) {
+		// #ifdef APP-PLUS
+		this.isIos = (plus.os.name == "iOS");
+		// #endif
 	},
 	//页面显示
 	onShow() {},

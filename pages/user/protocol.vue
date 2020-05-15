@@ -12,7 +12,7 @@ export default {
 	components: { jyfParser },
 	data() {
 		return {
-			type:1202,
+			type:1000,
 			title:"用户协议"
 		};
 	},
@@ -22,7 +22,7 @@ export default {
 			this.type = parseInt(e.type);
 			let title;
 			switch (this.type) {
-				case 1202:
+				case 1000:
 					title = "登录注册用户协议";
 					break;
 			}
@@ -36,7 +36,7 @@ export default {
 	methods: {
 		pageData() {
 			this.$http
-				.get('api/open/v1/rich_text', {
+				.get('api/common/v1/protocol', {
 					type: this.type
 				})
 				.then(res => {

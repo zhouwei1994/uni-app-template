@@ -54,7 +54,7 @@ $http.get("api/kemean/aid/app_version", httpData).then(res => {
 // App.vue页面
 
 // #ifdef APP-PLUS
-import APPUpdate from "@/utils/APPUpdate";
+import APPUpdate from "@/plugins/APPUpdate";
 // #endif
 
 onLaunch: function(e) {
@@ -77,7 +77,7 @@ onLaunch: function(e) {
 ### 检查APP是否有新版本（一般在设置页面使用）
 ```
 // #ifdef APP-PLUS
-import APPUpdate, { getCurrentNo } from "@/utils/APPUpdate";
+import APPUpdate, { getCurrentNo } from "@/plugins/APPUpdate";
 // #endif
 export default {
 	data() {

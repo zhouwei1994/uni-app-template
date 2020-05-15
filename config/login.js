@@ -1,15 +1,18 @@
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
 import base from '@/config/baseUrl';
+// #ifdef H5
 import { h5Login } from '@/config/html5Utils';
+// #endif
 let code = "";
 let loginStart = true;
 let userInfo = {
 	token: ""
 };
 let lastPageUrl = "";
-//判断登录状态
+// 微信小程序登录
 function onLogin(type = "judge",callback) {
+	//判断登录状态
 	if (loginStart) {
 		lastPageUrl = "";
 		loginStart = false;
@@ -78,7 +81,7 @@ function onLogin(type = "judge",callback) {
 		});
 	}
 }
-//获取用户信息
+//微信小程序获取用户信息
 function getUserInfo(info, type, callback) {
 	let httpData = {
 		wxSmallCode: code,
@@ -104,10 +107,10 @@ function getUserInfo(info, type, callback) {
 			loginStart = true;
 		});
 }
-//判断是否登录
+//判断是否登录（所有端）
 function judgeLogin(callback, type = "judge"){
 	let storeUserInfo = store.state.userInfo;
-	if(!storeUserInfo.token){
+	if(!storeUserInfo.token){ // nvue页面读取不到vuex里面数据，将取缓存
 		storeUserInfo = uni.getStorageSync("userInfo");
 	}
 	if (type != "force" && storeUserInfo.token) {

@@ -5,7 +5,7 @@ export default class request {
 		//公共文件上传请求地址
 		this.fileUrl = options.fileUrl || "";
 		//默认请求头
-		this.headers = options.headers || {};
+		this.header = options.header || {};
 		//默认配置
 		this.config = {
 			isPrompt: options.isPrompt === false ? false : true,
@@ -14,8 +14,9 @@ export default class request {
 			loadMore: options.loadMore === false ? false : true
 		};
 	}
+
 	// 获取默认信息
-	getDefault(data, options) {
+	getDefault(data, options = {}) {
 		//判断url是不是链接
 		let urlType = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~/])+$/.test(data.url);
 		let config = Object.assign({}, this.config, options, data);
@@ -25,7 +26,13 @@ export default class request {
 			config.url = urlType ? data.url : this.baseUrl + data.url;
 		}
 		//请求头
-		config.headers = Object.assign(this.headers, options.headers);
+		if (options.header) {
+			config.header = Object.assign({}, this.header, options.header);
+		} else if (data.header) {
+			config.header = Object.assign({}, this.header, data.header);
+		} else {
+			config.header = this.header;
+		}
 		return config;
 	}
 
@@ -35,42 +42,58 @@ export default class request {
 			method: "POST",
 			data: data,
 			url: url,
-		},options);
+			...options
+		});
 	}
+
 	//get请求
 	get(url = '', data = {}, options = {}) {
 		return this.request({
 			method: "GET",
 			data: data,
 			url: url,
-		},options);
+			...options
+		});
 	}
+
 	//put请求
 	put(url = '', data = {}, options = {}) {
 		return this.request({
 			method: "PUT",
 			data: data,
 			url: url,
-		},options);
+			...options
+		});
 	}
+
 	//delete请求
 	delete(url = '', data = {}, options = {}) {
 		return this.request({
 			method: "DELETE",
 			data: data,
 			url: url,
-		},options);
+			...options
+		});
 	}
+
 	//接口请求方法
-	request(data, options) {
-		let requestInfo = this.getDefault(data, options);
+	request(data) {
 		return new Promise((resolve, reject) => {
+			if (!data.url) {
+				console.log("request缺失数据url");
+				reject({
+					errMsg: "缺失数据url",
+					statusCode: 0
+				});
+				return;
+			}
+			let requestInfo = this.getDefault(data);
 			//请求前回调
 			if (this.requestStart) {
 				let requestStart = this.requestStart(requestInfo);
 				if (typeof requestStart == "object") {
 					requestInfo.data = requestStart.data;
-					requestInfo.headers = requestStart.headers;
+					requestInfo.header = requestStart.header;
 					requestInfo.isPrompt = requestStart.isPrompt;
 					requestInfo.load = requestStart.load;
 					requestInfo.isFactory = requestStart.isFactory;
@@ -80,16 +103,16 @@ export default class request {
 						errMsg: "请求开始拦截器未通过",
 						statusCode: 0
 					});
-					reject({ errMsg: "请求开始拦截器未通过", statusCode: 0 });
+					reject({
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
 					return;
 				}
 			}
-			console.log();
-			uni.request({
+			let requestData = {
 				url: requestInfo.url,
-				data: requestInfo.data,
-				method: requestInfo.method, //请求类型
-				header: requestInfo.headers, //加入请求头
+				header: requestInfo.header, //加入请求头
 				success: (res) => {
 					//请求完成回调
 					this.requestEnd && this.requestEnd(requestInfo, res);
@@ -107,11 +130,38 @@ export default class request {
 					}
 				},
 				fail: (err) => {
+					console.log("err");
 					//请求完成回调
 					this.requestEnd && this.requestEnd(requestInfo, err);
 					reject(err);
 				}
-			});
+			};
+			//请求类型
+			if (requestInfo.method) {
+				requestData.method = requestInfo.method;
+			}
+			if (requestInfo.data) {
+				requestData.data = requestInfo.data;
+			}
+			// #ifdef MP-WEIXIN || MP-ALIPAY
+			if (requestInfo.timeout) {
+				requestData.timeout = requestInfo.timeout;
+			}
+			// #endif
+			if (requestInfo.dataType) {
+				requestData.dataType = requestInfo.dataType;
+			}
+			// #ifndef APP-PLUS || MP-ALIPAY
+			if (requestInfo.responseType) {
+				requestData.responseType = requestInfo.responseType;
+			}
+			// #endif
+			// #ifdef H5
+			if (requestInfo.withCredentials) {
+				requestData.withCredentials = requestInfo.withCredentials;
+			}
+			// #endif
+			uni.request(requestData);
 		});
 	}
 	//jsonp请求(只限于H5使用)
@@ -138,7 +188,7 @@ export default class request {
 				let requestStart = _this.requestStart(requestInfo);
 				if (typeof requestStart == "object") {
 					requestInfo.data = requestStart.data;
-					requestInfo.headers = requestStart.headers;
+					requestInfo.header = requestStart.header;
 					requestInfo.isPrompt = requestStart.isPrompt;
 					requestInfo.load = requestStart.load;
 					requestInfo.isFactory = requestStart.isFactory;
@@ -148,10 +198,14 @@ export default class request {
 						errMsg: "请求开始拦截器未通过",
 						statusCode: 0
 					});
-					reject({ errMsg: "请求开始拦截器未通过", statusCode: 0 });
+					reject({
+						errMsg: "请求开始拦截器未通过",
+						statusCode: 0
+					});
 					return;
 				}
 			}
+			// #ifdef H5
 			window[callbackName] = function(data) {
 				resolve(data);
 			}
@@ -160,6 +214,7 @@ export default class request {
 			document.head.appendChild(script);
 			// 及时删除，防止加载过多的JS
 			document.head.removeChild(script);
+			// #endif
 			//请求完成回调
 			_this.requestEnd && _this.requestEnd(requestInfo, {
 				errMsg: "request:ok",

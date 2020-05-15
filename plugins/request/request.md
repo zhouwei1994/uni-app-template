@@ -23,7 +23,7 @@
 
 2.官方的方法有数据，本插件方法请求报错跨域问题
 
-答：`requestConfig.js` 请求配置文件里面，`headers`请求头设置的`content-type`请求类型需求和后台保持一致
+答：`requestConfig.js` 请求配置文件里面，`header`请求头设置的`content-type`请求类型需求和后台保持一致
 
 3.登录后用户`token`怎么设置？
 
@@ -32,6 +32,9 @@
 4.怎么判断上传的文件（图片）太大？怎么过滤掉太大的文件（图片）？
 
 答：`requestConfig.js` 请求配置文件里面，`$http.requestStart`请求开始拦截器里面设置
+
+### 本次更新注意事项
+1. 所有的headers都改成了header（和官方统一）
 
 ### 文件说明
 1. `request => request.js` 请求方法的源码文件
@@ -50,15 +53,18 @@ Vue.prototype.$http = $http;
 ```
 this.$http.request({
 	url: 'aid/region',
-	method: "GET", // POST、GET、PUT、DELETE
-	data: {pid:0}
-},{
+	method: "GET", // POST、GET、PUT、DELETE，具体说明查看官方文档
+	data: {pid:0},
+	timeout: 30000,  // 默认 30000 说明：超时时间，单位 ms，具体说明查看官方文档
+	dataType: "json",  // 默认 json 说明：如果设为 json，会尝试对返回的数据做一次 JSON.parse，具体说明查看官方文档
+	responseType: "text",  // 默认 text 说明：设置响应的数据类型。合法值：text、arraybuffer，具体说明查看官方文档
+	withCredentials: false  // 默认 false 说明：跨域请求时是否携带凭证（cookies），具体说明查看官方文档
 	isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
 	load: true,//（默认 true 说明：本接口是否提示加载动画）
-	headers: { //默认 无 说明：请求头
+	header: { //默认 无 说明：请求头
 		'Content-Type': 'application/json'
 	},
-	isFactory: true //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
+	isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
 }).then(function (response) {
 	//这里只会在接口是成功状态返回
 }).catch(function (error) {
@@ -96,7 +102,7 @@ let data = await this.$http.post(
 	{
 		isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
 		load: true,//（默认 true 说明：本接口是否提示加载动画）
-		headers: { //默认 无 说明：请求头
+		header: { //默认 无 说明：请求头
 			'Content-Type': 'application/json'
 		},
 		isFactory: true //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
@@ -121,7 +127,7 @@ this.$http.urlImgUpload('flie/upload',{
 },{
 	isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
 	load: true,//（默认 true 说明：本接口是否提示加载动画）
-	headers: { //默认 无 说明：请求头
+	header: { //默认 无 说明：请求头
 		'Content-Type': 'application/json'
 	},
 	isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）
@@ -146,7 +152,7 @@ this.$http.urlFileUpload("flie/upload",{
 	{
 		isPrompt: true,//（默认 true 说明：本接口抛出的错误是否提示）
 		load: true,//（默认 true 说明：本接口是否提示加载动画）
-		headers: { //默认 无 说明：请求头
+		header: { //默认 无 说明：请求头
 			'Content-Type': 'application/json'
 		},
 		isFactory: true, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数奖失去作用）

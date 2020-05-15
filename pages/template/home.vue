@@ -1,15 +1,11 @@
 <template>
 	<view>
 		<nav-bar backState="2000" title="首页"></nav-bar>
-		<!-- banner -->
-		<view class="banner_swiper_box">
-			<swiper class="banner_swiper" :autoplay="true" :interval="3000" circular previous-margin="30px" next-margin="30px" :duration="1000" @change="onSwiperChange">
-				<swiper-item v-for="(item, index) of bannerList" :key="index">
-					<view class="banner_img" :class="{ active: swiperIndex == index }"><image src="../../static/images/1.jpg" mode="aspectFill" @click="onBanner(item)"></image></view>
-				</swiper-item>
-			</swiper>
-		</view>
 		<button type="default" @click="onFileUpdata">图片上传</button>
+		<view class="nav_list" @click="onPageJump('/pages/demo/common')">
+			<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+			<text>列表刷新</text>
+		</view>
 		<view class="video_box" v-if="videoShow" @click="onCloseVideo"><video :src="videoUrl" autoplay="true" controls></video></view>
 		<z-login ref="login"></z-login>
 	</view>
@@ -52,28 +48,35 @@ export default {
 	methods: {
 		...mapMutations(['setWebViewUrl']),
 		onFileUpdata(){
-			this.$http.urlImgUpload("http://api.xpuree.com/api/attachment",{
-				count:3,
-				eachUpdate: res => {
-					console.log("单张上传成功返回：",res);
-				},
-				progressUpdate: res => {
-					console.log("上传进度返回：",res);
-				},
-			},{
-				headers:{
-					AccessToken: "VgG8NwFveqlFnTV4fR/aoAr3SMcptO+rrYkijy0HO4hDEadqW9uJa+FAbWLaul9LSeS9B26oxxRmsMBEv51qXOUxGShLHizR29Q+Q2CnyXY=",
-					"content-type": "multipart/form-data"
-				}
-			}).then(res => {
-				console.log("全部上传返回结果：",res);
+			this.$http.get('api/open/v1/region',{pid:0}).
+			then(function (response) {
+				//这里只会在接口是成功状态返回
+			}).catch(function (error) {
+				//这里只会在接口是失败状态返回，不需要去处理错误提示
+				console.log(error);
 			});
-			// this.$http.qnImgUpload({
+			// this.$http.urlImgUpload("http://api.xpuree.com/api/attachment",{
 			// 	count:3,
-			// 	eachUpdate: res => {
+			// 	onEachUpdate: res => {
 			// 		console.log("单张上传成功返回：",res);
 			// 	},
-			// 	progressUpdate: res => {
+			// 	onProgressUpdate: res => {
+			// 		console.log("上传进度返回：",res);
+			// 	},
+			// },{
+			// 	headers:{
+			// 		AccessToken: "VgG8NwFveqlFnTV4fR/aoAr3SMcptO+rrYkijy0HO4hDEadqW9uJa+FAbWLaul9LSeS9B26oxxRmsMBEv51qXOUxGShLHizR29Q+Q2CnyXY=",
+			// 		"content-type": "multipart/form-data"
+			// 	}
+			// }).then(res => {
+			// 	console.log("全部上传返回结果：",res);
+			// });
+			// this.$http.qnImgUpload({
+			// 	count:3,
+			// 	onEachUpdate: res => {
+			// 		console.log("单张上传成功返回：",res);
+			// 	},
+			// 	onProgressUpdate: res => {
 			// 		console.log("上传进度返回：",res);
 			// 	},
 			// },{
@@ -126,6 +129,42 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '@/style/mixin.scss';
+.nav_list {
+	background-color: #fff;
+	padding: 30upx;
+	display: flex;
+	align-items: center;
+	position: relative;
+	margin-bottom: 10upx;
+	&:active {
+		background-color: #F5f5f5;
+	}
+	image {
+		width: 40upx;
+		height: 40upx;
+	}
+	text {
+		font-size: 28upx;
+		color: #333;
+		margin-left: 30upx;
+	}
+	&::after {
+		content: '';
+		position: absolute;
+		right: 30upx;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 40upx;
+		height: 40upx;
+		background-image: url('../../static/demo/icon_right.png');
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+}
+
+
+
 .video_box {
 	position: fixed;
 	top: 0;

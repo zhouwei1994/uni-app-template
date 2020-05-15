@@ -5,9 +5,9 @@
 			<text :class="{active:type == 2000}" @click="type = 2000">密码登录</text>
 			<text :class="{active:type == 1000}" @click="type = 1000">验证码登录</text>
 		</view>
-		<view class="input_box"><input type="number" v-model="phone" placeholder="请输入您的手机号码" maxlength="11" /></view>
+		<view class="input_box"><input type="text" v-model="email" placeholder="请输入您的邮箱" /></view>
 		<view class="input_box" v-if="type == 1000">
-			<input type="number" v-model="code" placeholder="请输入手机验证码" maxlength="6" @confirm="onSubmit" />
+			<input type="number" v-model="code" placeholder="请输入邮箱验证码" maxlength="6" @confirm="onSubmit" />
 			<button class="active" @click="onSetCode">{{ codeText }}</button>
 		</view>
 		<view class="input_box" v-if="type == 2000"><input type="text" v-model="password" password placeholder="请输入密码" @confirm="onSubmit" /></view>
@@ -43,7 +43,7 @@ export default {
 		return {
 			type: 2000,
 			code: '',
-			phone: '',
+			email: '',
 			password: '',
 			//验证码
 			codeText: '获取验证码',
@@ -87,46 +87,46 @@ export default {
 		},
 		// 发送验证码
 		onSetCode() {
-			if (!this.phone) {
+			if (!this.email) {
 				uni.showToast({
-					title: '请输入手机号',
+					title: '请输入邮箱',
 					icon: 'none'
 				});
 				return;
 			}
-			if (!this.$base.phoneRegular.test(this.phone)) {
+			if (!this.$base.mailRegular.test(this.email)) {
 				uni.showToast({
-					title: '手机号格式不正确',
+					title: '邮箱格式不正确',
 					icon: 'none'
 				});
 				return;
 			}
 			this.$http
-				.post('api/open/v1/send_sms', {
-					phone: this.phone,
-					type: 3103
+				.post('api/common/v1/send_sms', {
+					email: this.email,
+					type: 2000
 				})
 				.then(res => {
 					this.getCodeState();
 				});
 		},
 		onSubmit() {
-			if (!this.phone) {
+			if (!this.email) {
 				uni.showToast({
-					title: '请输入手机号',
+					title: '请输入邮箱',
 					icon: 'none'
 				});
 				return;
 			}
-			if (!this.$base.phoneRegular.test(this.phone)) {
+			if (!this.$base.mailRegular.test(this.email)) {
 				uni.showToast({
-					title: '手机号格式不正确',
+					title: '邮箱格式不正确',
 					icon: 'none'
 				});
 				return;
 			}
 			let httpData = {
-				phone: this.phone
+				email: this.email
 			};
 			if (this.type == 1000) {
 				if (!this.code) {
@@ -145,9 +145,9 @@ export default {
 					});
 					return;
 				}
-				httpData.md5Password = md5(this.password);
+				httpData.password = md5(this.password);
 			}
-			this.$http.post('api/open/v1/login', httpData).then(res => {
+			this.$http.post('api/common/v1/login', httpData).then(res => {
 				this.setUserInfo(res);
 				socket.init();
 				uni.showToast({
@@ -188,7 +188,7 @@ export default {
 								} else {
 									uni.showModal({
 										title: '提示',
-										content: '您还未绑定手机号，请先绑定~',
+										content: '您还未绑定邮箱，请先绑定~',
 										confirmText: '去绑定',
 										cancelText: '再逛会',
 										success: res => {

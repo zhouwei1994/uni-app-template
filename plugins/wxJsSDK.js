@@ -1,3 +1,4 @@
+// 获取微信公众号SDK权限
 //接口请求方法
 import $http from '@/config/requestConfig';
 import base from '@/config/baseUrl';
@@ -59,6 +60,7 @@ export const setShare = (data, callback) => {
 		});
 	});
 }
+console.log("----------");
 window.onload = function () {
 	// 配置文件里面没有publicAppId将不激活微信SDK功能
 	if (!base.publicAppId) {

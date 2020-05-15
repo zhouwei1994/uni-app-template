@@ -7,10 +7,9 @@
 	} from "@/config/html5Utils";
 	// #endif
 	// #ifdef APP-PLUS
-	import APPUpdate from "@/utils/APPUpdate";
+	import APPUpdate from "@/plugins/APPUpdate";
 	// #endif
 	export default {
-		// 只有 app 才会有 onLaunch 的生命周期
 		onLaunch: function(e) {
 			//取出缓存数据
 			store.commit("setCacheData");
@@ -88,6 +87,7 @@
 <style lang="scss">
 	@import "./style/common.scss";
 	@import "./style/input.scss";
+	@import "./style/table.scss";
 
 	/* #ifdef H5 */
 	//修复H5底部导航挡住内容bug

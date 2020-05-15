@@ -1,12 +1,12 @@
 <template>
 	<view>
-		<view class="popupClick" @click="onPopupShow"><slot></slot></view>
+		<view class="popupClick" @click="onPopupShow()"><slot></slot></view>
 		<view class="popupMask" v-if="popupShow" @click="onPopupHide"></view>
 		<view class="popupContentBox" v-if="popupShow">
 			<view class="close" @click="onPopupHide">×</view>
 			<view class="title">{{ popupConfig.title }}</view>
 			<view class="popupContent">
-				<view class="introduce">{{ text }}</view>
+				<view class="introduce">{{ popupConfig.tips }}</view>
 				<input
 					class="input"
 					:type="popupConfig.inputType"
@@ -24,16 +24,9 @@
 		</view>
 	</view>
 </template>
-
 <script>
 export default {
 	props: {
-		text: {
-			type: String,
-			default: function() {
-				return '请输入';
-			}
-		},
 		value: {
 			type: String,
 			default: function() {
@@ -51,38 +44,46 @@ export default {
 		return {
 			popupConfig: {
 				title: '操作',
+				tips: "请输入",
 				confirmText: '确认',
 				placeholder: '',
 				password: false,
 				inputType: 'text',
 			},
 			popupInput: '',
-			popupShow:false
+			popupShow: false
 		};
 	},
 	//第一次加载
-	ready() {
-		this.jsonMerge();
+	created() {
+		if(this.value){
+			this.popupInput = this.value;
+		}
+		if(this.options && typeof(this.options) == "object"){
+			this.popupConfig = Object.assign(this.popupConfig, this.options);
+		}
+	},
+	watch:{
+		value(val){
+			this.popupInput = val;
+		},
+		options(val){
+			if(val && typeof(val) == "object"){
+				this.popupConfig = Object.assign(this.popupConfig, val);
+			}
+		}
 	},
 	//方法
 	methods: {
 		//打开弹窗
-		onPopupShow() {
+		onPopupShow(value,options) {
+			if(value){
+				this.popupInput = value;
+			}
+			if(options && typeof(options) == "object"){
+				this.popupConfig = Object.assign(this.popupConfig, options);
+			}
 			this.popupShow = true;
-			this.jsonMerge();
-		},
-		jsonMerge() {
-			var oldJson = this.popupConfig;
-			var json = this.options;
-			var jsonData = {};
-			for (var i in oldJson) {
-				jsonData[i] = oldJson[i];
-			}
-			for (var j in json) {
-				jsonData[j] = json[j];
-			}
-			this.popupConfig = jsonData;
-			this.popupInput = this.value;
 		},
 		//关闭弹窗
 		onPopupHide() {

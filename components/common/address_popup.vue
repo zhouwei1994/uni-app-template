@@ -70,7 +70,7 @@ export default {
 			this.addressVal = val;
 		},
 		onConfirm() {
-			if (parseInt(this.length) <= this.addressVal.length) {
+			if (parseInt(this.length) <= this.addressVal.length || !this.force && this.addressVal.length > 0) {
 				this.currentValue = false;
 				this.$emit('change', this.addressVal);
 			} else {

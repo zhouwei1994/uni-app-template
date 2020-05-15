@@ -44,6 +44,7 @@ export default class fileUpload extends request {
 			...data,
 			...this.config,
 			...options,
+			header: {},
 			method: "FILE"
 		};
 		return new Promise((resolve, reject) => {
@@ -120,6 +121,7 @@ export default class fileUpload extends request {
 							uptoken: data.token, // 由其他程序生成七牛 uptoken
 							uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
 						}, (res) => {
+							console.log(requestInfo);
 							requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
 							// console.log('上传进度', res.progress)
 							// console.log('已经上传的数据长度', res.totalBytesSent)
@@ -162,6 +164,7 @@ export default class fileUpload extends request {
 	urlFileUpload(url = '', data = {}, options = {}) {
 		let requestInfo = this.getDefault({
 			...data,
+			url: url,
 			method: "FILE"
 		}, options);
 		const _this = this;
@@ -171,7 +174,7 @@ export default class fileUpload extends request {
 				let requestStart = _this.requestStart(requestInfo);
 				if (typeof requestStart == "object") {
 					requestInfo.data = requestStart.data;
-					requestInfo.headers = requestStart.headers;
+					requestInfo.header = requestStart.header;
 					requestInfo.isPrompt = requestStart.isPrompt;
 					requestInfo.load = requestStart.load;
 					requestInfo.isFactory = requestStart.isFactory;
@@ -189,9 +192,17 @@ export default class fileUpload extends request {
 					return;
 				}
 			}
+			// 本地文件上传去掉默认Content-Type
+			if(requestInfo.header['Content-Type']){
+				delete requestInfo.header['Content-Type'];
+			}
 			if (Array.isArray(requestInfo.files)) {
 				// #ifdef APP-PLUS || H5
 				let files = [];
+				let fileData = {
+					files: requestInfo.files,
+					name: requestInfo.name || "file"
+				};
 				requestInfo.files.forEach(item => {
 					files.push({
 						uri: item.path,
@@ -201,7 +212,7 @@ export default class fileUpload extends request {
 				let config = {
 					url: requestInfo.url,
 					files: files,
-					header: requestInfo.headers, //加入请求头
+					header: requestInfo.header, //加入请求头
 					success: (response) => {
 						if (typeof(response.data) == "string") {
 							response.data = JSON.parse(response.data);
@@ -275,9 +286,9 @@ export default class fileUpload extends request {
 					fileData.type = requestInfo.files[i].type;
 					// #endif
 					let config = {
-						url: requestInfo.httpUrl,
+						url: requestInfo.url,
 						filePath: requestInfo.files[i].path,
-						header: requestInfo.headers, //加入请求头
+						header: requestInfo.header, //加入请求头
 						name: requestInfo.name || "file",
 						success: (response) => {
 							if (typeof(response.data) == "string") {

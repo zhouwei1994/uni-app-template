@@ -1,15 +1,25 @@
 import request from "@/plugins/request";
 import store from '@/config/store';
+import base from '@/config/baseUrl';
 // #ifdef H5
 import {
 	h5Login
 } from '@/config/html5Utils';
 // #endif
-import base from '@/config/baseUrl';
 // #ifdef MP-WEIXIN
 import {
 	onLogin
 } from '@/config/login';
+// #endif
+let version_code = '';
+// #ifdef APP-PLUS
+import { getCurrentNo } from '@/plugins/APPUpdate';
+setTimeout(() => {
+	getCurrentNo(function(res){
+		console.log("版本号",res);
+		version_code = res.versionCode;
+	});
+},200);
 // #endif
 //可以new多个request来支持多个域名请求
 let $http = new request({
@@ -18,8 +28,8 @@ let $http = new request({
 	//服务器本地上传文件地址
 	fileUrl: base.baseUrl,
 	//设置请求头（如果使用报错跨域问题，可能是content-type请求类型和后台那边设置的不一致）
-	headers: {
-		'content-type': 'application/json;charset=UTF-8',
+	header: {
+		'Content-Type': 'application/json;charset=UTF-8',
 		'project_token': base.projectToken, //项目token（可删除）
 	}
 });
@@ -57,9 +67,15 @@ $http.requestStart = function(options) {
 	if (options.data && options.data.pageNo && options.loadMore) {
 		store.commit("setRequestState", 1100);
 	}
+	// #ifdef APP-PLUS
+	// 添加当前版本号
+	if(version_code){
+		options.header['version_code'] = version_code;
+	}
+	// #endif
 	//请求前加入token
 	if (store.state.userInfo.token) {
-		options.headers['user_token'] = store.state.userInfo.token;
+		options.header['user_token'] = store.state.userInfo.token;
 	};
 	return options;
 }
@@ -90,7 +106,7 @@ $http.dataFactory = function(res) {
 	console.log("接口请求数据", {
 		url: res.url,
 		resolve: res.response,
-		headers: res.headers,
+		header: res.header,
 		data: res.data,
 		method: res.method,
 	});
@@ -100,8 +116,8 @@ $http.dataFactory = function(res) {
 		/*********以下只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
 
 		//判断数据是否请求成功
-		if (httpData.success) {
-			if (res.data.pageNo && res.loadMore && httpData.data.data) {
+		if (httpData.success || httpData.code == 200) {
+			if (res.data && res.data.pageNo && res.loadMore && httpData.data.data) {
 				const len = httpData.data.data.length;
 				if (len < res.data.pageSize) {
 					if (res.data.pageNo == 1) {
@@ -121,8 +137,8 @@ $http.dataFactory = function(res) {
 			}
 			// 返回正确的结果(then接受数据)
 			res.resolve(httpData.data);
-		} else if (httpData.code == "1000" || httpData.code == "1001") {
-			if (res.data.pageNo && res.loadMore) {
+		} else if (httpData.code == "1000" || httpData.code == "1001" || httpData.code == 1100) {
+			if (res.data && res.data.pageNo && res.loadMore) {
 				store.commit("setRequestState", 1200);
 			}
 			store.commit("emptyUserInfo");
@@ -158,7 +174,7 @@ $http.dataFactory = function(res) {
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
 		} else if (httpData.code == "1004") {
-			if (res.data.pageNo && res.loadMore) {
+			if (res.data && res.data.pageNo && res.loadMore) {
 				store.commit("setRequestState", 1200);
 			}
 			if (loginPopupNum <= 0) {
@@ -181,13 +197,13 @@ $http.dataFactory = function(res) {
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
 		} else { //其他错误提示
-			if (res.data.pageNo && res.loadMore) {
+			if (res.data && res.data.pageNo && res.loadMore) {
 				store.commit("setRequestState", 1200);
 			}
 			if (res.isPrompt) {
 				setTimeout(function() {
 					uni.showToast({
-						title: httpData.info,
+						title: httpData.info || httpData.msg,
 						icon: "none",
 						duration: 3000
 					});

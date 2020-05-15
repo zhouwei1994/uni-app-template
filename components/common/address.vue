@@ -80,7 +80,7 @@ export default {
 	methods: {
 		getRegion(pid) {
 			//请求数据
-			this.$http.get('api/open/v1/region', { pid: pid }, { load: false }).then(data => {
+			this.$http.get('api/common/v1/region', { pid: pid }, { load: false }).then(data => {
 				if (data.length > 0) {
 					this.addressList = data;
 					// this.$refs.scroll.scrollTop = '0px';
@@ -119,7 +119,7 @@ export default {
 				this.getRegion(item.objId);
 				this.addressIndex++;
 			}
-			if (this.addressVal.length >= this.length) {
+			if (this.addressVal.length >= this.length || !this.force) {
 				this.$emit('change', this.addressVal);
 			}
 			this.selectState = this.addressVal.length;

@@ -2,12 +2,39 @@ import $http from '@/config/requestConfig'
 import store from '@/config/store';
 import { getAppWxLatLon } from '@/plugins/utils';
 // #ifdef H5
-import { getLatLonH5, publicShare } from '@/config/html5Utils';
+import { getLatLonH5, publicShareFun } from '@/config/html5Utils';
+// 公众号分享
+export const publicShare = publicShareFun;
 // #endif
 // #ifdef APP-PLUS
-import applicationShare from '@/plugins/share';
+import appShareFun from '@/plugins/share';
+// APP分享
+export const appShare = appShareFun;
 // #endif
-//支付
+
+// #ifdef MP-WEIXIN
+// 微信小程序分享
+export const wxShare = function (title,path) {
+	let shareInfo = {
+		title: title || base.share.title,
+	};
+	if(path && typeof(path) == "string"){
+		shareInfo.path = path;
+	}else if(path === undefined){
+		shareInfo.path = base.share.path;
+	}
+	if (store.state.userInfo.token) {
+		if (shareInfo.path.indexOf("?") >= 0) {
+			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
+		} else {
+			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
+		}
+	}
+	return shareInfo;
+}
+// #endif
+
+//支付（APP微信支付、APP支付宝支付、微信小程序支付）
 export const setPay = function(payInfo, callback) {
 	let httpUrl = "";
 	if (payInfo.type == 'wxpay') {
@@ -92,7 +119,7 @@ export const setPayAssign = function(orderInfo, callback) {
 	}
 	// #endif
 }
-// 获取地址信息
+// 获取地址信息 （微信小程序、APP、公众号）
 export const getLatLon = function(tip){
 	return new Promise((resolve, reject) => {
 		const successProcess = function(res){
@@ -119,34 +146,7 @@ export const getLatLon = function(tip){
 		// #endif
 	});
 }
-// #ifdef MP-WEIXIN
-// 微信小程序分享
-export const wxShare = function (title,path) {
-	let shareInfo = {
-		title: title || base.share.title,
-	};
-	if(path && typeof(path) == "string"){
-		shareInfo.path = path;
-	}else if(path === undefined){
-		shareInfo.path = base.share.path;
-	}
-	if (store.state.userInfo.token) {
-		if (shareInfo.path.indexOf("?") >= 0) {
-			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
-		} else {
-			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
-		}
-	}
-	return shareInfo;
-}
-// #endif
 
-// APP和公众号分享
-export const appShare = function (data = {}) {
-	// #ifdef APP-PLUS
-	return applicationShare(data);
-	// #endif
-	// #ifdef H5
-	return publicShare(data);
-	// #endif
-}
+
+
+

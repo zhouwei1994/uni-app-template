@@ -1,9 +1,11 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
+console.log("222222222222");
 import { getLocation, setShare } from '@/plugins/wxJsSDK';
+
 /**
- * 安卓IOS交互
+ * APP内嵌网页 -- 安卓IOS交互
  */
 export const appMutual = (name, query = null, errCallback) => {
 	if (/android/i.test(navigator.userAgent)) {
@@ -41,7 +43,7 @@ export const getUrlData = () => {
 	}
 	return theRequest;
 }
-//微信支付
+//公众号微信支付
 export const weiXinPay = (data, callback) => {
 	var wxConfigObj = {
 		appId: data.appId,
@@ -88,7 +90,7 @@ export const getBrowser = () => {
 	}
 	return "其他";
 };
-// 获取地址信息
+// 获取地址信息（公众号获取 或 内嵌APP获取）
 export const getLatLonH5 = function(successCallback, errCallback) {
 	if (getBrowser() == '微信') {
 		getLocation().then(res => {
@@ -109,7 +111,7 @@ export const getLatLonH5 = function(successCallback, errCallback) {
 	}
 };
 // 公众号分享
-export const publicShare = function (info = {}) {
+export const publicShareFun = function (info = {}) {
 	if (getBrowser() == "微信") {
 		let shareInfo = {
 			title: info.shareTitle || info.title || base.share.title,
@@ -128,7 +130,7 @@ export const publicShare = function (info = {}) {
 	}
 }
 
-//获取code
+//公众号获取code
 function getLogin(type) {
 	let urlNow = encodeURIComponent(window.location.href);
 	let url =
@@ -137,49 +139,7 @@ function getLogin(type) {
 		}&redirect_uri=${urlNow}&response_type=code&scope=snsapi_userinfo&state=${type}#wechat_redirect`;
 	window.location.replace(url);
 }
-
-function getApiLogin(result, type, callback) {
-	$http.post("api/open/v1/login", {
-			wxPublicOpenId: result.openId,
-			unionid: result.unionid,
-			nickname: result.nickname,
-			headImg: result.headImg
-		})
-		.then(res => {
-			if (res.thirdLoginSuccess) {
-				store.commit('setUserInfo', res);
-				callback && callback();
-				uni.showToast({
-					title: "欢迎回来",
-					icon: "none"
-				});
-			} else {
-				store.commit('setUserInfo', res);
-				if (type == "judge") {
-					uni.showModal({
-						title: "提示",
-						content: "您还未绑定手机号，请先绑定手机号",
-						confirmText: "去绑定",
-						cancelText: "再逛会",
-						success: (res) => {
-							if (res.confirm) {
-								uni.navigateTo({
-									url: "/pages/user/bindPhone"
-								});
-							}
-						}
-					});
-				} else if (type == "force") {
-					uni.navigateTo({
-						url: "/pages/user/bindPhone"
-					});
-				}
-			}
-		});
-}
-//判断是否登录，登录处理
-let isGetOpenId = true;
-
+// 获取Url上的推荐码
 function getRecommendCode() {
 	var url = window.location.href;
 	let codeIndex = url.indexOf("recommendCode=");
@@ -199,6 +159,9 @@ function getRecommendCode() {
 		return;
 	}
 }
+//判断是否登录，登录处理
+let isGetOpenId = true;
+// 公众号登录 || H5页面跳转到登录页面 || APP内嵌网页调取APP方法
 export const h5Login = function(type = "judge", callback) {
 	var getRequest = getUrlData();
 	let recommendCode = getRecommendCode();
@@ -206,11 +169,7 @@ export const h5Login = function(type = "judge", callback) {
 		uni.setStorageSync("recommendCode", recommendCode);
 	}
 	if (getBrowser() == "微信") {
-		if (store.state.userInfo.thirdLoginSuccess === false) {
-			getApiLogin(store.state.userInfo, type, () => {
-				callback && callback();
-			});
-		} else if (getRequest.code) {
+		if (getRequest.code) {
 			if (isGetOpenId) {
 				isGetOpenId = false;
 				let httpData = {
@@ -241,6 +200,7 @@ export const h5Login = function(type = "judge", callback) {
 			getLogin(type);
 		}
 	} else {
+		// 非微信浏览器环境如果有获取到URL上有用户token,将获取用户信息
 		if (getRequest.userToken) {
 			store.commit('setUserInfo', {
 				token: getRequest.userToken
@@ -250,6 +210,7 @@ export const h5Login = function(type = "judge", callback) {
 				callback && callback();
 			});
 		} else {
+			// APP内嵌网页调取APP方法
 			appMutual("jumpLogin", null, function() {
 				if (type == "force") {
 					uni.navigateTo({

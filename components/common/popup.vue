@@ -21,11 +21,12 @@
 			},
 			//点击遮罩层关闭弹窗
 			hideOnBlur: {
+				type: Boolean,
 				default: function() {
 					return true;
 				}
 			},
-			//禁止页面滚动
+			//禁止页面滚动（H5生效）
 			scroll: {
 				type: Boolean,
 				default: true
@@ -52,7 +53,7 @@
 				this.setAnimation(val);
 			},
 			currentValue(val) {
-				this.$emit(val ? "on-show" : "on-hide");
+				this.$emit("change", val);
 				this.$emit("input", val);
 			}
 		},

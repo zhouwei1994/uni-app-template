@@ -7,9 +7,10 @@ const courtConfig = {
 		//微信公众号APPID
 		publicAppId: "",
 		//请求接口
-		baseUrl: "https://dev.kemean.net/make_friends/",
+		baseUrl: "http://192.168.1.10:8088/project/",
+		// baseUrl: "http://47.107.117.196/home_decoration/",
 		//webSocket地址
-		socketUrl: "wss://dev.kemean.net/make_friends/",
+		// socketUrl: "ws://localhost:8001/",
 		//平台名称
 		platformName: "都市云",
 		//项目logo

@@ -23,13 +23,13 @@
 				<text>1000（默认值）靠下，2000 居中</text>
 			</view>
 			<view class="table_content">
-				<text>@change</text>
+				<text>@confirm</text>
 				<text>function</text>
 				<text>窗口显示隐藏变化事件</text>
 			</view>
 		</view>
 		<view class="input_form_box">
-			<z-prompt :options="options" :value="value">
+			<z-prompt :options="options" :value="value" @confirm="onPromptConfirm">
 				<view class="input_box">
 					<view class="name required">第一种打开弹窗</view>
 					<view class="select_info">
@@ -38,18 +38,13 @@
 				</view>
 			</z-prompt>
 			<view class="input_box">
-				<view class="name required">居中弹窗，</view>
-				<view class="select_info" @click="popupShow2 = true">
-					<text class="select">点击打开弹窗</text>
-				</view>
-			</view>
-			<view class="input_box">
-				<view class="name required">点击遮罩层不关闭</view>
-				<view class="select_info" @click="popupShow3 = true">
+				<view class="name required">第二种打开弹窗</view>
+				<view class="select_info" @click="onShowPrompt">
 					<text class="select">点击打开弹窗</text>
 				</view>
 			</view>
 		</view>
+		<z-prompt ref="prompt" @confirm="onPromptConfirm2"></z-prompt>
 	</view>
 </template>
 
@@ -64,14 +59,16 @@ export default {
 			popupShow: false,
 			popupShow2: false,
 			popupShow3: false,
-			value: "默认值1",
+			value: "默认值一",
 			options: {
 				title: '操作', // 标题
-				tips: "请输入", // 提示
+				tips: "请输入邮箱", // 提示
 				confirmText: '确认', // 确认按钮文字
-				placeholder: '',  // 输入框提示文字
+				placeholder: '邮箱',  // 输入框提示文字
 				password: false,  // 是否是密码框
 				inputType: 'text',  // 输入框类型
+				maxlength: 140,  // 最大输入长度
+				confirmType: "done" // 设置键盘右下角按钮的文字，仅在 type="text" 时生效
 			},
 		};
 	},
@@ -86,18 +83,39 @@ export default {
 				url: url
 			});
 		},
-		onChange(e){
-			if(e){
+		onShowPrompt(){
+			this.$refs.prompt.onPopupShow("",{
+				title: '操作', // 标题
+				tips: "请输入手机号", // 提示
+				confirmText: '确认', // 确认按钮文字
+				placeholder: '手机号',  // 输入框提示文字
+				password: false,  // 是否是密码框
+				inputType: 'number',  // 输入框类型
+				maxlength: 11,  // 最大输入长度
+				confirmType: "done" // 设置键盘右下角按钮的文字，仅在 type="text" 时生效
+			});
+		},
+		onPromptConfirm(e){
+			console.log(e);
+			if(!this.$base.mailRegular.test(e.value)){
 				uni.showToast({
-					title:"打开了弹窗",
+					title:"请输入正确的邮箱",
 					icon:"none"
 				});
-			}else {
-				uni.showToast({
-					title:"关闭了弹窗",
-					icon:"none"
-				});
+				return;
 			}
+			e.value();
+		},
+		onPromptConfirm2(e){
+			console.log(e);
+			if(!this.$base.phoneRegular.test(e.value)){
+				uni.showToast({
+					title:"请输入正确的手机号",
+					icon:"none"
+				});
+				return;
+			}
+			e.value();
 		}
 	},
 	//页面隐藏

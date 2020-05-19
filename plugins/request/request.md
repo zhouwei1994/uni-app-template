@@ -35,6 +35,27 @@
 
 ### 本次更新注意事项
 1. 所有的headers都改成了header（和官方统一）
+2. 七牛云的获取token等信息提取到了`requestConfig.js`文件，参考如下
+
+```
+// 添加获取七牛云token的方法
+$http.getQnToken = function(callback){
+	//该地址需要开发者自行配置（每个后台的接口风格都不一样）
+	$http.get("api/kemean/aid/qn_upload").then(data => {
+		/*
+		 *接口返回参数：
+		 *visitPrefix:访问文件的域名
+		 *token:七牛云上传token
+		 *folderPath:上传的文件夹
+		 */
+		callback({
+			visitPrefix: data.visitPrefix,
+			token: data.token,
+			folderPath: data.folderPath
+		});
+	});
+}
+```
 
 ### 文件说明
 1. `request => request.js` 请求方法的源码文件

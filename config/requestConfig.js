@@ -21,6 +21,7 @@ setTimeout(() => {
 	});
 },200);
 // #endif
+
 //可以new多个request来支持多个域名请求
 let $http = new request({
 	//接口请求地址
@@ -33,6 +34,24 @@ let $http = new request({
 		'project_token': base.projectToken, //项目token（可删除）
 	}
 });
+// 添加获取七牛云token的方法
+$http.getQnToken = function(callback){
+	//该地址需要开发者自行配置（每个后台的接口风格都不一样）
+	$http.get("api/kemean/aid/qn_upload").then(data => {
+		/*
+		 *接口返回参数：
+		 *visitPrefix:访问文件的域名
+		 *token:七牛云上传token
+		 *folderPath:上传的文件夹
+		 */
+		callback({
+			visitPrefix: data.visitPrefix,
+			token: data.token,
+			folderPath: data.folderPath
+		});
+	});
+}
+
 //当前接口请求数
 let requestNum = 0;
 //请求开始拦截器

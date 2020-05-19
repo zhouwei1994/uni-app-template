@@ -1,12 +1,12 @@
 <template>
 	<view>
-		<nav-bar title="服务器图片上传/文件上传"></nav-bar>
+		<nav-bar title="图片上传/文件上传"></nav-bar>
 		<view class="input_form_box">
 			<view class="input_box">
 				<view class="name">上传图片</view>
 				<view class="upload_info">
 					<view class="upload_img" v-for="(item, index) of imgs" :key="index">
-						<image :src="item.url" mode="aspectFill"></image>
+						<image :src="item" mode="aspectFill"></image>
 						<text class="delete" @click="onDeleteImg(index)"></text>
 					</view>
 					<view class="upload_img upload" @click="onImgsUpload" v-if="imgs.length < 9"></view>
@@ -16,7 +16,7 @@
 				<view class="name">上传文件</view>
 				<view class="upload_file_info">
 					<view class="upload_file" v-for="(item, index) of files" :key="index">
-						<view class="upload_url">{{item.url}}</view>
+						<view class="upload_url">{{item}}</view>
 						<text class="delete" @click="onDeleteFiles(index)">删除</text>
 					</view>
 					<button type="default" class="upload_file_btn" @click="onFilesUpload" v-if="files.length < 9">上传文件</button>
@@ -48,7 +48,7 @@ export default {
 		//上传图片
 		onImgsUpload() {
 			let count = 9 - this.imgs.length;
-			this.$http.urlImgUpload("api/upload/v1/upload_image",{ 
+			this.$http.qnImgUpload({ 
 				count: count,
 				onEachUpdate: res => {
 					console.log("单张上传成功返回：",res);
@@ -72,7 +72,7 @@ export default {
 				sizeType:  ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
 				sourceType: ['album', 'camera'], //从相册选择
 				success: (res) => {
-					this.$http.urlFileUpload("api/upload/v1/upload_file", {
+					this.$http.qnFileUpload("api/upload/v1/upload_file", {
 						files: res.tempFiles
 					},{
 						onEachUpdate: res => {

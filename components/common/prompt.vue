@@ -14,12 +14,14 @@
 					:password="popupConfig.password"
 					v-model="popupInput"
 					:placeholder="popupConfig.placeholder"
+					:maxlength="popupConfig.maxlength"
 					focus="true"
 					placeholder-style="color:#999"
+					:confirm-type="popupConfig.confirmType"
 				/>
 			</view>
 			<view class="popupBut">
-				<button @click="onPopupBut">{{ popupConfig.confirmText }}</button>
+				<button @click="onConfirm">{{ popupConfig.confirmText }}</button>
 			</view>
 		</view>
 	</view>
@@ -49,6 +51,8 @@ export default {
 				placeholder: '',
 				password: false,
 				inputType: 'text',
+				maxlength: 140,
+				confirmType: "done"
 			},
 			popupInput: '',
 			popupShow: false
@@ -89,15 +93,15 @@ export default {
 		onPopupHide() {
 			this.popupShow = false;
 		},
-		onPopupBut() {
+		onConfirm() {
 			if (this.popupInput == '') {
 				uni.showToast({
-					title: this.popupConfig.placeholder || '请输入',
+					title: '请输入',
 					icon: 'none'
 				});
 				return;
 			}
-			this.$emit('change', {
+			this.$emit('confirm', {
 				close:() => {
 					this.popupShow = false;
 				},

@@ -19,6 +19,12 @@
 			}
 		},
 		{
+			"path": "pages/demo/quUploadFile",
+			"style": {
+				"navigationBarTitleText": "七牛云图片上传/文件上传"
+			}
+		},
+		{
 			"path": "pages/demo/areaSelect",
 			"style": {
 				"navigationBarTitleText": "地区选择"
@@ -34,6 +40,12 @@
 			"path": "pages/demo/prompt",
 			"style": {
 				"navigationBarTitleText": "弹窗输入框"
+			}
+		},
+		{
+			"path": "pages/demo/swipeAction",
+			"style": {
+				"navigationBarTitleText": "滑动操作"
 			}
 		},
 		{

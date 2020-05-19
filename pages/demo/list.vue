@@ -1,9 +1,13 @@
 <template>
 	<view class="">
-		<nav-bar title="列表"></nav-bar>
+		<nav-bar title="下拉刷新/上拉加载列表"></nav-bar>
 		<mescroll-body ref="mescrollRef" @init="mescrollInit" :down="downOption" @down="downCallback" @up="upCallback">
-			<view class="notice">本Demo的下拉刷新: 添加新数据到列表顶部</view>
-			<view class="notice">引入插件：https://ext.dcloud.net.cn/plugin?id=343</view>
+			<view class="table_box">
+				<view class="table_title">使用文档</view>
+				<view class="table_content">
+					<text @click="onJumpWebview('http://www.mescroll.com/')">文档地址：http://www.mescroll.com/</text>
+				</view>
+			</view>	
 			<view class="news-li" v-for="news in dataList" :key="news.id">
 				<view>{{news.title}}</view>
 				<view class="new-content">{{news.content}}</view>
@@ -65,8 +69,20 @@
 					//联网失败, 结束加载
 					this.mescroll.endErr();
 				})
+			},
+			onJumpWebview(url){
+				// #ifdef H5
+				window.open(url);
+				// #endif
+				// #ifndef H5
+				this.$store.commit("setWebViewUrl", url);
+				uni.navigateTo({
+					url: '/pages/template/webView'
+				});
+				// #endif
 			}
-		}
+		},
+		
 	}
 </script>
 

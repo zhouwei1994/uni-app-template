@@ -70,65 +70,76 @@ export default class fileUpload extends request {
 			if (Array.isArray(requestInfo.files)) {
 				let len = requestInfo.files.length;
 				let imageList = new Array;
-				//该地址需要开发者自行配置（每个后台的接口风格都不一样）
-				_this.get("api/kemean/aid/qn_upload").then(data => {
-					/*
-					 *接口返回参数：
-					 *visitPrefix:访问文件的域名
-					 *token:七牛云上传token
-					 *folderPath:上传的文件夹
-					 */
-					uploadFile(0);
-
-					function uploadFile(i) {
-						let fileData = {
-							fileIndex: i,
-							files: requestInfo.files,
-							size: requestInfo.files[i].size
-						};
-						// #ifdef H5
-						fileData.name = requestInfo.files[i].name;
-						fileData.type = requestInfo.files[i].type;
-						// #endif
-						// 交给七牛上传
-						qiniuUploader.upload(requestInfo.files[i].path, (res) => {
-							fileData.url = res.imageURL;
-							requestInfo.onEachUpdate && requestInfo.onEachUpdate({
-								url: res.imageURL,
-								...fileData
-							});
-							imageList.push(res.imageURL);
-							if (len - 1 > i) {
-								uploadFile(i + 1);
-							} else {
-								//请求完成回调
-								_this.requestEnd && _this.requestEnd(requestInfo, {
-									errMsg: "request:ok",
-									statusCode: 200,
-									data: imageList
+				if(_this.getQnToken){
+					_this.getQnToken(qnRes => {
+						/*
+						 *接口返回参数：
+						 *visitPrefix:访问文件的域名
+						 *token:七牛云上传token
+						 *folderPath:上传的文件夹
+						 */
+						uploadFile(0);
+						function uploadFile(i) {
+							let fileData = {
+								fileIndex: i,
+								files: requestInfo.files,
+								size: requestInfo.files[i].size
+							};
+							// #ifdef H5
+							fileData.name = requestInfo.files[i].name;
+							fileData.type = requestInfo.files[i].type;
+							// #endif
+							// 交给七牛上传
+							qiniuUploader.upload(requestInfo.files[i].path, (res) => {
+								fileData.url = res.imageURL;
+								requestInfo.onEachUpdate && requestInfo.onEachUpdate({
+									url: res.imageURL,
+									...fileData
 								});
-								resolve(imageList);
-							}
-						}, (error) => {
-							console.log('error: ' + error);
-							//请求完成回调
-							_this.requestEnd && _this.requestEnd(requestInfo, error);
-							reject(error)
-						}, {
-							region: 'SCN', //地区
-							domain: data.visitPrefix, // bucket 域名，下载资源时用到。
-							key: _this.randomChar(8, data.folderPath),
-							uptoken: data.token, // 由其他程序生成七牛 uptoken
-							uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
-						}, (res) => {
-							console.log(requestInfo);
-							requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
-							// console.log('上传进度', res.progress)
-							// console.log('已经上传的数据长度', res.totalBytesSent)
-							// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
-						});
-					}
-				});
+								imageList.push(res.imageURL);
+								if (len - 1 > i) {
+									uploadFile(i + 1);
+								} else {
+									//请求完成回调
+									_this.requestEnd && _this.requestEnd(requestInfo, {
+										errMsg: "request:ok",
+										statusCode: 200,
+										data: imageList
+									});
+									resolve(imageList);
+								}
+							}, (error) => {
+								console.log('error: ' + error);
+								//请求完成回调
+								_this.requestEnd && _this.requestEnd(requestInfo, error);
+								reject(error)
+							}, {
+								region: 'SCN', //地区
+								domain: qnRes.visitPrefix, // bucket 域名，下载资源时用到。
+								key: _this.randomChar(8, qnRes.folderPath),
+								uptoken: qnRes.token, // 由其他程序生成七牛 uptoken
+								uptokenURL: 'UpTokenURL.com/uptoken' // 上传地址
+							}, (res) => {
+								console.log(requestInfo);
+								requestInfo.onProgressUpdate && requestInfo.onProgressUpdate(Object.assign({}, fileData, res));
+								// console.log('上传进度', res.progress)
+								// console.log('已经上传的数据长度', res.totalBytesSent)
+								// console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+							});
+						}
+					});
+				} else {
+					//请求完成回调
+					_this.requestEnd && _this.requestEnd(requestInfo, {
+						errMsg: "请添加七牛云回调方法：getQnToken",
+						statusCode: 0
+					});
+					reject({
+						errMsg: "请添加七牛云回调方法：getQnToken",
+						statusCode: 0
+					});
+					return;
+				}
 			} else {
 				//请求完成回调
 				_this.requestEnd && _this.requestEnd(requestInfo, {

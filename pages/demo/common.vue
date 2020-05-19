@@ -13,6 +13,10 @@
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
 	 	<text>图片上传/文件上传</text>
 	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/quUploadFile')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>七牛云图片上传/文件上传</text>
+	 </view>
 	 <view class="nav_list" @click="onPageJump('/pages/demo/areaSelect')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
 	 	<text>地区选择</text>
@@ -24,6 +28,10 @@
 	 <view class="nav_list" @click="onPageJump('/pages/demo/prompt')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
 	 	<text>弹窗输入框</text>
+	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/swipeAction')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>滑动操作</text>
 	 </view>
   </view>
 </template>

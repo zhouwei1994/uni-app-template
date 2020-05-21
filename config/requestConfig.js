@@ -160,6 +160,34 @@ $http.dataFactory = function(res) {
 			if (res.data && res.data.pageNo && res.loadMore) {
 				store.commit("setRequestState", 1200);
 			}
+			
+			// 失败重发
+			if(res.method == "GET"){
+				$http.get(res.url, res.data, {
+					headers:res.headers
+				}).then(data => {
+					res.resolve(data);
+				});
+			}else if(res.method == "POST"){
+				$http.post(res.url, res.data, {
+					headers:res.headers
+				}).then(data => {
+					res.resolve(data);
+				});
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			store.commit("emptyUserInfo");
 			// #ifdef MP-WEIXIN
 			onLogin();

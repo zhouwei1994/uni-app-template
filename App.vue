@@ -85,9 +85,17 @@
 </script>
 
 <style lang="scss">
+	/* #ifndef APP-NVUE */
 	@import "./style/common.scss";
 	@import "./style/input.scss";
 	@import "./style/table.scss";
+	page {
+		height: 100%;
+		background-color: #f5f5f5;
+	}
+	
+	/* #endif */
+	
 
 	/* #ifdef H5 */
 	//修复H5底部导航挡住内容bug
@@ -99,34 +107,27 @@
 	.uni-input-form {
 		height: 100%;
 	}
-
-	/* #endif */
-
-	page {
-		height: 100%;
-		background-color: #f5f5f5;
-	}
-
 	//去除地图上高德地图标识符
 	.amap-copyright {
 		display: none !important;
 	}
-
+	
 	.amap-logo {
 		display: none !important;
 	}
-
+	
 	.amap-ui-control-zoom {
 		width: 60upx !important;
 	}
-
+	
 	.amap-ui-control-zoom>* {
 		width: 60upx !important;
 		height: 60upx !important;
 		line-height: 60upx !important;
 	}
-
+	
 	.amap-ui-control-theme-dark {
 		display: none !important;
 	}
+	/* #endif */
 </style>

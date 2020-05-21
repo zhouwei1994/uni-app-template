@@ -1,5 +1,5 @@
 <template>
-	<view></view>
+	<view><nav-bar title="图片上传/文件上传"></nav-bar></view>
 </template>
 
 <script>

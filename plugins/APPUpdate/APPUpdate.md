@@ -42,7 +42,7 @@ $http.get("api/kemean/aid/app_version", httpData).then(res => {
 	* | -------------|--------- | --------- | ------------- |
 	* | versionCode	 | y	    | int	    | 版本号        |
 	* | versionName	 | y	    | String	| 版本名称      |
-	* | versionInfo	 | y	    | String	| 版本信息      |
+	* | versionInfo	 | y	    | String	| 版本信息 \n 换行（例如：1.修改了bug1 \n 2.修改了bug2 \n 3.修改了bug3）      |
 	* | forceUpdate	 | y	    | boolean	| 是否强制更新  |
 	* | downloadUrl	 | y	    | String	| 版本下载链接 `IOS安装包更新请放跳转store应用商店链接,安卓apk和wgt文件放文件下载链接` |
 	*/

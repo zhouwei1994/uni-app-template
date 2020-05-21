@@ -7,11 +7,11 @@ const courtConfig = {
 		//微信公众号APPID
 		publicAppId: "",
 		//请求接口
-		// baseUrl: "http://192.168.1.10:8088/project/",
+		baseUrl: "http://192.168.1.10:8088/project/",
 		// baseUrl: "http://47.107.117.196/home_decoration/",
-		baseUrl: "http://dev.kemean.net/home_decoration/",
+		// baseUrl: "http://dev.kemean.net/home_decoration/",
 		//webSocket地址
-		// socketUrl: "ws://localhost:8001/",
+		socketUrl: "ws://localhost:8001/",
 		//平台名称
 		platformName: "都市云",
 		//项目logo

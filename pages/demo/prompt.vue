@@ -2,7 +2,7 @@
 	<view>
 		<nav-bar title="弹窗输入框"></nav-bar>
 		<view class="table_box">
-			<view class="table_hred">
+			<view class="table_head">
 				<text>组件参数</text>
 				<text>类型</text>
 				<text>描述</text>

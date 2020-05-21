@@ -1,21 +1,25 @@
 <template>
   <view>
      <nav-bar backState="2000" title="通用方法示例"></nav-bar>
-	 <view class="nav_list" @click="onPageJump('/pages/demo/list')">
-	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>列表</text>
-	 </view>
 	 <view class="nav_list" @click="onPageJump('/pages/user/login')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>登录/注册</text>
+	 	<text>登录</text>
 	 </view>
-	 <view class="nav_list" @click="onPageJump('/pages/demo/uploadFile')">
+	 <view class="nav_list" @click="onPageJump('/pages/user/register')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>图片上传/文件上传</text>
+	 	<text>注册</text>
 	 </view>
-	 <view class="nav_list" @click="onPageJump('/pages/demo/areaSelect')">
+	 <view class="nav_list" @click="onPageJump('/pages/user/forget')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>地区选择</text>
+	 	<text>忘记密码</text>
+	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/user/bindPhone')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>绑定手机号</text>
+	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/user/protocol')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>协议</text>
 	 </view>
   </view>
 </template>

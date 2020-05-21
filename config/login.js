@@ -42,7 +42,9 @@ function onLogin(type = "judge",callback) {
 							if(type != "try"){
 								//获取微信的所有页面
 								let currentPages = getCurrentPages();
-								if(["pages/home/home"].includes(currentPages[currentPages.length - 1].route)){
+								// 配置有弹窗登录组件的页面地址
+								// 弹窗组件@/components/module/login
+								if(["pages/home/home","pages/demo/common"].includes(currentPages[currentPages.length - 1].route)){
 									store.commit('setLoginPopupShow', true);
 									Object.defineProperty(userInfo, "token", {
 										get: function(val) {
@@ -60,9 +62,11 @@ function onLogin(type = "judge",callback) {
 										cancelText: "再逛会",
 										success: (res) => {
 											if(res.confirm){
+												// 显示所有有弹窗登录组件页面的弹出
 												store.commit('setLoginPopupShow', true);
+												// 跳转到有弹窗登录组件的页面
 												uni.switchTab({
-													url:base.homePath
+													url: "/pages/demo/common"
 												});
 											}
 										}
@@ -84,11 +88,13 @@ function onLogin(type = "judge",callback) {
 //微信小程序获取用户信息
 function getUserInfo(info, type, callback) {
 	let httpData = {
-		wxSmallCode: code,
-		iv: info.iv,
-		encryptedData: info.encryptedData
+		wxSmallCode: code, //小程序code
+		iv: info.iv, //小程序加密算法的初始向量
+		encryptedData: info.encryptedData //包括敏感数据在内的完整用户信息的加密数据
 	};
+	// store.state.chatScenesInfo里面是小程序二维码附带的信息
 	if(store.state.chatScenesInfo.recommendCode){
+		// 推荐码
 		httpData.recommendUid = store.state.chatScenesInfo.recommendCode;
 	}
 	$http.post('api/open/v1/login', httpData).then(res => {

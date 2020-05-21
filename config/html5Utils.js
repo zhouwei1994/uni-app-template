@@ -1,7 +1,6 @@
 import base from '@/config/baseUrl';
 import store from '@/config/store';
 import $http from '@/config/requestConfig'
-console.log("222222222222");
 import { getLocation, setShare } from '@/plugins/wxJsSDK';
 
 /**
@@ -44,43 +43,46 @@ export const getUrlData = () => {
 	return theRequest;
 }
 //公众号微信支付
-export const weiXinPay = (data, callback) => {
-	var wxConfigObj = {
-		appId: data.appId,
-		timeStamp: data.timeStamp,
-		nonceStr: data.nonceStr,
-		package: data.package,
-		signType: data.signType,
-		paySign: data.sign
-	};
-
-	function onBridgeReady() {
-		window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function(
-			res
-		) {
-			if (res.err_msg == "get_brand_wcpay_request:ok") {
-				callback && callback(res);
-			} else // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
-				if (res.err_msg == "get_brand_wcpay_request:cancel") {
-					// common.loadWarn('支付遇到问题，您取消了支付');
-				} else
-			if (res.err_msg == "get_brand_wcpay_request:fail") {
-				// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
-				//   obj.wxLoginOAuth();
-				// });
-			}
-		});
-	}
-	if (typeof window.WeixinJSBridge == "undefined") {
-		if (document.addEventListener) {
-			document.addEventListener("WeixinJSBridgeReady", onBridgeReady, false);
-		} else if (document.attachEvent) {
-			document.attachEvent("WeixinJSBridgeReady", onBridgeReady);
-			document.attachEvent("onWeixinJSBridgeReady", onBridgeReady);
+export const wxPublicPay = (payInfo, callback) => {
+	$http.get("api/pay/v1/pay_public_wx", {
+		orderNo: payInfo.orderNo
+	}).then(data => {
+		let wxConfigObj = {
+			appId: data.appId,
+			timeStamp: data.timeStamp,
+			nonceStr: data.nonceStr,
+			package: data.package,
+			signType: data.signType,
+			paySign: data.sign
+		};
+		function onBridgeReady() {
+			window.WeixinJSBridge.invoke("getBrandWCPayRequest", wxConfigObj, function(
+				res
+			) {
+				if (res.err_msg == "get_brand_wcpay_request:ok") {
+					callback && callback(res);
+				} else // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+					if (res.err_msg == "get_brand_wcpay_request:cancel") {
+						// common.loadWarn('支付遇到问题，您取消了支付');
+					} else
+				if (res.err_msg == "get_brand_wcpay_request:fail") {
+					// common.myConfirm('支付遇到问题,您可能需要重新登录', '', function () {
+					//   obj.wxLoginOAuth();
+					// });
+				}
+			});
 		}
-	} else {
-		onBridgeReady();
-	}
+		if (typeof window.WeixinJSBridge == "undefined") {
+			if (document.addEventListener) {
+				document.addEventListener("WeixinJSBridgeReady", onBridgeReady, false);
+			} else if (document.attachEvent) {
+				document.attachEvent("WeixinJSBridgeReady", onBridgeReady);
+				document.attachEvent("onWeixinJSBridgeReady", onBridgeReady);
+			}
+		} else {
+			onBridgeReady();
+		}
+	});
 };
 // 浏览器判断
 export const getBrowser = () => {
@@ -111,7 +113,7 @@ export const getLatLonH5 = function(successCallback, errCallback) {
 	}
 };
 // 公众号分享
-export const publicShareFun = function (info = {}) {
+export const publicShareFun = function (info = {},callback) {
 	if (getBrowser() == "微信") {
 		let shareInfo = {
 			title: info.shareTitle || info.title || base.share.title,
@@ -126,7 +128,7 @@ export const publicShareFun = function (info = {}) {
 				shareInfo.link += "?recommendCode=" + store.state.userInfo.uid;
 			}
 		}
-		return setShare(shareInfo);
+		setShare(shareInfo, callback);
 	}
 }
 
@@ -173,14 +175,14 @@ export const h5Login = function(type = "judge", callback) {
 			if (isGetOpenId) {
 				isGetOpenId = false;
 				let httpData = {
-					code: getRequest.code
+					code: getRequest.code //微信公众号登录code
 				};
 				if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
-					httpData.recommendUid = recommendCode;
+					httpData.recommendCode = recommendCode;
 				} else {
 					let recommendCode = uni.getStorageSync("recommendCode");
 					if (recommendCode && recommendCode !== "null" && recommendCode !== "undefined") {
-						httpData.recommendUid = recommendCode;
+						httpData.recommendCode = recommendCode;
 					}
 				}
 				$http.get("api/open/v2/get_public_login", httpData)

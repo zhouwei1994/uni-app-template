@@ -72,7 +72,7 @@
 	// 主页使用场景：小程序分享出去的页面，用户点击开是分享页面，很多情况下是没有返回首页按钮的
 	const mainPagePath = ['pages/home/home', 'pages/my/my',"pages/demo/common","pages/template/common","pages/template/common","pages/apiDemo/common"];
 	//返回首页的地址
-	const homePath = '/pages/template/common';
+	const homePath = '/pages/demo/common';
 	//白色表达值
 	const whiteList = ['#FFF', '#FFFFFF', 'white', 'rgb(255,255,255)', 'rgba(255,255,255,1)'];
 	export default {
@@ -332,48 +332,38 @@
 	};
 </script>
 <style lang="scss">
-	/* #ifdef APP-PLUS-NVUE */
-	@function unit($num) {
-		@return $num + 0rpx;
-	}
-	/* #endif */
-	/* #ifndef APP-PLUS-NVUE */
-	@function unit($num) {
-		@return $num + 0upx;
-	}
-	/* #endif */
 	.header_content {
 		/* #ifndef APP-NVUE */
 		display: flex;
 		/* #endif */
 		/* #ifdef MP */
-		padding-right: unit(190);
+		padding-right: 190rpx;
 		box-sizing: border-box;
 		/* #endif */
-		width: unit(750);
+		width: 750rpx;
 		align-items: flex-end;
 		justify-content: space-between;
 		flex-direction: row;
-		height: unit(88);
+		height: 88rpx;
 		position: relative;
 	}
 
 	.header_station {
-		height: unit(88);
+		height: 88rpx;
 	}
 
 	.header_shadow {
 		// border-style: solid;
-		// border-width: unit(2);
+		// border-width: 2rpx;
 		// border-color: #f5f5f5;
-		box-shadow: 0 0 unit(6) 0 #ddd;
+		box-shadow: 0 0 6rpx 0 #ddd;
 	}
 
 	.header_fixed {
 		position: fixed;
 		top: 0;
 		left: 0;
-		width: unit(750);
+		width: 750rpx;
 		z-index: 99;
 	}
 
@@ -382,7 +372,7 @@
 		top: 0;
 		left: 0;
 		z-index: 99;
-		width: unit(750);
+		width: 750rpx;
 		background-color: transparent !important;
 	}
 
@@ -392,18 +382,18 @@
 		/* #endif */
 		flex-direction: row;
 		align-items: center;
-		height: unit(88);
+		height: 88rpx;
 		flex: 1;
 	}
 
 	.header_left_line {
-		height: unit(30);
-		width: unit(2);
+		height: 30rpx;
+		width: 2rpx;
 		background-color: rgba(255, 255, 255, 0.4);
 	}
 
 	.header_left_back {
-		width: unit(56);
+		width: 56rpx;
 		height: 100%;
 		/* #ifndef APP-PLUS-NVUE */
 		display: flex;
@@ -413,12 +403,12 @@
 	}
 
 	.header_icon {
-		width: unit(30);
-		height: unit(30);
+		width: 30rpx;
+		height: 30rpx;
 	}
 
 	.header_left_home {
-		width: unit(56);
+		width: 56rpx;
 		height: 100%;
 		/* #ifndef APP-PLUS-NVUE */
 		display: flex;
@@ -433,15 +423,15 @@
 		/* #endif */
 		flex-direction: row;
 		align-items: center;
-		height: unit(56);
-		margin-left: unit(16);
+		height: 56rpx;
+		margin-left: 16rpx;
 	}
 
 	.header_title {
-		height: unit(88);
-		font-size: unit(32);
-		padding-left: unit(30);
-		padding-right: unit(30);
+		height: 88rpx;
+		font-size: 32rpx;
+		padding-left: 30rpx;
+		padding-right: 30rpx;
 		font-weight: 700;
 		text-overflow: ellipsis;
 		/* #ifndef APP-PLUS-NVUE */
@@ -456,19 +446,19 @@
 		align-items: center;
 		justify-content: center;
 		/* #ifdef MP */
-		max-width: calc(100vw - 160upx);
+		max-width: calc(100vw - 160rpx);
 		/* #endif */
 	}
 
 	.header_title_center {
 		position: absolute;
-		bottom: unit(0);
-		left: unit(375);
+		bottom: 0rpx;
+		left: 375rpx;
 		transform: translateX(-50%);
 	}
 
 	.header_right_info {
-		height: unit(88);
+		height: 88rpx;
 		/* #ifndef APP-PLUS-NVUE */
 		display: flex;
 		flex-shrink: 0;
@@ -478,9 +468,9 @@
 	}
 
 	.header_btnMongol {
-		border-radius: unit(33);
+		border-radius: 33rpx;
 		border-style: solid;
-		border-width: unit(2);
+		border-width: 2rpx;
 		border-color: rgba(0, 0, 0, 0.1);
 		background-color: rgba(255, 255, 255, 0.7);
 		/* #ifndef APP-PLUS-NVUE */
@@ -490,7 +480,7 @@
 
 	.header_btnMongol_left_back,
 	.header_btnMongol_left_home {
-		width: unit(70);
+		width: 70rpx;
 	}
 
 	.header_transparentFixed {
@@ -501,10 +491,10 @@
 
 	.header_transparentFixed_left_info {
 		border-style: solid;
-		border-width: unit(2);
+		border-width: 2rpx;
 		border-color: rgba(0, 0, 0, 0.1);
 		background-color: rgba(255, 255, 255, 0.7);
-		border-radius: unit(33);
+		border-radius: 33rpx;
 		/* #ifndef APP-PLUS-NVUE */
 		box-sizing: border-box;
 		/* #endif */
@@ -512,7 +502,7 @@
 
 	.header_transparentFixed_colorWhite_left_info {
 		border-style: solid;
-		border-width: unit(2);
+		border-width: 2rpx;
 		border-color: rgba(255, 255, 255, 0.3);
 		background-color: rgba(0, 0, 0, 0.2);
 	}
@@ -520,7 +510,7 @@
 	//颜色白色
 	.header_colorWhite_btnMongol {
 		border-style: solid;
-		border-width: unit(2);
+		border-width: 2rpx;
 		border-color: rgba(255, 255, 255, 0.3);
 		background-color: rgba(0, 0, 0, 0.2);
 	}

@@ -1,13 +1,16 @@
 <template>
 	<view class="swipe_action_box" @touchstart="onTouchstart" @touchmove="onTouchmove" @touchcancel="onTouchcancel" @touchend="onTouchend">
-		<view class="swipe_action_item" :style="{ transform: 'translateX(' + translateX + 'rpx)', transition: 'transform ' + animationTime + 'ms cubic-bezier(.165, .84, .44, 1)'  }">
+		<view class="swipe_action_item" :style="{ width: (screenWidth + maxWidth) + 'px', transform: 'translateX(' + translateX + 'px)', transition: 'transform ' + animationTime + 'ms cubic-bezier(.165, .84, .44, 1)'  }">
 			<view class="swipe_action_content"><slot></slot></view>
-			<view class="swipe_action_btn" ref="swipeActionBtn">
-				<view v-for="(item,index) of options" :key="index" :style="{
-				  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD',
-				  fontSize: item.style && item.style.fontSize ? item.style.fontSize : '16px',
+			<view class="swipe_action_btn_box" ref="swipeActionBtnBox">
+				<view v-for="(item,index) of options" :key="index" class="swipe_action_btn" :style="{
+				  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
+				}" @click.stop="onBtn(index,item)">
+				<text :style="{
+				  fontSize: item.style && item.style.fontSize ? item.style.fontSize : '14px',
 				  color: item.style && item.style.color ? item.style.color : '#FFFFFF'
-				}" @click.stop="onClick(index,item)">{{ item.text }}</view>
+				}">{{ item.text }}</text>
+			</view>
 			</view>
 		</view>
 	</view>
@@ -48,6 +51,13 @@ export default {
 		autoClose: {
 			type: Boolean,
 			default: true
+		},
+		/**
+		 * swipe-action 的索引值
+		 */
+		index: {
+			type: Number,
+			default: 0
 		}
 	},
 	data() {
@@ -57,35 +67,79 @@ export default {
 			//开始触摸距离
 			touchStartX: 0,
 			//最大距离
-			maxWidth: 150,
+			maxWidth: 58,
 			//滑动距离
 			translateX: 0,
 			animationTime: 0,
 			//上次的位置
-			currentX: 0
+			currentX: 0,
+			screenWidth: 0
 		};
 	},
-	created() {
-		if(this.options && typeof(this.options) == "object"){
-			this.maxWidth = 150 * this.options.length;
+	watch:{
+		show(val){
+			if(val){
+				this.animationTime = 350;
+				this.translateX = -this.maxWidth;
+			}else {
+				this.animationTime = 350;
+				this.translateX = 0;
+			}
 		}
 	},
+	created() {
+		let systemInfo = uni.getSystemInfoSync();
+		this.screenWidth = systemInfo.screenWidth;
+	},
 	mounted() {
+		const _this = this;
 		setTimeout(() => {
-			dom.getComponentRect(this.$refs['swipeActionBtn'], (data) => {
-				console.log(data);
+			// #ifdef APP-NVUE
+			dom.getComponentRect(this.$refs['swipeActionBtnBox'], (data) => {
+				_this.maxWidth = data.size.width;
+				if(_this.show){
+					_this.animationTime = 350;
+					_this.translateX = -data.size.width;
+				}
 			});
+			// #endif
+			// #ifndef APP-NVUE
+			uni.createSelectorQuery().in(this).selectAll('.swipe_action_btn_box')
+				.boundingClientRect(data => {
+					_this.maxWidth = data[0].width;
+					if(_this.show){
+						_this.animationTime = 350;
+						_this.translateX = -data[0].width;
+					}
+				}).exec()
+			// #endif
 		},500);
 	},
 	//方法
 	methods: {
+		onBtn(index, item) {
+			this.$emit('button', {
+				content: item,
+				index: this.index,
+				buttonIndex: index
+			});
+			if(this.autoClose){
+				this.animationTime = 350;
+				this.translateX = 0;
+			}
+		},
 		// 手指触摸动作开始
 		onTouchstart(e) {
 			if(this.disabled){
 				return;
 			}
 			//储存手指触摸坐标，当前时间戳，当前坐标
-			this.touchStartX = e.touches[0].clientX;
+			// #ifdef APP-NVUE
+			this.touchStartX = e.changedTouches[0].screenX;
+			// #endif
+			// #ifndef APP-NVUE
+			this.touchStartX = e.changedTouches[0].clientX;
+			// #endif
 			this.startTime = new Date().getTime();
 			this.currentX = this.translateX;
 		},
@@ -95,7 +149,12 @@ export default {
 				return;
 			}
 			//手指当前坐标
-			const clientX = e.touches[0].clientX;
+			// #ifdef APP-NVUE
+			const clientX = e.changedTouches[0].screenX;
+			// #endif
+			// #ifndef APP-NVUE
+			const clientX = e.changedTouches[0].clientX;
+			// #endif
 			//计算滑动距离
 			const difference = this.touchStartX - clientX;
 			//判断左滑还是右滑
@@ -126,14 +185,25 @@ export default {
 			if(this.disabled){
 				return;
 			}
+			// #ifdef APP-NVUE
+			this.finallySlide(e.changedTouches[0].screenX);
+			// #endif
+			// #ifndef APP-NVUE
 			this.finallySlide(e.changedTouches[0].clientX);
+			// #endif
+			
 		},
 		// 手指触摸动作结束
 		onTouchend(e) {
 			if(this.disabled){
 				return;
 			}
+			// #ifdef APP-NVUE
+			this.finallySlide(e.changedTouches[0].screenX);
+			// #endif
+			// #ifndef APP-NVUE
 			this.finallySlide(e.changedTouches[0].clientX);
+			// #endif
 		},
 		//最终判断滑动
 		finallySlide(finallyX) {
@@ -153,6 +223,7 @@ export default {
 					this.animationTime = 350;
 					this.translateX = 0;
 				}
+				
 			} else if (distanceDifference < 0) {
 				//判断是否滑动到右边  滑动距离超过3分之一 或者 滑动时间在300毫秒并且距离在4分之一
 				if (Math.abs(this.translateX) < this.maxWidth / 2 || (timeDifference < 300 && Math.abs(distanceDifference) > this.maxWidth / 4)) {
@@ -167,28 +238,37 @@ export default {
 	}
 };
 </script>
-<style lang="scss" scoped>
+<style scoped>
 .swipe_action_box {
 	overflow: hidden;
-	width: 100vw;
+	width: 750rpx;
 }
 .swipe_action_item {
+	/* #ifndef APP-NVUE */
 	display: flex;
-	// transition: transform 350ms cubic-bezier(.165, .84, .44, 1);
+	/* #endif */
+	flex-direction: row;
 }
 .swipe_action_content {
-	width: 100vw;
+	width: 750rpx;
+	/* #ifndef APP-NVUE */
 	flex-shrink: 0;
+	/* #endif */
+}
+.swipe_action_btn_box {
+	/* #ifndef APP-NVUE */
+	display: flex;
+	flex-shrink: 0;
+	/* #endif */
+	flex-direction: row;
 }
 .swipe_action_btn {
+	/* #ifndef APP-NVUE */
 	display: flex;
-	flex-shrink: 0;
-}
-.swipe_action_btn > view {
-	padding: 0;
-	display: flex;
+	/* #endif */
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	padding: 0 20rpx;
+	padding: 0 30rpx;
 }
 </style>

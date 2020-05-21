@@ -1,21 +1,21 @@
 <template>
   <view>
      <nav-bar backState="2000" title="通用方法示例"></nav-bar>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/themeColor')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>项目主题色介绍</text>
+	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/navBarMemo/index')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>头部导航示例</text>
+	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/formDemo')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>表单模板</text>
+	 </view>
 	 <view class="nav_list" @click="onPageJump('/pages/demo/list')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
 	 	<text>列表</text>
-	 </view>
-	 <view class="nav_list" @click="onPageJump('/pages/user/login')">
-	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>登录/注册</text>
-	 </view>
-	 <view class="nav_list" @click="onPageJump('/pages/demo/uploadFile')">
-	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>图片上传/文件上传</text>
-	 </view>
-	 <view class="nav_list" @click="onPageJump('/pages/demo/quUploadFile')">
-	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
-	 	<text>七牛云图片上传/文件上传</text>
 	 </view>
 	 <view class="nav_list" @click="onPageJump('/pages/demo/areaSelect')">
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
@@ -33,6 +33,11 @@
 	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
 	 	<text>滑动操作</text>
 	 </view>
+	 <view class="nav_list" @click="onPageJump('/pages/demo/parser')">
+	 	<image src="../../static/demo/icon_case.png" mode="aspectFit"></image>
+	 	<text>富文本编译</text>
+	 </view>
+	 
   </view>
 </template>
 

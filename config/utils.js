@@ -1,15 +1,24 @@
 import $http from '@/config/requestConfig'
 import store from '@/config/store';
+import base from '@/config/baseUrl';
 import { getAppWxLatLon } from '@/plugins/utils';
 // #ifdef H5
-import { getLatLonH5, publicShareFun } from '@/config/html5Utils';
+import { getLatLonH5, publicShareFun, wxPublicPay } from '@/config/html5Utils';
 // 公众号分享
 export const publicShare = publicShareFun;
 // #endif
 // #ifdef APP-PLUS
-import appShareFun from '@/plugins/share';
+import appShareFun, {closeShare} from '@/plugins/share';
 // APP分享
-export const appShare = appShareFun;
+export const appShare = function(data,callbcak){
+	return appShareFun({
+		shareTitle: data.shareTitle || base.share.title,
+		shareUrl: shareInfo.shareUrl || base.share.link,
+		shareContent: shareInfo.shareContent || base.share.desc,
+		shareImg: shareInfo.shareImg || base.share.imgUrl,
+	},callbcak);
+};
+export const closeAppShare = closeShare;
 // #endif
 
 // #ifdef MP-WEIXIN
@@ -38,10 +47,13 @@ export const wxShare = function (title,path) {
 export const setPay = function(payInfo, callback) {
 	let httpUrl = "";
 	if (payInfo.type == 'wxpay') {
+		// APP微信支付
 		httpUrl = 'api/pay/v1/pay_sign_wx'
 	} else if (payInfo.type == 'alipay') {
+		// APP支付宝支付
 		httpUrl = 'api/pay/v1/pay_sign_ali'
 	} else if (payInfo.type == 'smallPay') {
+		// 微信小程序支付
 		httpUrl = 'api/pay/v1/small_pay_sign_wx'
 	}
 	$http.get(httpUrl, {
@@ -111,8 +123,8 @@ export const setPayAssign = function(orderInfo, callback) {
 	// #endif
 	// #ifdef H5
 	if (getBrowser() === '微信') {
-		uni.navigateTo({
-			url: '/pages/home/weChatPay?orderNo=' + orderInfo.orderNo + '&price=' + orderInfo.price + '&title=' + orderInfo.title
+		wxPublicPay({
+			orderNo: orderInfo.orderNo
 		});
 	} else {
 		appMutual('setJumpPay', orderInfo);

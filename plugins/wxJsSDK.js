@@ -60,7 +60,6 @@ export const setShare = (data, callback) => {
 		});
 	});
 }
-console.log("----------");
 window.onload = function () {
 	// 配置文件里面没有publicAppId将不激活微信SDK功能
 	if (!base.publicAppId) {
@@ -69,7 +68,7 @@ window.onload = function () {
 	//获取当前页面地址
 	let url = window.location.href;
 	url = url.substring(0, url.indexOf("#"));
-	//获取签名、随机数、时间戳
+	//获取微信公众号SDK权限的签名、随机数、时间戳
 	$http.post("api/open/signature", {
 		url: url
 	}).then(res => {

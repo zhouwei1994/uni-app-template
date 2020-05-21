@@ -3,7 +3,7 @@
 		<nav-bar title="弹窗使用"></nav-bar>
 		<view class="table_box">
 			<!-- <view class="table_title">组件说明</view> -->
-			<view class="table_hred">
+			<view class="table_head">
 				<text>组件参数</text>
 				<text>类型</text>
 				<text>描述</text>

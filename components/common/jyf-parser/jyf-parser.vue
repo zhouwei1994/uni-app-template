@@ -1,36 +1,31 @@
-<!--
-  parser 主模块组件
-  github：https://github.com/jin-yufeng/Parser 
-  docs：https://jin-yufeng.github.io/Parser
-  插件市场：https://ext.dcloud.net.cn/plugin?id=805
-  author：JinYufeng
-  update：2020/03/26
--->
 <template>
-	<view style="display:inherit;">
+	<view>
 		<slot v-if="!nodes.length" />
-		<view class="top" :style="showAm+(selectable?';user-select:text;-webkit-user-select:text':'')" :animation="scaleAm"
-		 @tap="_tap" @touchstart="_touchstart" @touchmove="_touchmove">
+		<!--#ifdef APP-PLUS-NVUE-->
+		<web-view id="top" ref="web" :style="'margin-top:-2px;height:'+height+'px'" @onPostMessage="_message" />
+		<!--#endif-->
+		<!--#ifndef APP-PLUS-NVUE-->
+		<view id="top" :style="showAm+(selectable?';user-select:text;-webkit-user-select:text':'')">
 			<!--#ifdef H5-->
 			<div :id="'rtf'+uid"></div>
 			<!--#endif-->
 			<!--#ifndef H5-->
-			<trees :nodes="nodes" :lazy-load="lazyLoad" :loadVideo="loadVideo" />
+			<trees :nodes="nodes" :lazy-load="lazyLoad" />
 			<!--#endif-->
 		</view>
-		<image v-for="(item, index) in imgs" v-bind:key="index" :id="index" :src="item" hidden @load="_load" />
+		<!--#endif-->
 	</view>
 </template>
 
 <script>
-	// #ifndef H5
+	// #ifndef H5 || APP-PLUS-NVUE
 	import trees from './libs/trees';
 	var cache = {},
 		// #ifdef MP-WEIXIN || MP-TOUTIAO
 		fs = uni.getFileSystemManager ? uni.getFileSystemManager() : null,
 		// #endif
 		Parser = require('./libs/MpHtmlParser.js');
-	var document; // document 补丁包 https://jin-yufeng.github.io/Parser/#/instructions?id=document
+	var dom;
 	// 计算 cache 的 key
 	function hash(str) {
 		for (var i = str.length, val = 5381; i--;)
@@ -38,57 +33,82 @@
 		return val;
 	}
 	// #endif
-	// #ifdef H5
+	// #ifdef H5 || APP-PLUS-NVUE
 	var rpx = uni.getSystemInfoSync().screenWidth / 750,
 		cfg = require('./libs/config.js');
 	// #endif
+	// #ifdef APP-PLUS-NVUE
+	var weexDom = weex.requireModule('dom');
+	// #endif
+	/**
+	 * Parser 富文本组件
+	 * @tutorial https://github.com/jin-yufeng/Parser
+	 * @property {String|Array} html 富文本数据
+	 * @property {Boolean} autopause 是否在播放一个视频时自动暂停其他视频
+	 * @property {Boolean} autoscroll 是否自动给所有表格添加一个滚动层
+	 * @property {Boolean} autosetTitle 是否自动将 title 标签中的内容设置到页面标题
+	 * @property {Number} compress 压缩等级
+	 * @property {String} domain 图片、视频等链接的主域名
+	 * @property {Boolean} lazyLoad 是否开启图片懒加载
+	 * @property {Boolean} selectable 是否开启长按复制
+	 * @property {Object} tagStyle 标签的默认样式
+	 * @property {Boolean} showWithAnimation 是否使用渐显动画
+	 * @property {Boolean} useAnchor 是否使用锚点
+	 * @property {Boolean} useCache 是否缓存解析结果
+	 * @event {Function} parse 解析完成事件
+	 * @event {Function} load dom 加载完成事件
+	 * @event {Function} ready 所有图片加载完毕事件
+	 * @event {Function} error 错误事件
+	 * @event {Function} imgtap 图片点击事件
+	 * @event {Function} linkpress 链接点击事件
+	 * @example <jyf-parser :html="html"></jyf-parser>
+	 * @author JinYufeng
+	 * @version 20200513
+	 * @listens MIT
+	 */
 	export default {
 		name: 'parser',
 		data() {
 			return {
-				// #ifdef APP-PLUS
-				loadVideo: false,
-				// #endif
 				// #ifdef H5
 				uid: this._uid,
 				// #endif
-				scaleAm: '',
+				// #ifdef APP-PLUS-NVUE
+				height: 1,
+				// #endif
+				// #ifndef APP-PLUS-NVUE
 				showAm: '',
-				nodes: [],
-				imgs: []
+				imgs: [],
+				// #endif
+				nodes: []
 			}
 		},
-		// #ifndef H5
+		// #ifndef H5 || APP-PLUS-NVUE
 		components: {
 			trees
 		},
 		// #endif
 		props: {
 			'html': null,
-			// #ifndef MP-ALIPAY
 			'autopause': {
 				type: Boolean,
 				default: true
 			},
-			// #endif
+			'autoscroll': Boolean,
 			'autosetTitle': {
 				type: Boolean,
 				default: true
 			},
+			// #ifndef H5 || APP-PLUS-NVUE
 			'compress': Number,
+			'useCache': Boolean,
+			// #endif
 			'domain': String,
-			// #ifndef MP-BAIDU || MP-ALIPAY || APP-PLUS
-			'gestureZoom': Boolean,
-			// #endif
-			// #ifdef MP-WEIXIN || MP-QQ || H5 || APP-PLUS
 			'lazyLoad': Boolean,
-			// #endif
 			'selectable': Boolean,
 			'tagStyle': Object,
 			'showWithAnimation': Boolean,
-			'useAnchor': Boolean,
-			'useCache': Boolean,
-			'xml': Boolean
+			'useAnchor': Boolean
 		},
 		watch: {
 			html(html) {
@@ -96,9 +116,6 @@
 			}
 		},
 		mounted() {
-			// #ifdef APP-NVUE
-			console.error('本组件暂不支持 NVUE');
-			// #endif
 			// 图片数组
 			this.imgList = [];
 			this.imgList.each = function(f) {
@@ -106,7 +123,7 @@
 					this.setItem(i, f(this[i], i, this));
 			}
 			this.imgList.setItem = function(i, src) {
-				if (!i || !src) return;
+				if (i == void 0 || !src) return;
 				// #ifndef MP-ALIPAY || APP-PLUS
 				// 去重
 				if (src.indexOf('http') == 0 && this.includes(src)) {
@@ -145,7 +162,20 @@
 					// #endif
 				}
 			}
-			if (!this.nodes.length) this.setContent(this.html);
+			// #ifdef H5
+			this.document = document.getElementById('rtf' + this._uid);
+			// #endif
+			// #ifndef H5 || APP-PLUS-NVUE
+			if (dom) this.document = new dom(this);
+			// #endif
+			// #ifdef APP-PLUS-NVUE
+			this.document = this.$refs.web;
+			this.$nextTick(() => {
+				// #endif
+				if (this.html) this.setContent(this.html);
+				// #ifdef APP-PLUS-NVUE
+			})
+			// #endif
 		},
 		beforeDestroy() {
 			// #ifdef H5
@@ -169,7 +199,7 @@
 			clearInterval(this._timer);
 		},
 		methods: {
-			// #ifdef H5
+			// #ifdef H5 || APP-PLUS-NVUE
 			_Dom2Str(nodes) {
 				var str = '';
 				for (var node of nodes) {
@@ -185,36 +215,68 @@
 				}
 				return str;
 			},
-			// #endif
-			setContent(html, append) {
-				// #ifdef H5
-				if (!html) {
-					if (this.rtf && !append) this.rtf.parentNode.removeChild(this.rtf);
-					return;
-				}
+			_handleHtml(html, append) {
 				if (typeof html != 'string') html = this._Dom2Str(html.nodes || html);
-				// 处理 rpx
-				if (html.includes('rpx'))
-					html = html.replace(/[0-9.]*rpx/g, $ => parseFloat($) * rpx + 'px');
-				var div = document.createElement('div');
 				if (!append) {
 					// 处理 tag-style 和 userAgentStyles
-					let style = '<style>@keyframes show{0%{opacity:0}100%{opacity:1}}';
+					var style = '<style>@keyframes show{0%{opacity:0}100%{opacity:1}}img{max-width:100%}';
 					for (var item in cfg.userAgentStyles)
 						style += `${item}{${cfg.userAgentStyles[item]}}`;
 					for (item in this.tagStyle)
 						style += `${item}{${this.tagStyle[item]}}`;
 					style += '</style>';
 					html = style + html;
+				}
+				// 处理 rpx
+				if (html.includes('rpx'))
+					html = html.replace(/[0-9.]+\s*rpx/g, $ => parseFloat($) * rpx + 'px');
+				return html;
+			},
+			// #endif
+			setContent(html, append) {
+				// #ifdef APP-PLUS-NVUE
+				if (!html)
+					return this.height = 1;
+				if (append)
+					this.$refs.web.evalJs("var d=document.createElement('div');d.innerHTML='" + html.replace(/'/g, "\\'") +
+						"';document.getElementById('parser').appendChild(d)");
+				else {
+					html =
+						'<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1' +
+						(this.selectable ? '' : ',user-scalable=no') + '"><base href="' + this.domain + '"><div id="parser">' + this._handleHtml(
+							html) +
+						'</div><script>"use strict";function post(n){if(window.__dcloud_weex_postMessage||window.__dcloud_weex_){var t={data:[n]};window.__dcloud_weex_postMessage?window.__dcloud_weex_postMessage(t):window.__dcloud_weex_.postMessage(JSON.stringify(t))}}function waitReady(){return new Promise(function(e){var t=document.getElementById("parser"),r=t.scrollHeight,n=setInterval(function(){r==t.scrollHeight?(clearInterval(n),e(r)):r=t.scrollHeight},500)})}' +
+						(this.showWithAnimation ? 'document.body.style.animation="show .5s",' : '') +
+						'setTimeout(function(){post({action:"load",text:document.body.innerText,height:document.getElementById("parser").scrollHeight+16})},50);</' +
+						'script>';
+					this.$refs.web.evalJs("document.write('" + html.replace(/'/g, "\\'") + "');document.close()");
+				}
+				this.$refs.web.evalJs(
+					'var e=document.getElementsByTagName("title");e.length&&post({action:"getTitle",title:e[0].innerText});for(var t,o=document.getElementsByTagName("style"),r=0;t=o[r];r++)t.innerHTML=t.innerHTML.replace(/body/g,"#parser");for(var n,i=document.getElementsByTagName("img"),a=[],s=0,c=0;n=i[s];s++)n.onerror=function(){post({action:"error",source:"img",target:this})},n.hasAttribute("ignore")||"A"==n.parentElement.nodeName||(n.i=c++,a.push(n.src),n.onclick=function(){post({action:"preview",img:{i:this.i,src:this.src}})});post({action:"getImgList",imgList:a});for(var m,g=document.getElementsByTagName("a"),l=0;m=g[l];l++)m.onclick=function(){var e,t=this.getAttribute("href");if("#"==t[0]){var o=document.getElementById(t.substr(1));o&&(e=o.offsetTop)}return post({action:"linkpress",href:t,offset:e}),!1};for(var u,d=document.getElementsByTagName("video"),f=0;u=d[f];f++)u.style.maxWidth="100%",u.onerror=function(){post({action:"error",source:"video",target:this})}' +
+					(this.autopause ? ',u.onplay=function(){for(var e,t=0;e=d[t];t++)e!=this&&e.pause()}' : '') +
+					';for(var p,h=document.getElementsByTagName("audio"),v=0;p=h[v];v++)p.onerror=function(){post({action:"error",source:"audio",target:this})};' +
+					(this.autoscroll ?
+						'for(var y,T=document.getElementsByTagName("table"),E=0;y=T[E];E++){var N=document.createElement("div");N.style.overflow="scroll",y.parentNode.replaceChild(N,y),N.appendChild(y)}' :
+						'') + ';waitReady().then(function(e){post({action:"ready",height:e+16})})'
+				)
+				this.nodes = [1];
+				// #endif
+				// #ifdef H5
+				if (!html) {
+					if (this.rtf && !append) this.rtf.parentNode.removeChild(this.rtf);
+					return;
+				}
+				var div = document.createElement('div');
+				if (!append) {
 					if (this.rtf) this.rtf.parentNode.removeChild(this.rtf);
 					this.rtf = div;
 				} else {
 					if (!this.rtf) this.rtf = div;
 					else this.rtf.appendChild(div);
 				}
-				div.innerHTML = html;
+				div.innerHTML = this._handleHtml(html, append);
 				for (var styles = this.rtf.getElementsByTagName('style'), i = 0, style; style = styles[i++];) {
-					style.innerHTML = style.innerHTML.replace(/\s*body/g, '#rtf' + this._uid);
+					style.innerHTML = style.innerHTML.replace(/body/g, '#rtf' + this._uid);
 					style.setAttribute('scoped', 'true');
 				}
 				// 懒加载
@@ -228,7 +290,7 @@
 							}
 						}
 					}, {
-						rootMargin: '900px 0px 900px 0px'
+						rootMargin: '500px 0px 500px 0px'
 					})
 				}
 				var _ts = this;
@@ -242,7 +304,6 @@
 				this.imgList.length = 0;
 				var imgs = this.rtf.getElementsByTagName('img');
 				for (let i = 0, j = 0, img; img = imgs[i]; i++) {
-					img.style.maxWidth = '100%';
 					var src = img.getAttribute('src');
 					if (this.domain && src) {
 						if (src[0] == '/') {
@@ -269,7 +330,10 @@
 					img.onerror = function() {
 						_ts.$emit('error', {
 							source: 'img',
-							target: this
+							target: this,
+							context: {
+								setSrc: src => this.src = src
+							}
 						});
 					}
 					if (_ts.lazyLoad && this._observer && img.src && img.i != 0) {
@@ -314,7 +378,8 @@
 					video.onerror = function() {
 						_ts.$emit('error', {
 							source: 'video',
-							target: this
+							target: this,
+							context: this
 						});
 					}
 					video.onplay = function() {
@@ -324,22 +389,33 @@
 					}
 				}
 				// 音频处理
-				var audios = this.rtf.getElementsByTagName('audios');
+				var audios = this.rtf.getElementsByTagName('audio');
 				for (var audio of audios)
 					audio.onerror = function() {
 						_ts.$emit('error', {
 							source: 'audio',
-							target: this
+							target: this,
+							context: this
 						});
 					}
-				this.document = this.rtf;
-				if (!append) document.getElementById('rtf' + this._uid).appendChild(this.rtf);
+				// 表格处理
+				if (this.autoscroll) {
+					var tables = this.rtf.getElementsByTagName('table');
+					for (var table of tables) {
+						var div = document.createElement('div');
+						div.style.overflow = 'scroll';
+						table.parentNode.replaceChild(div, table);
+						div.appendChild(table);
+					}
+				}
+				if (!append) this.document.appendChild(this.rtf);
 				this.$nextTick(() => {
 					this.nodes = [1];
 					this.$emit('load');
-				})
+				});
 				setTimeout(() => this.showAm = '', 500);
 				// #endif
+				// #ifndef APP-PLUS-NVUE
 				// #ifndef H5
 				var nodes;
 				if (!html)
@@ -382,10 +458,6 @@
 					console.warn('错误的 html 类型：object 类型已废弃');
 				} else
 					return console.warn('错误的 html 类型：' + typeof html);
-				// #ifdef APP-PLUS
-				this.loadVideo = false;
-				// #endif
-				if (document) this.document = new document(this.nodes, 'nodes', this);
 				if (append) this.nodes = this.nodes.concat(nodes);
 				else this.nodes = nodes;
 				if (nodes.length && nodes[0].title && this.autosetTitle)
@@ -395,101 +467,48 @@
 				this.$nextTick(() => {
 					this.imgList.length = 0;
 					this.videoContexts = [];
-					// #ifdef MP-TOUTIAO
-					setTimeout(() => {
-						// #endif
-						var f = (cs) => {
-							for (let i = 0, c; c = cs[i++];) {
-								if (c.$options.name == 'trees') {
-									for (var j = c.nodes.length, item; item = c.nodes[--j];) {
-										if (item.c) continue;
-										if (item.name == 'img') {
-											this.imgList.setItem(item.attrs.i, item.attrs.src);
-											// #ifndef MP-ALIPAY
-											if (!c.observer && !c.imgLoad && item.attrs.i != '0') {
-												if (this.lazyLoad && uni.createIntersectionObserver) {
-													c.observer = uni.createIntersectionObserver(c);
-													c.observer.relativeToViewport({
-														top: 900,
-														bottom: 900
-													}).observe('._img', () => {
-														c.imgLoad = true;
-														c.observer.disconnect();
-													})
-												} else
-													c.imgLoad = true;
-											}
-											// #endif
-										}
-										// #ifndef MP-ALIPAY
-										else if (item.name == 'video') {
-											var ctx = uni.createVideoContext(item.attrs.id, c);
-											ctx.id = item.attrs.id;
-											this.videoContexts.push(ctx);
-										}
-										// #endif
-										// #ifdef MP-BAIDU || MP-ALIPAY || APP-PLUS
-										if (item.attrs && item.attrs.id) {
-											this.anchors = this.anchors || [];
-											this.anchors.push({
-												id: item.attrs.id,
-												node: c
-											})
-										}
-										// #endif
-									}
-								}
-								if (c.$children.length)
-									f(c.$children)
-							}
-						}
-						f(this.$children);
-						// #ifdef MP-TOUTIAO
-					}, 200)
 					this.$emit('load');
-					// #endif
-					// #ifdef APP-PLUS
-					setTimeout(() => {
-						this.loadVideo = true;
-					}, 3000);
-					// #endif
 				})
 				// #endif
 				var height;
 				clearInterval(this._timer);
 				this._timer = setInterval(() => {
 					// #ifdef H5
-					var res = [this.rtf.getBoundingClientRect()];
+					this.rect = this.rtf.getBoundingClientRect();
 					// #endif
-					// #ifndef APP-PLUS || H5
-					this.createSelectorQuery()
-					// #endif
+					// #ifndef H5
 					// #ifdef APP-PLUS
 					uni.createSelectorQuery().in(this)
+					// #endif
+					// #ifndef APP-PLUS
+					this.createSelectorQuery()
 						// #endif
-						// #ifndef H5
-						.select('.top').boundingClientRect().exec(res => {
+						.select('#top').boundingClientRect().exec(res => {
+							this.rect = res[0];
 							// #endif
-							this.width = res[0].width;
-							if (res[0].height == height) {
-								this.$emit('ready', res[0])
+							if (this.rect.height == height) {
+								this.$emit('ready', this.rect)
 								clearInterval(this._timer);
 							}
-							height = res[0].height;
+							height = this.rect.height;
 							// #ifndef H5
 						});
 					// #endif
-				}, 350)
+				}, 350);
 				if (this.showWithAnimation && !append) this.showAm = 'animation:show .5s';
-			},
-			getText(ns = this.html || this.nodes) {
-				// #ifdef H5
-				return this.rtf.innerText;
 				// #endif
-				// #ifndef H5
+			},
+			getText(ns = this.nodes) {
 				var txt = '';
+				// #ifdef APP-PLUS-NVUE
+				txt = this._text;
+				// #endif
+				// #ifdef H5
+				txt = this.rtf.innerText;
+				// #endif
+				// #ifndef H5 || APP-PLUS-NVUE
 				for (var i = 0, n; n = ns[i++];) {
-					if (n.type == 'text') txt += n.txt.replace(/&nbsp;/g, '\u00A0').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+					if (n.type == 'text') txt += n.text.replace(/&nbsp;/g, '\u00A0').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 						.replace(/&amp;/g, '&');
 					else if (n.type == 'br') txt += '\n';
 					else {
@@ -502,14 +521,24 @@
 						else if (n.name == 'td' || n.name == 'th') txt += '\t';
 					}
 				}
-				return txt;
 				// #endif
+				return txt;
 			},
 			navigateTo(obj) {
 				if (!this.useAnchor)
 					return obj.fail && obj.fail({
 						errMsg: 'Anchor is disabled'
 					})
+				// #ifdef APP-PLUS-NVUE
+				if (!obj.id)
+					weexDom.scrollToElement(this.$refs.web);
+				else
+					this.$refs.web.evalJs('var pos=document.getElementById("' + obj.id +
+						'");if(pos)post({action:"linkpress",href:"#",offset:pos.offsetTop+' + (obj.offset || 0) + '})');
+				obj.success && obj.success({
+					errMsg: 'pageScrollTo:ok'
+				});
+				// #endif
 				// #ifdef H5
 				if (!obj.id) {
 					window.scrollTo(0, this.rtf.offsetTop);
@@ -521,10 +550,10 @@
 				if (!target) return obj.fail && obj.fail({
 					errMsg: 'Label not found'
 				});
-				obj.scrollTop = this.rtf.offsetTop + target.offsetTop;
+				obj.scrollTop = this.rtf.offsetTop + target.offsetTop + (obj.offset || 0);
 				uni.pageScrollTo(obj);
 				// #endif
-				// #ifndef H5
+				// #ifndef H5 || APP-PLUS-NVUE
 				var Scroll = (selector, component) => {
 					uni.createSelectorQuery().in(component ? component : this).select(selector).boundingClientRect().selectViewport()
 						.scrollOffset()
@@ -533,14 +562,14 @@
 								return obj.fail && obj.fail({
 									errMsg: 'Label not found'
 								});
-							obj.scrollTop = res[1].scrollTop + res[0].top;
+							obj.scrollTop = res[1].scrollTop + res[0].top + (obj.offset || 0);
 							uni.pageScrollTo(obj);
 						})
 				}
-				if (!obj.id) Scroll('.top');
+				if (!obj.id) Scroll('#top');
 				else {
 					// #ifndef MP-BAIDU || MP-ALIPAY || APP-PLUS
-					Scroll('.top >>> #' + obj.id + ', .top >>> .' + obj.id);
+					Scroll('#top >>> #' + obj.id + ', #top >>> .' + obj.id);
 					// #endif
 					// #ifdef MP-BAIDU || MP-ALIPAY || APP-PLUS
 					for (var anchor of this.anchors)
@@ -551,101 +580,75 @@
 				// #endif
 			},
 			getVideoContext(id) {
+				// #ifndef APP-PLUS-NVUE
 				if (!id) return this.videoContexts;
 				else
 					for (var i = this.videoContexts.length; i--;)
 						if (this.videoContexts[i].id == id) return this.videoContexts[i];
-			},
-			// 预加载
-			preLoad(html, num) {
-				// #ifdef H5
-				if (html.constructor == Array)
-					html = this._Dom2Str(html);
-				var contain = document.createElement('div');
-				contain.innerHTML = html;
-				var imgs = contain.querySelectorAll('img');
-				for (var i = imgs.length - 1; i >= num; i--)
-					imgs[i].removeAttribute('src');
-				// #endif
-				// #ifndef H5
-				if (typeof html == 'string') {
-					var id = hash(html);
-					html = new Parser(html, this).parse();
-					cache[id] = html;
-				}
-				var wait = [];
-				(function f(ns) {
-					for (var i = 0, n; n = ns[i++];) {
-						if (n.name == 'img' && n.attrs.src && !wait.includes(n.attrs.src))
-							wait.push(n.attrs.src);
-						f(n.children || []);
-					}
-				})(html);
-				if (num) wait = wait.slice(0, num);
-				this._wait = (this._wait || []).concat(wait);
-				if (!this.imgs) this.imgs = this._wait.splice(0, 15);
-				else if (this.imgs.length < 15)
-					this.imgs = this.imgs.concat(this._wait.splice(0, 15 - this.imgs.length));
 				// #endif
 			},
-			_load(e) {
-				// #ifndef H5
-				if (this._wait.length)
-					this.$set(this.imgs, e.target.id, this._wait.shift());
-				// #endif
-			},
-			_tap(e) {
-				// #ifndef MP-BAIDU || MP-ALIPAY || APP-PLUS
-				if (this.gestureZoom && e.timeStamp - this._lastT < 300) {
-					var initY = e.touches[0].pageY - e.currentTarget.offsetTop;
-					if (this._zoom) {
-						this._scaleAm.translateX(0).scale(1).step();
-						uni.pageScrollTo({
-							scrollTop: (initY + this._initY) / 2 - e.touches[0].clientY,
-							duration: 400
+			// #ifdef APP-PLUS-NVUE
+			_message(e) {
+				// 接收 web-view 消息
+				var data = e.detail.data[0];
+				if (data.action == 'load') {
+					this.$emit('load');
+					this.height = data.height;
+					this._text = data.text;
+				} else if (data.action == 'getTitle') {
+					if (this.autosetTitle)
+						uni.setNavigationBarTitle({
+							title: data.title
 						})
-					} else {
-						var initX = e.touches[0].pageX - e.currentTarget.offsetLeft;
-						this._initY = initY;
-						this._scaleAm = uni.createAnimation({
-							transformOrigin: `${initX}px ${this._initY}px 0`,
-							timingFunction: 'ease-in-out'
-						});
-						// #ifdef MP-TOUTIAO
-						this._scaleAm.opacity(1);
-						// #endif
-						this._scaleAm.scale(2).step();
-						this._tMax = initX / 2;
-						this._tMin = (initX - this.width) / 2;
-						this._tX = 0;
+				} else if (data.action == 'getImgList') {
+					this.imgList.length = 0;
+					for (var i = data.imgList.length; i--;)
+						this.imgList.setItem(i, data.imgList[i]);
+				} else if (data.action == 'preview') {
+					var preview = true;
+					data.img.ignore = () => preview = false;
+					this.$emit('imgtap', data.img);
+					if (preview)
+						uni.previewImage({
+							current: data.img.i,
+							urls: this.imgList
+						})
+				} else if (data.action == 'linkpress') {
+					var jump = true,
+						href = data.href;
+					this.$emit('linkpress', {
+						href,
+						ignore: () => jump = false
+					})
+					if (jump && href) {
+						if (href[0] == '#') {
+							if (this.useAnchor)
+								weexDom.scrollToElement(this.$refs.web, {
+									offset: data.offset
+								})
+						} else if (href.includes('://'))
+							plus.runtime.openWeb(href);
+						else
+							uni.navigateTo({
+								url: href
+							})
 					}
-					this._zoom = !this._zoom;
-					this.scaleAm = this._scaleAm.export();
+				} else if (data.action == 'error')
+					this.$emit('error', {
+						source: data.source,
+						target: data.target
+					})
+				else if (data.action == 'ready') {
+					this.height = data.height;
+					this.$nextTick(() => {
+						uni.createSelectorQuery().in(this).select('#top').boundingClientRect().exec(res => {
+							this.rect = res[0];
+							this.$emit('ready', res[0]);
+						})
+					})
 				}
-				this._lastT = e.timeStamp;
-				// #endif
 			},
-			_touchstart(e) {
-				// #ifndef MP-BAIDU || MP-ALIPAY || APP-PLUS
-				if (e.touches.length == 1)
-					this._initX = this._lastX = e.touches[0].pageX;
-				// #endif
-			},
-			_touchmove(e) {
-				// #ifndef MP-BAIDU || MP-ALIPAY || APP-PLUS
-				var diff = e.touches[0].pageX - this._lastX;
-				if (this._zoom && e.touches.length == 1 && Math.abs(diff) > 20) {
-					this._lastX = e.touches[0].pageX;
-					if ((this._tX <= this._tMin && diff < 0) || (this._tX >= this._tMax && diff > 0))
-						return;
-					this._tX += (diff * Math.abs(this._lastX - this._initX) * 0.05);
-					if (this._tX < this._tMin) this._tX = this._tMin;
-					if (this._tX > this._tMax) this._tX = this._tMax;
-					this._scaleAm.translateX(this._tX).step();
-					this.scaleAm = this._scaleAm.export();
-				}
-				// #endif
-			}
+			// #endif
 		}
 	}
 </script>
@@ -653,7 +656,7 @@
 <style>
 	@keyframes show {
 		0% {
-			opacity: 0
+			opacity: 0;
 		}
 
 		100% {
@@ -666,10 +669,6 @@
 		display: block;
 		overflow: scroll;
 		-webkit-overflow-scrolling: touch;
-	}
-
-	.top {
-		display: inherit;
 	}
 
 	/* #endif */

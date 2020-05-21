@@ -142,27 +142,93 @@ function drawtext(text, maxWidth) {
 	let textArr = text.split("");
 	let len = textArr.length;
 	// 上个节点
-	let previousNode = 1;
+	let previousNode = 0;
 	// 记录节点宽度
 	let nodeWidth = 0;
 	// 文本换行数组
 	let rowText = [];
+	// 如果是字母，侧保存长度
+	let letterWidth = 0;
+	// 汉字宽度
+	let chineseWidth = 14;
+	// otherFont宽度
+	let otherWidth = 7;
 	for (let i = 0; i < len; i++) {
-		if (/[\u4e00-\u9fa5]/g.test(textArr[i])) {
-			nodeWidth += 24;
+		if (/[\u4e00-\u9fa5]|[\uFE30-\uFFA0]/g.test(textArr[i])) {
+			if(letterWidth > 0){
+				if(nodeWidth + chineseWidth + letterWidth * otherWidth > maxWidth){
+					rowText.push({
+						type: "text",
+						content: text.substring(previousNode, i)
+					});
+					previousNode = i;
+					nodeWidth = chineseWidth;
+					letterWidth = 0;
+				} else {
+					nodeWidth += chineseWidth + letterWidth * otherWidth;
+					letterWidth = 0;
+				}
+			} else {
+				if(nodeWidth + chineseWidth > maxWidth){
+					rowText.push({
+						type: "text",
+						content: text.substring(previousNode, i)
+					});
+					previousNode = i;
+					nodeWidth = chineseWidth;
+				}else{
+					nodeWidth += chineseWidth;
+				}
+			}
 		} else {
-			nodeWidth += 12;
-		}
-		if (nodeWidth >= maxWidth) {
-			rowText.push(text.substring(previousNode, i));
-			previousNode = i;
-			nodeWidth = 0;
+			if(/\n/g.test(textArr[i])){
+				rowText.push({
+					type: "break",
+					content: text.substring(previousNode, i)
+				});
+				previousNode = i + 1;
+				nodeWidth = 0;
+				letterWidth = 0;
+			}else if(textArr[i] == "\\" && textArr[i + 1] == "n"){
+				rowText.push({
+					type: "break",
+					content: text.substring(previousNode, i)
+				});
+				previousNode = i + 2;
+				nodeWidth = 0;
+				letterWidth = 0;
+			}else if(/[a-zA-Z0-9]/g.test(textArr[i])){
+				letterWidth += 1;
+				if(nodeWidth + letterWidth * otherWidth > maxWidth){
+					rowText.push({
+						type: "text",
+						content: text.substring(previousNode, i + 1 - letterWidth)
+					});
+					previousNode = i + 1 - letterWidth;
+					nodeWidth = letterWidth * otherWidth;
+					letterWidth = 0;
+				}
+			} else{
+				if(nodeWidth + otherWidth > maxWidth){
+					rowText.push({
+						type: "text",
+						content: text.substring(previousNode, i)
+					});
+					previousNode = i;
+					nodeWidth = otherWidth;
+				}else{
+					nodeWidth += otherWidth;
+				}
+			}
 		}
 	}
-	if (previousNode < text.length) {
-		rowText.push(text.substring(previousNode, text.length));
+	if (previousNode < len) {
+		rowText.push({
+			type: "text",
+			content: text.substring(previousNode, len)
+		});
 	}
-	return rowText.length;
+	return rowText;
 }
 // 是否更新弹窗
 function updatePopup(data, callback) {
@@ -184,10 +250,67 @@ function updatePopup(data, callback) {
 	const viewContentPadding = 20;
 	// 弹窗容器的宽度
 	const viewContentWidth = parseInt(popupViewWidth - (viewContentPadding * 2));
-	// 文本高度
-	let viewContentHeight = parseInt(drawtext(data.versionInfo, viewContentWidth) * 16) + 10;
+	// 描述的列表
+	const descriptionList = drawtext(data.versionInfo, viewContentWidth);
 	// 弹窗容器高度
-	const popupViewHeight = viewContentHeight + 80 + 20 + 20 + 90;
+	let popupViewHeight = 80 + 20 + 20 + 90  + 10;
+	let popupViewContentList = [{
+			src: $iconUrl,
+			id: "logo", 
+			tag: "img",
+			position: {
+				top: "0px",
+				left: (popupViewWidth - 124) / 2 + "px",
+				width: "124px",
+				height: "80px",
+			}
+		},
+		{
+			tag: 'font',
+			id: 'title',
+			text: "发现新版本" + data.versionName,
+			textStyles: {
+				size: '18px',
+				color: "#333",
+				weight: "bold",
+				whiteSpace: "normal"
+			},
+			position: {
+				top: '90px',
+				left: viewContentPadding + "px",
+				width: viewContentWidth + "px",
+				height: "30px",
+			}
+		}];
+	const textHeight = 18;
+	let contentTop = 130;
+	descriptionList.forEach((item,index) => {
+		if(index > 0){
+			popupViewHeight += textHeight;
+			contentTop += textHeight;
+		}
+		popupViewContentList.push({
+			tag: 'font',
+			id: 'content' + index + 1,
+			text: item.content,
+			textStyles: {
+				size: '14px',
+				color: "#666",
+				lineSpacing: "50%",
+				align: "left"
+			},
+			position: {
+				top: contentTop + "px",
+				left: viewContentPadding + "px",
+				width: viewContentWidth + "px",
+				height: textHeight + "px",
+			}
+		});
+		if(item.type == "break"){
+			contentTop += 10;
+			popupViewHeight += 10;
+		}
+	});
 	// 弹窗内容
 	let popupView = new plus.nativeObj.View("popupView", { //创建底部图标菜单
 		tag: "rect",
@@ -225,69 +348,24 @@ function updatePopup(data, callback) {
 		width: (viewContentWidth - viewContentPadding) / 2 + "px",
 		height: "30px",
 	});
-	popupView.draw([{
-			src: $iconUrl,
-			id: "logo",
-			tag: "img",
-			position: {
-				top: "0px",
-				left: (popupViewWidth - 124) / 2 + "px",
-				width: "124px",
-				height: "80px",
-			}
+	popupViewContentList.push({
+		tag: 'font',
+		id: 'cancelText',
+		text: "暂不升级",
+		textStyles: {
+			size: '14px',
+			color: "#666",
+			lineSpacing: "0%",
+			whiteSpace: "normal"
 		},
-		{
-			tag: 'font',
-			id: 'title',
-			text: "发现新版本" + data.versionName,
-			textStyles: {
-				size: '18px',
-				color: "#333",
-				weight: "bold",
-				whiteSpace: "normal"
-			},
-			position: {
-				top: '90px',
-				left: viewContentPadding + "px",
-				width: viewContentWidth + "px",
-				height: "30px",
-			}
-		},
-		{
-			tag: 'font',
-			id: 'content23',
-			text: data.versionInfo,
-			textStyles: {
-				size: '14px',
-				color: "#666",
-				lineSpacing: "50%",
-				whiteSpace: "normal"
-			},
-			position: {
-				top: '130px',
-				left: viewContentPadding + "px",
-				width: viewContentWidth + "px",
-				height: viewContentHeight + "px",
-			}
-		},
-		{
-			tag: 'font',
-			id: 'cancelText',
-			text: "暂不升级",
-			textStyles: {
-				size: '14px',
-				color: "#666",
-				lineSpacing: "0%",
-				whiteSpace: "normal"
-			},
-			position: {
-				bottom: viewContentPadding + 'px',
-				left: viewContentPadding + "px",
-				width: (viewContentWidth - viewContentPadding) / 2 + "px",
-				height: "30px",
-			}
-		},
-		{
+		position: {
+			bottom: viewContentPadding + 'px',
+			left: viewContentPadding + "px",
+			width: (viewContentWidth - viewContentPadding) / 2 + "px",
+			height: "30px",
+		}
+	});
+	popupViewContentList.push({
 			tag: 'font',
 			id: 'confirmText',
 			text: "立即升级",
@@ -303,8 +381,8 @@ function updatePopup(data, callback) {
 				width: (viewContentWidth - viewContentPadding) / 2 + "px",
 				height: "30px",
 			}
-		},
-	]);
+		});
+	popupView.draw(popupViewContentList);
 	popupView.addEventListener("click", function(e) {
 		let maxTop = popupViewHeight - viewContentPadding;
 		let maxLeft = popupViewWidth - viewContentPadding;

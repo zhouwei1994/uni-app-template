@@ -242,6 +242,7 @@ function dataFactory(shareInfo = {}) {
 	let config = {
 		...shareInfo
 	};
+	config.shareTitle = shareInfo.shareTitle || "";
 	config.shareUrl = shareInfo.shareUrl || "";
 	config.shareContent = shareInfo.shareContent || "分享的描述";
 	config.shareImg = shareInfo.shareImg || "分享的图片";

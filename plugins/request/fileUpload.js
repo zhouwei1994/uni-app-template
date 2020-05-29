@@ -77,6 +77,7 @@ export default class fileUpload extends request {
 						 *visitPrefix:访问文件的域名
 						 *token:七牛云上传token
 						 *folderPath:上传的文件夹
+						 *region: 地区 默认为：SCN
 						 */
 						uploadFile(0);
 						function uploadFile(i) {
@@ -114,7 +115,7 @@ export default class fileUpload extends request {
 								_this.requestEnd && _this.requestEnd(requestInfo, error);
 								reject(error)
 							}, {
-								region: 'SCN', //地区
+								region: qnRes.region || 'SCN', //地区
 								domain: qnRes.visitPrefix, // bucket 域名，下载资源时用到。
 								key: _this.randomChar(8, qnRes.folderPath),
 								uptoken: qnRes.token, // 由其他程序生成七牛 uptoken

@@ -37,12 +37,13 @@ let $http = new request({
 // 添加获取七牛云token的方法
 $http.getQnToken = function(callback){
 	//该地址需要开发者自行配置（每个后台的接口风格都不一样）
-	$http.get("api/kemean/aid/qn_upload").then(data => {
+	$http.get("api/common/v1/qn_upload").then(data => {
 		/*
 		 *接口返回参数：
 		 *visitPrefix:访问文件的域名
 		 *token:七牛云上传token
 		 *folderPath:上传的文件夹
+		 *region: 地区 默认为：SCN
 		 */
 		callback({
 			visitPrefix: data.visitPrefix,

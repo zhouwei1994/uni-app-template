@@ -32,7 +32,7 @@ export default {
 	data() {
 		return {
 			logoUrl: '',
-			readonlys: false,
+			readonly: false,
 			codeText: '获取验证码',
 			phone: '',
 			code: ''
@@ -53,7 +53,7 @@ export default {
 		//验证码按钮文字状态
 		getCodeState() {
 			const _this = this;
-			this.readonlys = true;
+			this.readonly = true;
 			this.codeText = '60S后重新获取';
 			var s = 60;
 			clear = setInterval(() => {
@@ -61,14 +61,14 @@ export default {
 				_this.codeText = s + 'S后重新获取';
 				if (s <= 0) {
 					clearInterval(clear);
-					_this.readonlys = true;
-					_this.codeText = '60S后重新获取';
+					_this.codeText = '获取验证码';
+					_this.readonly = false;
 				}
 			}, 1000);
 		},
 		//获取验证码
 		getCode() {
-			if (this.readonlys) {
+			if (this.readonly) {
 				uni.showToast({
 					title: '验证码已发送',
 					icon: 'none'

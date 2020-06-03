@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="APP权限判断和跳转到系统设置"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">SDK说明</view>
 			<view class="table_content"><text @click="onJumpWebview('https://ext.dcloud.net.cn/plugin?id=594')">根据官方SDK修改：https://ext.dcloud.net.cn/plugin?id=594</text></view>

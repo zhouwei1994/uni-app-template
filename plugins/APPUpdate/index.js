@@ -31,7 +31,7 @@ export const getServerNo = function(version,isPrompt = false, callback) {
 	 * version: 应用当前版本号（已自动获取）
 	 * type：平台（1101是安卓，1102是IOS）
 	 */
-	$http.get("api/common/v1/app_version", httpData,{
+	$http.get("api/common/v2/app_version", httpData,{
 		isPrompt: isPrompt
 	}).then(res => {
 		/* res的数据说明
@@ -764,6 +764,8 @@ export default function(isPrompt = false) {
 			if (res.forceUpdate) {
 				if (/\.wgt$/i.test(res.downloadUrl)) {
 					getDownload(res);
+				} else if(/\.html$/i.test(res.downloadUrl)){
+					plus.runtime.openURL(res.downloadUrl);
 				} else {
 					if (platform == "android") {
 						getDownload(res);
@@ -775,6 +777,8 @@ export default function(isPrompt = false) {
 				updatePopup(res, function() {
 					if (/\.wgt$/i.test(res.downloadUrl)) {
 						getDownload(res);
+					} else if(/\.html$/i.test(res.downloadUrl)){
+						plus.runtime.openURL(res.downloadUrl);
 					} else {
 						if (platform == "android") {
 							getDownload(res);

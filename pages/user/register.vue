@@ -1,6 +1,8 @@
 <template>
 	<view class="page">
 		<nav-bar></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="title">注册</view>
 		<view class="input_box"><input type="text" v-model="email" placeholder="请输入邮箱" /></view>
 		<view class="input_box">

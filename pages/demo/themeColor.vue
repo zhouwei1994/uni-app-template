@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="项目主题色介绍"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用说明</view>
 			<view class="table_content"><text>主题色配置文件在style/mixin.scss文件里面</text></view>

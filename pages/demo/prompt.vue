@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="弹窗输入框"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_head">
 				<text>组件参数</text>

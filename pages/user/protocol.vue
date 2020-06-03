@@ -1,6 +1,8 @@
 <template>
 	<view class="protocol_page">
 		<nav-bar title="协议"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="title">{{title}}</view>
 		<jyf-parser ref="article"></jyf-parser>
 	</view>

@@ -40,38 +40,15 @@ function onLogin(type = "judge",callback) {
 						},
 						fail() {
 							if(type != "try"){
-								//获取微信的所有页面
-								let currentPages = getCurrentPages();
-								// 配置有弹窗登录组件的页面地址
-								// 弹窗组件@/components/module/login
-								if(["pages/home/home","pages/demo/common"].includes(currentPages[currentPages.length - 1].route)){
-									store.commit('setLoginPopupShow', true);
-									Object.defineProperty(userInfo, "token", {
-										get: function(val) {
-											return {};
-										},
-										set: function(newVal) {
-											callback && callback();
-										}
-									});
-								}else{
-									uni.showModal({
-										title:"登录提示",
-										content:"此时此刻需要您登录喔~",
-										confirmText: "去登录",
-										cancelText: "再逛会",
-										success: (res) => {
-											if(res.confirm){
-												// 显示所有有弹窗登录组件页面的弹出
-												store.commit('setLoginPopupShow', true);
-												// 跳转到有弹窗登录组件的页面
-												uni.switchTab({
-													url: "/pages/demo/common"
-												});
-											}
-										}
-									});
-								}
+								store.commit('setLoginPopupShow', true);
+								Object.defineProperty(userInfo, "token", {
+									get: function(val) {
+										return {};
+									},
+									set: function(newVal) {
+										callback && callback();
+									}
+								});
 								setTimeout(() => {
 									loginStart = true;
 								}, 2000);

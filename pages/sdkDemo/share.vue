@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="分享（APP、微信小程序、微信公众号）"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_content">
 				<text>（APP、微信小程序、微信公众号）分享的默认参数在config/baseUrl.js  share里面设置</text>

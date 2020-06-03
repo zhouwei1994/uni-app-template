@@ -1,5 +1,9 @@
 <template>
-	<view><nav-bar title="图片上传/文件上传"></nav-bar></view>
+	<view>
+		<nav-bar title="图片上传/文件上传"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
+	</view>
 </template>
 
 <script>

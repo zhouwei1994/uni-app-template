@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="地区选择"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<!-- <view class="table_title">组件说明</view> -->
 			<view class="table_head">

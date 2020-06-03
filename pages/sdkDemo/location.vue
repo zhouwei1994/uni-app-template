@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="获取当前经纬度"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用文档</view>
 			<view class="table_content">

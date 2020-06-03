@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="webSocket封装介绍"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用文档</view>
 			<view class="table_content"><text>webSocket 代码文件在config/socket.js，使用前仔细阅读代码</text></view>

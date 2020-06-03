@@ -7,8 +7,7 @@ const state = {
 	userInfo: {},
 	//webView地址
 	webViewUrl: "",
-	//数据加载状态
-	requestState: 999,
+	loadingShow: false,
 	//微信场景参数
 	chatScenesInfo: {},
 	//登录弹窗状态
@@ -21,6 +20,7 @@ const state = {
 };
 //缓存浏览器的数据名称
 const cacheNameList = ["userInfo"];
+let clearTime;
 const mutations = {
 	//取出缓存数据（打开APP就取出）
 	setCacheData(state) {
@@ -74,9 +74,14 @@ const mutations = {
 		}
 	},
 	//数据加载状态
-	setRequestState(state, data) {
-		if (data) {
-			state.requestState = data;
+	setLoadingShow(state, data) {
+		if(state.loadingShow){
+			clearTime && clearTimeout(clearTime);
+			clearTime = setTimeout(function(){
+				state.loadingShow = data;
+			},300);
+		} else {
+			state.loadingShow = data;
 		}
 	},
 	//微信场景参数

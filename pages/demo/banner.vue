@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="轮播图"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<!-- banner -->
 		<view class="banner_swiper_box">
 			<swiper class="banner_swiper" :autoplay="true" :interval="3000" circular previous-margin="30px" next-margin="30px" :duration="1000" @change="onSwiperChange">

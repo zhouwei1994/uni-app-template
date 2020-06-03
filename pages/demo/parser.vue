@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="富文本编译"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用文档</view>
 			<view class="table_content"><text @click="onJumpWebview('https://ext.dcloud.net.cn/plugin?id=805')">文档地址：https://ext.dcloud.net.cn/plugin?id=805</text></view>

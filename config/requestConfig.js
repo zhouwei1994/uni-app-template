@@ -52,21 +52,12 @@ $http.getQnToken = function(callback){
 		});
 	});
 }
-
-//当前接口请求数
-let requestNum = 0;
 //请求开始拦截器
 $http.requestStart = function(options) {
 	console.log("请求开始", options);
 	if (options.load) {
-		if (requestNum <= 0) {
-			//打开加载动画
-			uni.showLoading({
-				title: '加载中',
-				mask: true
-			});
-		}
-		requestNum += 1;
+		//打开加载动画
+		store.commit("setLoadingShow", true);
 	}
 	// 图片上传大小限制
 	if (options.method == "FILE" && options.maxSize) {
@@ -106,10 +97,8 @@ $http.requestEnd = function(options, resolve) {
 	}
 	//判断当前接口是否需要加载动画
 	if (options.load) {
-		requestNum = requestNum - 1;
-		if (requestNum <= 0) {
-			uni.hideLoading();
-		}
+		// 关闭加载动画
+		store.commit("setLoadingShow", false);
 	}
 	if (resolve.errMsg && resolve.statusCode && resolve.statusCode > 300) {
 		setTimeout(() => {

@@ -1,6 +1,8 @@
 <template>
 	<view class="">
 		<nav-bar title="下拉刷新/上拉加载列表"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<mescroll-body ref="mescrollRef" @init="mescrollInit" :down="downOption" @down="downCallback" @up="upCallback">
 			<view class="table_box">
 				<view class="table_title">使用文档</view>

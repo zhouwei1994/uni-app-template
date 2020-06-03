@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="滑动操作"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_head">
 				<text>组件参数</text>
@@ -48,7 +50,7 @@
 		<view class="swipe_action_list">
 			<swipe-action :options="options2" disabled><view class="swipe_action">禁止滑动</view></swipe-action>
 		</view>
-		<view v-for="(item, index) of 3" class="swipe_action_list">
+		<view v-for="(item, index) of 3" :key="index" class="swipe_action_list">
 			<swipe-action :options="options3" :index="index" @button="onButton">
 				<view class="swipe_action">滑动列表{{ index + 1 }}</view>
 			</swipe-action>

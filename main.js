@@ -24,10 +24,10 @@ import '@/plugins/wxJsSDK.js';
 // #endif
 
 //全局组件
-import loadMore from "@/components/common/load_more.vue";
-Vue.component("load-more", loadMore);
 import zhouWeiNavBar from "@/components/common/zhouWei-navBar";
 Vue.component("nav-bar", zhouWeiNavBar);
+import publicModule from "@/components/common/public_module.vue";
+Vue.component("public-module", publicModule);
 import MescrollBody from "@/components/common/mescroll-uni/mescroll-body.vue";
 Vue.component("mescroll-body", MescrollBody);
 App.mpType = 'app'

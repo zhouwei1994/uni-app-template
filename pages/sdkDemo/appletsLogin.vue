@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="小程序登录"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用前需要配置的参数</view>
 			<view class="table_content">
@@ -16,20 +18,9 @@
 			</view>
 			<view class="table_content">
 				<text>config/login.js</text>
-				<text>47行配置有弹窗登录组件的页面地址</text>
-			</view>
-			<view class="table_content">
-				<text>config/login.js</text>
-				<text>67行配置有弹窗登录组件的页面地址</text>
-			</view>
-			<view class="table_content">
-				<text>config/login.js</text>
-				<text>98配置小程序登录接口</text>
+				<text>77配置小程序登录接口</text>
 			</view>
 		</view>
-		<!-- 第三步 页面建立组件 -->
-		<z-login></z-login>
-		
 		<!-- #ifdef MP-WEIXIN -->
 		<button type="primary" @click="onAppletsLogin">小程序登录</button>
 		<!-- #endif -->
@@ -40,17 +31,10 @@
 </template>
 
 <script>
-// 第一步引入小程序登录弹窗组件
-import zLogin from '@/components/module/login';
 // #ifdef MP-WEIXIN
-// 第四步 引入登录方法
 import { onLogin } from '@/config/login';
 // #endif
 export default {
-	components:{
-		// 第二步 注册组件
-		zLogin
-	},
 	data() {
 		return {
 			

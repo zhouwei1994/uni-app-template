@@ -1,6 +1,8 @@
 <template>
 	<view class="register_page">
 		<nav-bar></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="title">
 			<text :class="{active:type == 2000}" @click="type = 2000">密码登录</text>
 			<text :class="{active:type == 1000}" @click="type = 1000">验证码登录</text>

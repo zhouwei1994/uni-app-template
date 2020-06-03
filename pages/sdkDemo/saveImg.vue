@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="保存图片到相册（APP、微信小程序）"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">使用注意事项</view>
 			<view class="table_content">

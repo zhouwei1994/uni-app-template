@@ -1,6 +1,8 @@
 <template>
 	<view>
 		<nav-bar title="支付（公众号、APP、微信小程序）"></nav-bar>
+		<!-- 公共组件-每个页面必须引入 -->
+		<public-module></public-module>
 		<view class="table_box">
 			<view class="table_title">目前即实现前端的功能，接口方面需要自己去填写</view>
 			<view class="table_title">使用文档</view>

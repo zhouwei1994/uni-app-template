@@ -88,7 +88,6 @@
 	/* #ifndef APP-NVUE */
 	@import "./style/common.scss";
 	@import "./style/input.scss";
-	@import "./style/table.scss";
 	page {
 		height: 100%;
 		background-color: #f5f5f5;

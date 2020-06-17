@@ -13,9 +13,9 @@ import appShareFun, {closeShare} from '@/plugins/share';
 export const appShare = function(data,callbcak){
 	return appShareFun({
 		shareTitle: data.shareTitle || base.share.title,
-		shareUrl: shareInfo.shareUrl || base.share.link,
-		shareContent: shareInfo.shareContent || base.share.desc,
-		shareImg: shareInfo.shareImg || base.share.imgUrl,
+		shareUrl: data.shareUrl || base.share.link,
+		shareContent: data.shareContent || base.share.desc,
+		shareImg: data.shareImg || base.share.imgUrl,
 	},callbcak);
 };
 export const closeAppShare = closeShare;

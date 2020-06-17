@@ -110,6 +110,9 @@ export default class request {
 					return;
 				}
 			}
+			// #ifdef MP-ALIPAY
+			// requestInfo.header["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8";
+			// #endif
 			let requestData = {
 				url: requestInfo.url,
 				header: requestInfo.header, //加入请求头

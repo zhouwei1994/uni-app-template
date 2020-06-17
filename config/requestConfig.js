@@ -37,7 +37,7 @@ let $http = new request({
 // 添加获取七牛云token的方法
 $http.getQnToken = function(callback){
 	//该地址需要开发者自行配置（每个后台的接口风格都不一样）
-	$http.get("api/common/v1/qn_upload").then(data => {
+	$http.get("api/kemean/aid/qn_upload").then(data => {
 		/*
 		 *接口返回参数：
 		 *visitPrefix:访问文件的域名
@@ -75,9 +75,6 @@ $http.requestStart = function(options) {
 			}
 		}
 	}
-	if (options.data && options.data.pageNo && options.loadMore) {
-		store.commit("setRequestState", 1100);
-	}
 	// #ifdef APP-PLUS
 	// 添加当前版本号
 	if(version_code){
@@ -92,9 +89,6 @@ $http.requestStart = function(options) {
 }
 //请求结束
 $http.requestEnd = function(options, resolve) {
-	if (resolve.statusCode !== 200 && options.data && options.data.pageNo && options.loadMore) {
-		store.commit("setRequestState", 1200);
-	}
 	//判断当前接口是否需要加载动画
 	if (options.load) {
 		// 关闭加载动画
@@ -126,57 +120,21 @@ $http.dataFactory = function(res) {
 
 		//判断数据是否请求成功
 		if (httpData.success || httpData.code == 200) {
-			if (res.data && res.data.pageNo && res.loadMore && httpData.data.data) {
-				const len = httpData.data.data.length;
-				if (len < res.data.pageSize) {
-					if (res.data.pageNo == 1) {
-						if (len == 0) {
-							store.commit("setRequestState", 1400);
-						} else {
-							store.commit("setRequestState", 999);
-						}
-					} else {
-						store.commit("setRequestState", 1300);
-					}
-				} else if (res.data.pageNo < httpData.data.pages) {
-					store.commit("setRequestState", 1000);
-				} else {
-					store.commit("setRequestState", 999);
-				}
-			}
 			// 返回正确的结果(then接受数据)
 			res.resolve(httpData.data);
 		} else if (httpData.code == "1000" || httpData.code == "1001" || httpData.code == 1100) {
-			if (res.data && res.data.pageNo && res.loadMore) {
-				store.commit("setRequestState", 1200);
-			}
-			
 			// 失败重发
-			if(res.method == "GET"){
-				$http.get(res.url, res.data, {
-					headers:res.headers
-				}).then(data => {
-					res.resolve(data);
-				});
-			}else if(res.method == "POST"){
-				$http.post(res.url, res.data, {
-					headers:res.headers
-				}).then(data => {
-					res.resolve(data);
-				});
-			}
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+			// $http.request({
+			// 	url: res.url,
+			// 	data: res.data,
+			// 	method: res.method,
+			// 	header: res.header,
+			// 	isPrompt: res.isPrompt,//（默认 true 说明：本接口抛出的错误是否提示）
+			// 	load: res.load,//（默认 true 说明：本接口是否提示加载动画）
+			// 	isFactory: res.isFactory, //（默认 true 说明：本接口是否调用公共的数据处理方法，设置false后isPrompt参数将失去作用）
+			// }).then(data => {
+			// 	res.resolve(data);
+			// });
 			
 			store.commit("emptyUserInfo");
 			// #ifdef MP-WEIXIN
@@ -211,9 +169,6 @@ $http.dataFactory = function(res) {
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
 		} else if (httpData.code == "1004") {
-			if (res.data && res.data.pageNo && res.loadMore) {
-				store.commit("setRequestState", 1200);
-			}
 			if (loginPopupNum <= 0) {
 				loginPopupNum++;
 				uni.showModal({
@@ -234,9 +189,6 @@ $http.dataFactory = function(res) {
 			// 返回错误的结果(catch接受数据)
 			res.reject(res.response);
 		} else { //其他错误提示
-			if (res.data && res.data.pageNo && res.loadMore) {
-				store.commit("setRequestState", 1200);
-			}
 			if (res.isPrompt) {
 				setTimeout(function() {
 					uni.showToast({

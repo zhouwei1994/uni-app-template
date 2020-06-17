@@ -1,277 +1,42 @@
 {
 	"pages": [
 		{
-			"path": "pages/demo/common",
+			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "功能示例"
+				"navigationBarTitleText": "确报"
 			}
 		}, 
 		{
-			"path": "pages/demo/list",
+			"path": "pages/service/service",
 			"style": {
-				"navigationBarTitleText": "列表"
+				"navigationBarTitleText": "自助服务"
 			}
-		},
-		
+		}, 
 		{
-			"path": "pages/demo/areaSelect",
+			"path": "pages/my/my",
 			"style": {
-				"navigationBarTitleText": "地区选择"
+				"navigationBarTitleText": "个人中心"
 			}
-		},
+		}, 
 		{
-			"path": "pages/demo/popup",
+			"path": "pages/user/bind",
 			"style": {
-				"navigationBarTitleText": "弹窗"
+				"navigationBarTitleText": "绑定"
 			}
-		},
-		{
-			"path": "pages/demo/prompt",
-			"style": {
-				"navigationBarTitleText": "弹窗输入框"
-			}
-		},
-		{
-			"path": "pages/demo/swipeAction",
-			"style": {
-				"navigationBarTitleText": "滑动操作"
-			}
-		},
-		{
-			"path": "pages/demo/parser",
-			"style": {
-				"navigationBarTitleText": "富文本预览"
-			}
-		},
-		{
-			"path": "pages/demo/formDemo",
-			"style": {
-				"navigationBarTitleText": "表单模板"
-			}
-		},
-		{
-			"path": "pages/demo/themeColor",
-			"style": {
-				"navigationBarTitleText": "项目主题色介绍"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/index",
-			"style": {
-				"navigationBarTitleText": "头部导航示例"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo",
-			"style": {
-				"navigationBarTitleText": "案例"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo1",
-			"style": {
-				"navigationBarTitleText": "案例1"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo2",
-			"style": {
-				"navigationBarTitleText": "案例2"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo3",
-			"style": {
-				"navigationBarTitleText": "案例3"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo4",
-			"style": {
-				"navigationBarTitleText": "案例4"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo5",
-			"style": {
-				"navigationBarTitleText": "案例5"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo6",
-			"style": {
-				"navigationBarTitleText": "案例6"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo7",
-			"style": {
-				"navigationBarTitleText": "案例7"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo8",
-			"style": {
-				"navigationBarTitleText": "案例8"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo9",
-			"style": {
-				"navigationBarTitleText": "案例9"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo10",
-			"style": {
-				"navigationBarTitleText": "案例10"
-			}
-		},
-		{
-			"path": "pages/demo/navBarMemo/demo11",
-			"style": {
-				"navigationBarTitleText": "案例11"
-			}
-		},
-		{
-			"path": "pages/template/webView",
-			"style": {
-				"navigationBarTitleText": ""
-			}
-		},
-		{
-			"path": "pages/template/common",
-			"style": {
-				"navigationBarTitleText": "模板"
-			}
-		},
-		
-		{
-			"path": "pages/user/bindPhone",
-			"style": {
-				"navigationBarTitleText": "绑定手机号"
-			}
-		},
-		{
-			"path": "pages/user/forget",
-			"style": {
-				"navigationBarTitleText": "忘记密码"
-			}
-		},
+		}, 
 		{
 			"path": "pages/user/protocol",
 			"style": {
 				"navigationBarTitleText": "协议"
 			}
-		},
+		}, 
 		{
-			"path": "pages/user/register",
+			"path": "pages/home/webView",
 			"style": {
-				"navigationBarTitleText": "注册"
-			}
-		},
-		{
-			"path": "pages/user/login",
-			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/common",
-			"style": {
-				"navigationBarTitleText": "API示例"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/uploadFile",
-			"style": {
-				"navigationBarTitleText": "图片上传/文件上传"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/quUploadFile",
-			"style": {
-				"navigationBarTitleText": "七牛云图片上传/文件上传"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/appletsLogin",
-			"style": {
-				"navigationBarTitleText": "小程序登录"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/appUpdate",
-			"style": {
-				"navigationBarTitleText": "APP版本更新"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/location",
-			"style": {
-				"navigationBarTitleText": "获取当前经纬度（兼容公众号、APP、微信小程序）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/pay",
-			"style": {
-				"navigationBarTitleText": "支付（兼容公众号、APP、微信小程序）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/permission",
-			"style": {
-				"navigationBarTitleText": "APP权限判断和跳转到系统设置"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/publicLogin",
-			"style": {
-				"navigationBarTitleText": "公众号登录（附带推荐人code）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/publicSdk",
-			"style": {
-				"navigationBarTitleText": "公众号SDK权限获取"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/request",
-			"style": {
-				"navigationBarTitleText": "接口请求（全端支持）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/saveImg",
-			"style": {
-				"navigationBarTitleText": "保存图片到相册（APP、小程序支持）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/share",
-			"style": {
-				"navigationBarTitleText": "分享（APP、小程序、公众号支持）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/socket",
-			"style": {
-				"navigationBarTitleText": "webSocket介绍"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/loginIntercept",
-			"style": {
-				"navigationBarTitleText": "登录拦截（公众号、APP、微信小程序）"
-			}
-		},
-		{
-			"path": "pages/sdkDemo/utils",
-			"style": {
-				"navigationBarTitleText": "常用工具"
+				"navigationBarTitleText": ""
 			}
 		}
+		
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
@@ -287,22 +52,22 @@
 		"backgroundColor": "#ffffff",
 		"list": [
 			{
-				"pagePath": "pages/demo/common",
+				"pagePath": "pages/home/home",
 				"iconPath": "static/icon/tab/icon_home.png",
 				"selectedIconPath": "static/icon/tab/icon_home_c.png",
-				"text": "组件示例"
+				"text": "确报"
 			},
 			{
-				"pagePath": "pages/sdkDemo/common",
+				"pagePath": "pages/service/service",
 				"iconPath": "static/icon/tab/icon_wode.png",
 				"selectedIconPath": "static/icon/tab/icon_wode_c.png",
-				"text": "SDK示例"
+				"text": "自助服务"
 			},
 			{
-				"pagePath": "pages/template/common",
+				"pagePath": "pages/my/my",
 				"iconPath": "static/icon/tab/icon_xiaoxi.png",
 				"selectedIconPath": "static/icon/tab/icon_xiaoxi_c.png",
-				"text": "模板页面"
+				"text": "个人中心"
 			}
 		]
 	},

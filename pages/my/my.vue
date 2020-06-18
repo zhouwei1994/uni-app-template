@@ -13,6 +13,12 @@ export default {
 			
 		};
 	},
+	onLoad(e) {
+		
+	},
+	onShow() {
+		
+	},
 	//方法
 	methods: {
 		onPageJump(url) {
@@ -20,6 +26,14 @@ export default {
 				url: url
 			});
 		}
+	},
+	//页面下来刷新
+	onPullDownRefresh() {},
+	//页面上拉触底
+	onReachBottom() {},
+	//用户点击分享
+	onShareAppMessage(e) {
+		return this.wxShare();
 	}
 };
 </script>

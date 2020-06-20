@@ -3,7 +3,7 @@ import store from '@/config/store';
 import base from '@/config/baseUrl';
 import { getAppWxLatLon } from '@/plugins/utils';
 // #ifdef H5
-import { getLatLonH5, publicShareFun, wxPublicPay } from '@/config/html5Utils';
+import { getLatLonH5, publicShareFun, wxPublicPay, getBrowser,appMutual } from '@/config/html5Utils';
 // 公众号分享
 export const publicShare = publicShareFun;
 // #endif

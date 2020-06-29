@@ -105,24 +105,20 @@ $http.requestEnd = function(options, resolve) {
 }
 let loginPopupNum = 0;
 //所有接口数据处理（此方法需要开发者根据各自的接口返回类型修改，以下只是模板）
-$http.dataFactory = function(res) {
-	console.log("接口请求数据", {
-		url: res.url,
-		resolve: res.response,
-		header: res.header,
-		data: res.data,
-		method: res.method,
-	});
+$http.dataFactory = async function(res) {
 	if (res.response.statusCode && res.response.statusCode == 200) {
 		let httpData = res.response.data;
-
+		if(typeof(httpData) == "string"){
+			httpData = JSON.parse(httpData);
+		}
 		/*********以下只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-
+	
 		//判断数据是否请求成功
 		if (httpData.success || httpData.code == 200) {
 			// 返回正确的结果(then接受数据)
-			res.resolve(httpData.data);
+			return Promise.resolve(httpData.data);
 		} else if (httpData.code == "1000" || httpData.code == "1001" || httpData.code == 1100) {
+			
 			// 失败重发
 			// $http.request({
 			// 	url: res.url,
@@ -167,7 +163,10 @@ $http.dataFactory = function(res) {
 			}
 			// #endif
 			// 返回错误的结果(catch接受数据)
-			res.reject(res.response);
+			return Promise.reject({
+				statusCode: 0,
+				errMsg: "【request】" +  (httpData.info || httpData.msg)
+			});
 		} else if (httpData.code == "1004") {
 			if (loginPopupNum <= 0) {
 				loginPopupNum++;
@@ -187,26 +186,44 @@ $http.dataFactory = function(res) {
 				});
 			}
 			// 返回错误的结果(catch接受数据)
-			res.reject(res.response);
+			return Promise.reject({
+				statusCode: 0,
+				errMsg: "【request】" + (httpData.info || httpData.msg)
+			});
 		} else { //其他错误提示
 			if (res.isPrompt) {
-				setTimeout(function() {
-					uni.showToast({
-						title: httpData.info || httpData.msg,
-						icon: "none",
-						duration: 3000
-					});
-				}, 500);
+				uni.showToast({
+					title: httpData.info || httpData.msg,
+					icon: "none",
+					duration: 3000
+				});
 			}
 			// 返回错误的结果(catch接受数据)
-			res.reject(res.response);
+			return Promise.reject({
+				statusCode: 0,
+				errMsg: "【request】" +  (httpData.info || httpData.msg)
+			});
 		}
-
+	
 		/*********以上只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-
+	
 	} else {
 		// 返回错误的结果(catch接受数据)
-		res.reject(res.response);
+		return Promise.reject({
+			statusCode: 0,
+			errMsg: "【request】数据工厂验证不通过"
+		});
 	}
 };
+$http.requestError = function(e){
+	// e.statusCode == 0 是参数效验错误抛出的
+	if(e.statusCode == 0){
+		throw e;
+	} else {
+		uni.showToast({
+			title: "网络错误，请检查一下网络",
+			icon: "none"
+		});
+	}
+}
 export default $http;

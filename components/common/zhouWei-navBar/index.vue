@@ -78,7 +78,7 @@
 // 主页页面的页面路径
 // 关联功能：打开的页面只有一个的时候右上角自动显示返回首页按钮，下面这个数组是排除显示返回首页的页面。
 // 主页使用场景：小程序分享出去的页面，用户点击开是分享页面，很多情况下是没有返回首页按钮的
-const mainPagePath = ['pages/home/home', 'pages/my/my', 'pages/demo/common', 'pages/template/common', 'pages/template/common', 'pages/apiDemo/common'];
+const mainPagePath = ['pages/home/home', 'pages/my/my', 'pages/demo/common', 'pages/template/common', 'pages/apiDemo/common'];
 //返回首页的地址
 const homePath = '/pages/demo/common';
 //白色表达值
@@ -182,8 +182,6 @@ export default {
 			navBgColor: '',
 			//透明底字体色
 			navTransparentFixedFontColor: '#000000',
-			// 是否使用
-			themeBgColor: false,
 			// 导航栏高度
 			statusBarHeight: 0,
 			// 上次显示的导航栏颜色
@@ -292,28 +290,26 @@ export default {
 		},
 		// 获取导航背景颜色
 		getNavBgColor(val) {
-			if (val.indexOf('#') === -1) {
-				this.themeBgColorName = val;
-				this.themeBgColor = true;
-				this.navBgColor = '';
-			} else if (this.type == 'transparent') {
-				this.themeBgColor = false;
-				this.navBgColor = '';
-			} else {
-				if (typeof val == 'string') {
+			if (typeof val == 'string') {
+				if (this.type == 'transparent') {
+					this.navBgColor = '';
+				} else if (val.indexOf('#') === -1) {
+					this.themeBgColorName = val;
+					this.navBgColor = '';
+				} else {
 					this.navBgColor = 'linear-gradient(90deg,' + val + ',' + val + ')';
-				} else if (Array.isArray(val) && val.length >= 2) {
-					let navBgColor = 'linear-gradient(' + this.bgColorAngle + 'deg';
-					val.forEach(item => {
-						if (typeof item == 'string') {
-							navBgColor += ',' + item;
-						} else if (typeof item == 'object') {
-							navBgColor += ',' + item.color + ' ' + item.scale;
-						}
-					});
-					navBgColor += ')';
-					this.navBgColor = navBgColor;
 				}
+			} else if (Array.isArray(val) && val.length >= 2) {
+				let navBgColor = 'linear-gradient(' + this.bgColorAngle + 'deg';
+				val.forEach(item => {
+					if (typeof item == 'string') {
+						navBgColor += ',' + item;
+					} else if (typeof item == 'object') {
+						navBgColor += ',' + item.color + ' ' + item.scale;
+					}
+				});
+				navBgColor += ')';
+				this.navBgColor = navBgColor;
 			}
 		},
 		//设置手机状态栏颜色

@@ -94,18 +94,17 @@ $http.requestEnd = function(options, resolve) {
 		// 关闭加载动画
 		store.commit("setLoadingShow", false);
 	}
-	if (resolve.errMsg && resolve.statusCode && resolve.statusCode > 300) {
-		setTimeout(() => {
-			uni.showToast({
-				title: "网络错误，请检查一下网络",
-				icon: "none"
-			});
-		}, 500);
-	}
 }
 let loginPopupNum = 0;
 //所有接口数据处理（此方法需要开发者根据各自的接口返回类型修改，以下只是模板）
 $http.dataFactory = async function(res) {
+    console.log("接口请求数据", {
+    	url: res.url,
+    	resolve: res.response,
+    	header: res.header,
+    	data: res.data,
+    	method: res.method,
+    });
 	if (res.response.statusCode && res.response.statusCode == 200) {
 		let httpData = res.response.data;
 		if(typeof(httpData) == "string"){
@@ -210,7 +209,7 @@ $http.dataFactory = async function(res) {
 	} else {
 		// 返回错误的结果(catch接受数据)
 		return Promise.reject({
-			statusCode: 0,
+			statusCode: res.response.statusCode,
 			errMsg: "【request】数据工厂验证不通过"
 		});
 	}

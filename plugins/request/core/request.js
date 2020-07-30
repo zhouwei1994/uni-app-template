@@ -11,7 +11,8 @@ export default class request {
 		this.config = options.config || {
 			isPrompt: true,
 			load: true,
-			isFactory: true
+			isFactory: true,
+            resend: 0
 		};
 	}
 	//post请求

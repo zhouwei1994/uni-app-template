@@ -29,14 +29,14 @@ export const wxShare = function (title,path) {
 	};
 	if(path && typeof(path) == "string"){
 		shareInfo.path = path;
-	}else if(path === undefined){
+	} else if(path === undefined){
 		shareInfo.path = base.share.path;
 	}
-	if (store.state.userInfo.token) {
+	if (store.state.userInfo.userUid) {
 		if (shareInfo.path.indexOf("?") >= 0) {
-			shareInfo.path += "&recommendCode=" + store.state.userInfo.uid;
+			shareInfo.path += "&recommendCode=" + store.state.userInfo.userUid;
 		} else {
-			shareInfo.path += "?recommendCode=" + store.state.userInfo.uid;
+			shareInfo.path += "?recommendCode=" + store.state.userInfo.userUid;
 		}
 	}
 	return shareInfo;

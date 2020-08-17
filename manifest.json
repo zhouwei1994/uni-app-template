@@ -12,6 +12,9 @@
     "versionName" : "1.0.0",
     "versionCode" : 100,
     "app-plus" : {
+        "compatible": {
+            "ignoreVersion": true
+        },
         "modules" : {
             "Maps" : {},
             "Payment" : {},

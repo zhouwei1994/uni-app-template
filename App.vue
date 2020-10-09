@@ -1,5 +1,5 @@
 <script>
-	import store from "@/config/store";
+	import store from "@/store";
 	import socket from "@/config/socket";
 	// #ifdef H5
 	import {

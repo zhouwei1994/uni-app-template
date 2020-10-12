@@ -13,7 +13,7 @@
 <script>
 	import zLoading  from "@/components/common/loading.vue"
 	// #ifdef MP-WEIXIN
-	import appletsLogin  from "@/components/common/applets_login.vue"
+	import appletsLogin  from "@/components/common/applets-login.vue"
 	// #endif
 	export default {
 		components:{

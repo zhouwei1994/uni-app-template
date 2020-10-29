@@ -1,8 +1,10 @@
 // 获取合并的数据
 export const mergeConfig = function(_this, options) {
 	//判断url是不是链接
-	let urlType = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~/])+$/.test(options.url);
-	let config = Object.assign({}, _this.config, options);
+	let urlType = /^(http|https):\/\//.test(options.url);
+	let config = Object.assign({
+		timeout: _this.timeout
+	}, _this.config, options);
 	if (options.method == "FILE") {
 		config.url = urlType ? options.url : _this.fileUrl + options.url;
 	} else {
@@ -12,21 +14,31 @@ export const mergeConfig = function(_this, options) {
 	if (options.header) {
 		config.header = Object.assign({}, _this.header, options.header);
 	} else {
-		config.header = _this.header;
+		config.header = Object.assign({}, _this.header);
 	}
 	return config;
 }
 // 请求
 export const dispatchRequest = function(requestInfo) {
 	return new Promise((resolve, reject) => {
+		let requestAbort = true;
 		let requestData = {
 			url: requestInfo.url,
 			header: requestInfo.header, //加入请求头
 			success: (res) => {
+				requestAbort = false;
 				resolve(res);
 			},
 			fail: (err) => {
-				reject(err);
+				requestAbort = false;
+				if(err.errMsg == "request:fail abort"){
+					reject({
+						errMsg: "请求超时，请重新尝试",
+						statusCode: 0,
+					});
+				} else {
+					reject(err);
+				}
 			}
 		};
 		//请求类型
@@ -54,7 +66,12 @@ export const dispatchRequest = function(requestInfo) {
 			requestData.withCredentials = requestInfo.withCredentials;
 		}
 		// #endif
-		uni.request(requestData);
+		let requestTask = uni.request(requestData);
+		setTimeout(() => {
+			if(requestAbort){
+				requestTask.abort();
+			}
+		}, requestInfo.timeout)
 	})
 }
 // jsonp请求

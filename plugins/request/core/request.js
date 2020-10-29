@@ -5,6 +5,10 @@ export default class request {
 		this.baseUrl = options.baseUrl || "";
 		//公共文件上传请求地址
 		this.fileUrl = options.fileUrl || "";
+		// 超时时间
+		this.timeout = options.timeout || 6000;
+		// 服务器上传图片默认url
+		this.defaultUploadUrl = options.defaultUploadUrl || "";
 		//默认请求头
 		this.header = options.header || {};
 		//默认配置
@@ -89,6 +93,10 @@ export default class request {
 					throw {
 						errMsg: "【request】请求开始拦截器未通过",
 						statusCode: 0,
+						data: requestInfo.data,
+						method: requestInfo.method,
+						header: requestInfo.header,
+						url: requestInfo.url,
 					}
 				}
 			}

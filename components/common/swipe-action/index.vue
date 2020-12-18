@@ -3,7 +3,7 @@
 		<view class="swipe_action_item" :style="{ width: (screenWidth + maxWidth) + 'px', transform: 'translateX(' + translateX + 'px)', transition: 'transform ' + animationTime + 'ms cubic-bezier(.165, .84, .44, 1)'  }">
 			<view class="swipe_action_content"><slot></slot></view>
 			<view class="swipe_action_btn_box" ref="swipeActionBtnBox">
-				<view v-for="(item,index) of options" :key="index" class="swipe_action_btn" :style="{
+				<view v-for="(item,index) of optionsList" :key="index" class="swipe_action_btn" :style="{
 				  backgroundColor: item.style && item.style.backgroundColor ? item.style.backgroundColor : '#C7C6CD'
 				}" @click.stop="onBtn(index,item)">
 				<text :style="{
@@ -73,7 +73,8 @@ export default {
 			animationTime: 0,
 			//上次的位置
 			currentX: 0,
-			screenWidth: 0
+			screenWidth: 0,
+			optionsList: []
 		};
 	},
 	watch:{
@@ -81,15 +82,19 @@ export default {
 			if(val){
 				this.animationTime = 350;
 				this.translateX = -this.maxWidth;
-			}else {
+			} else {
 				this.animationTime = 350;
 				this.translateX = 0;
 			}
-		}
+		},
+		options(val){
+			this.optionsList = val;
+		},
 	},
 	created() {
 		let systemInfo = uni.getSystemInfoSync();
 		this.screenWidth = systemInfo.screenWidth;
+		this.optionsList = this.options;
 	},
 	mounted() {
 		const _this = this;

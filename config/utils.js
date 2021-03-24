@@ -139,12 +139,22 @@ export const setPayAssign = function(orderInfo, callback) {
 	setPay({
 		...orderInfo,
 		type: "smallPay"
-	}, callback);
+	}, res => {
+		if(res.success){
+			uni.redirectTo({
+				url: "/pages/shopCar/paySuccess?orderNo=" + orderInfo.orderNo
+			});
+		}
+	});
 	// #endif
 	// #ifdef H5
 	if (getBrowser() === '微信') {
 		wxPublicPay({
 			orderNo: orderInfo.orderNo
+		}, function(){
+			uni.redirectTo({
+				url: "/pages/shopCar/paySuccess?orderNo=" + orderInfo.orderNo
+			});
 		});
 	} else {
 		appMutual('setJumpPay', orderInfo);

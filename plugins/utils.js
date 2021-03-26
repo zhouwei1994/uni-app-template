@@ -485,7 +485,6 @@ export const getAppWxLatLon = function(successCallback, errCallback) {
 
 //金额过滤
 Vue.filter('money', function(val) {
-	console.log(val);
 	if (val) {
 		let value = Math.round(parseFloat(val) * 100) / 100;
 		let valMoney = value.toString().split(".");

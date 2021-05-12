@@ -20,46 +20,22 @@
 | ----------------------------|--------------------------- |
 |![微信打赏二维码](http://qn.kemean.cn/upload/202006/17/15923814750253qjayobp.png)|![支付宝打赏二维码](http://qn.kemean.cn/upload/202006/17/1592381515304aezjp7h3.jpg)|
 
-### [H5预览地址](http://8.129.186.35/index.html)
-### [安卓APP安装包下载地址1.0.1（可体验版本更新）](http://qn.kemean.cn/upload/202006/10/1591785853646tulgw1o4.apk)
-### [安卓APP安装包下载地址1.1.0（最新版）](http://qn.kemean.cn/upload/202008/19/1597832954922s442039o.apk)
+### 常见问题
+1.怎么登录，没有账号？，
+
+答：自己注册账号登录，本地运行请先修改接口环境
+
+2.下载到本地运行，接口不能调用报错？
+
+答：在`config => baseUrl.js`文件里面`开发环境`的`baseUrl`和`socketUrl`域名设置为`https://twin-ui.com/`和`wss://twin-ui.com:6001/`
+
+
+### [H5预览地址](https://twin-ui.com/uniappDemo/index.html)
+### [安卓APP安装包下载地址（最新版）](http://qn.kemean.cn/upload/202104/14/16183932977309iisprxe.apk)
 ### [Demo版GitHub地址](https://github.com/zhouwei1994/uni-app-demo)
 ### [空项目模板GitHub地址（开发用这个）](https://github.com/zhouwei1994/uni-app-template)
-
-## 聊天案例项目
-### [聊天案例项目H5地址](http://8.129.186.35/chat/index.html)
-### [聊天案例项目安卓APP安装包下载地址](http://qn.kemean.cn/upload/202008/20/1597887768449e63qg66n.apk)
-
-### 文件说明
-1. components/chat-emojis.nvue 表情组件（表情、收藏表情图、表情包）
-2. components/chat-message.nvue 消息显示及类型组件
-3. components/chat-preview.nvue 图片及视频预览组件
-4. components/chat-tabbar.nvue 底部操作组件（语音、输入框、发送）
-5. utils/emojis.js 表情数据
-6. utils/utils.js 工具
-7. chat.nvue 聊天主页面
-8. config.js 聊天配置页面及对接页面（所有的聊天对接都提取到这里了）
-
-### 功能
-1. 发 文本和表情
-2. 发 表情图片
-3. 发 图片
-4. 发 视频
-5. 发 语音
-6. 发 位置
-7. 发 文件
-8. 发 商品
-9. 禁言
-
-### 支持聊天类型 
-1. 单聊
-2. 群聊
-
-### 消息渲染
-1. 发送图片、视频、文件先预渲染到页面（有上传进度），模仿微信上传图片
-2. 发送消息有发送中、发送失败（可点击重发）、发送成功
-3. 已读、未读（有样式、后端没实现）
-
+---
+### [后台管理地址（进入链接后点击案例预览）](https://twin-ui.com)
 
 ## 架构功能清单
 ### 组件示例

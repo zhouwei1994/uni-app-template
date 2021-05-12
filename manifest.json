@@ -1,7 +1,7 @@
 {
-    "name" : "uni项目",
+    "name" : "uniApp-案例",
     "appid" : "__UNI__uniProject",
-    "description" : "uni项目",
+    "description" : "uniApp-案例",
     "transformPx" : false,
     "icons" : [
         {
@@ -9,40 +9,38 @@
             "src" : "图片路径"
         }
     ],
-    "versionName" : "1.0.0",
-    "versionCode" : 100,
+    "versionName" : "1.2.0",
+    "versionCode" : 120,
     "app-plus" : {
-        "compatible": {
-            "ignoreVersion": true
+        "compatible" : {
+            "ignoreVersion" : true
         },
-		"privacy" : {
-		    "prompt" : "template",
-		    "template" : {
-		        "title" : "用户协议和隐私政策",
-		        "message" : "请你务必审慎阅读、充分理解“隐私政策”各条款，包括但不限于：为了更好的向你提供服务，我们需要收集你的设备标识、操作日志等信息用于分析、优化应用性能。<br/>　　你可阅读<a href='https://www.twin-ui.com'>《用户协议》</a>和<a href='https://www.twin-ui.com'>《隐私政策》</a>了解详细信息。如果你同意，请点击下面按钮开始接受我们的服务。",
-		        "buttonAccept" : "同意",
-		        "buttonRefuse" : "暂不同意"
-		    }
-		},
+        "privacy" : {
+            "prompt" : "template",
+            "template" : {
+                "title" : "用户协议和隐私政策",
+                "message" : "请你务必审慎阅读、充分理解“隐私政策”各条款，包括但不限于：为了更好的向你提供服务，我们需要收集你的设备标识、操作日志等信息用于分析、优化应用性能。<br/>　　你可阅读<a href='https://www.twin-ui.com'>《用户协议》</a>和<a href='https://www.twin-ui.com'>《隐私政策》</a>了解详细信息。如果你同意，请点击下面按钮开始接受我们的服务。",
+                "buttonAccept" : "同意",
+                "buttonRefuse" : "暂不同意"
+            }
+        },
         "modules" : {
-            "Maps" : {},
             "Payment" : {},
-            "Push" : {},
             "OAuth" : {},
             "Messaging" : {},
-            "Share" : {},
-            "VideoPlayer" : {}
+            "VideoPlayer" : {},
+            "Share" : {}
         },
         "distribute" : {
             "android" : {
-				"permissionPhoneState" : {
-				    "request" : "none",
-				    "prompt" : "为保证您正常、安全地使用，需要获取设备识别码（部分手机提示为获取手机号码）使用权限，请允许。"
-				},
-				"permissionExternalStorage" : {
-				    "request" : "none",
-				    "prompt" : "应用保存运行状态等信息，需要获取读写手机存储（系统提示为访问设备上的照片、媒体内容和文件）权限，请允许。"
-				},
+                "permissionPhoneState" : {
+                    "request" : "none",
+                    "prompt" : "为保证您正常、安全地使用，需要获取设备识别码（部分手机提示为获取手机号码）使用权限，请允许。"
+                },
+                "permissionExternalStorage" : {
+                    "request" : "none",
+                    "prompt" : "应用保存运行状态等信息，需要获取读写手机存储（系统提示为访问设备上的照片、媒体内容和文件）权限，请允许。"
+                },
                 "permissions" : [
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
@@ -77,7 +75,13 @@
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
             },
             "sdkConfigs" : {
-                "ad" : {}
+                "ad" : {},
+                "maps" : {},
+                "share" : {}
+            },
+            "splashscreen" : {
+                "iosStyle" : "storyboard",
+                "androidStyle" : "common"
             }
         },
         "compilerVersion" : 3,
@@ -105,7 +109,7 @@
         "template" : "template.h5.html",
         "router" : {
             "mode" : "hash",
-            "base" : "/"
+            "base" : "/uniappDemo/"
         },
         "optimization" : {
             "treeShaking" : {

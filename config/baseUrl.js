@@ -2,15 +2,16 @@ let baseUrl = "";
 let socketUrl = "";
 if (process.env.NODE_ENV === 'development') {
 	// 开发环境
-	baseUrl = "http://192.168.1.10:7001/";
-	socketUrl = "ws://localhost:8001/";
+	// baseUrl = "http://localhost:7001/";
+	// socketUrl = "ws://localhost:6001/";
+	baseUrl = "https://twin-ui.com/demo/";
+	// socketUrl = "ws://8.129.186.35:6001/";
 } else if (process.env.NODE_ENV === 'production') {
 	// 生产环境
-	baseUrl = "http://192.168.1.10:7001/";
-	socketUrl = "ws://localhost:8001/";
+	baseUrl = "https://twin-ui.com/demo/";
+	// socketUrl = "ws://twin-ui.com:6001/";
 }
 const courtConfig = {
-	//微信小程序appid=
 	//微信公众号APPID
 	publicAppId: "",
 	//请求接口

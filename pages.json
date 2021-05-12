@@ -3,41 +3,74 @@
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "确报"
+				"navigationBarTitleText": "首页"
 			}
-		}, 
+		},
 		{
-			"path": "pages/service/service",
+			"path": "pages/home/webView",
 			"style": {
-				"navigationBarTitleText": "自助服务"
+				"navigationBarTitleText": "",
+				"navigationStyle": "default"
 			}
-		}, 
+		},
 		{
-			"path": "pages/my/my",
+			"path": "pages/user/bindPhone",
 			"style": {
-				"navigationBarTitleText": "个人中心"
+				"navigationBarTitleText": "绑定手机号"
 			}
-		}, 
+		},
 		{
-			"path": "pages/user/bind",
+			"path": "pages/user/forget",
 			"style": {
-				"navigationBarTitleText": "绑定"
+				"navigationBarTitleText": "忘记密码"
 			}
-		}, 
+		},
 		{
 			"path": "pages/user/protocol",
 			"style": {
 				"navigationBarTitleText": "协议"
 			}
-		}, 
+		},
 		{
-			"path": "pages/home/webView",
+			"path": "pages/user/register",
 			"style": {
-				"navigationBarTitleText": ""
+				"navigationBarTitleText": "注册"
 			}
-		}
-		
-	],
+		},
+		{
+			"path": "pages/user/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+	    {
+            "path" : "pages/my/my",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/shopCar/shopCar",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "购物车",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/order/order",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "订单",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
@@ -50,35 +83,38 @@
 		"selectedColor": "#FF80AB",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"list": [
-			{
+		"list": [{
 				"pagePath": "pages/home/home",
 				"iconPath": "static/icon/tab/icon_home.png",
 				"selectedIconPath": "static/icon/tab/icon_home_c.png",
-				"text": "确报"
+				"text": "首页"
 			},
 			{
-				"pagePath": "pages/service/service",
+				"pagePath": "pages/shopCar/shopCar",
 				"iconPath": "static/icon/tab/icon_wode.png",
 				"selectedIconPath": "static/icon/tab/icon_wode_c.png",
-				"text": "自助服务"
+				"text": "购物车"
+			},
+			{
+				"pagePath": "pages/order/order",
+				"iconPath": "static/icon/tab/icon_xiaoxi.png",
+				"selectedIconPath": "static/icon/tab/icon_xiaoxi_c.png",
+				"text": "订单"
 			},
 			{
 				"pagePath": "pages/my/my",
 				"iconPath": "static/icon/tab/icon_xiaoxi.png",
 				"selectedIconPath": "static/icon/tab/icon_xiaoxi_c.png",
-				"text": "个人中心"
+				"text": "我的"
 			}
 		]
 	},
 	"condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式(list 的索引项)
-		"list": [
-			{
-				"name": "", //模式名称
-				"path": "", //启动页面，必选
-				"query": "" //启动参数，在页面的onLoad函数里面得到
-			}
-		]
+		"list": [{
+			"name": "", //模式名称
+			"path": "", //启动页面，必选
+			"query": "" //启动参数，在页面的onLoad函数里面得到
+		}]
 	}
 }

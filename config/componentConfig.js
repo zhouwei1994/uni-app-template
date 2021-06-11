@@ -1,4 +1,5 @@
 import $http from '@/config/requestConfig'
+const platform = uni.getSystemInfoSync().platform;
 export default {
 	/****************以下是z-nav-bar插件配置*******************/
 	// 主页页面的页面路径

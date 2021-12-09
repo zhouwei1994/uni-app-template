@@ -16,8 +16,6 @@ export default {
 			version: version.versionCode,
 			// 版本名称
 		    versionName: version.versionName,
-			// setupPage参数说明（判断用户是不是从设置页面点击的更新，如果是设置页面点击的更新，有不要用静默更新了，不然用户点击没反应很奇怪的）
-			setupPage: isPrompt   
 		};
 		if (platform == "android") {
 			httpData.type = 1101;
@@ -44,6 +42,10 @@ export default {
 			 * | downloadUrl	 | y	    | String	| 版本下载链接（IOS安装包更新请放跳转store应用商店链接,安卓apk和wgt文件放文件下载链接）  |
 			 */
 			if (res && res.downloadUrl) {
+				// 判断用户是不是从设置页面点击的更新，如果是设置页面点击的更新，无视接口给的更新类型，强制修改为弹窗确认更新
+				if(isPrompt){
+					res.updateType = "solicit";
+				}
 				// 兼容之前的版本（updateType是新版才有的参数）
 				if(res.updateType){
 					callback && callback(res);
